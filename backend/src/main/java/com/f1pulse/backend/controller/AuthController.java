@@ -1,8 +1,11 @@
 package com.f1pulse.backend.controller;
 
+import com.f1pulse.backend.dto.AuthRequest;
 import com.f1pulse.backend.model.User;
 import com.f1pulse.backend.repository.UserRepository;
 import com.f1pulse.backend.security.JWTUtil;
+
+import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,18 +30,19 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // ✅ REGISTER
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
+    public String register(@Valid @RequestBody AuthRequest request) {
 
-        Optional<User> existing = userRepository.findByUsername(user.getUsername());
+        Optional<User> existing = userRepository.findByUsername(request.getUsername());
 
         if (existing.isPresent()) {
             throw new RuntimeException("Username already exists");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // ✅ DEFAULT ROLE
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("USER");
 
         userRepository.save(user);
@@ -46,15 +50,16 @@ public class AuthController {
         return "User registered";
     }
 
+    // ✅ LOGIN
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
+    public String login(@Valid @RequestBody AuthRequest request) {
 
-        Optional<User> existing = userRepository.findByUsername(user.getUsername());
+        Optional<User> existing = userRepository.findByUsername(request.getUsername());
 
         if (existing.isPresent() &&
-            passwordEncoder.matches(user.getPassword(), existing.get().getPassword())) {
+            passwordEncoder.matches(request.getPassword(), existing.get().getPassword())) {
 
-            return jwtUtil.generateToken(user.getUsername());
+            return jwtUtil.generateToken(request.getUsername());
         }
 
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
