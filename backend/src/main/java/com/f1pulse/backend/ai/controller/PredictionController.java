@@ -1,12 +1,11 @@
 package com.f1pulse.backend.ai.controller;
 
-import com.f1pulse.backend.ai.dto.DriverInsightsResponseDTO;
 import com.f1pulse.backend.ai.dto.PredictionRequestDTO;
 import com.f1pulse.backend.ai.dto.PredictionResponseDTO;
 import com.f1pulse.backend.ai.service.PredictionService;
+import com.f1pulse.backend.dto.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-import com.f1pulse.backend.dto.ApiResponse;;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -19,26 +18,16 @@ public class PredictionController {
     }
 
     @PostMapping("/predict")
-public ApiResponse<PredictionResponseDTO> predict(
-        @Valid @RequestBody PredictionRequestDTO request
-) {
-    PredictionResponseDTO response = predictionService.predictRaceOutcome(request);
+    public ApiResponse<PredictionResponseDTO> predict(
+            @Valid @RequestBody PredictionRequestDTO request
+    ) {
+        PredictionResponseDTO response =
+                predictionService.predictRaceOutcome(request);
 
-    return new ApiResponse<>(
-            true,
-            "Prediction successful",
-            response
-    );
-}
-@GetMapping("/driver/{driverId}/insights")
-public ApiResponse<DriverInsightsResponseDTO> getDriverInsights(@PathVariable Long driverId) {
-
-    DriverInsightsResponseDTO data = predictionService.getDriverInsights(driverId);
-
-    return new ApiResponse<>(
-            true,
-            "Driver insights generated",
-            data
-    );
-}
+        return new ApiResponse<>(
+                true,
+                "Prediction successful",
+                response
+        );
+    }
 }

@@ -22,10 +22,10 @@ public class SyncService {
     private final long CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
     public SyncService(DriverRepository driverRepository,
-                       TeamRepository teamRepository,
-                       RaceRepository raceRepository,
-                       SyncMetaRepository syncMetaRepository,
-                       F1ApiClient f1ApiClient) {
+            TeamRepository teamRepository,
+            RaceRepository raceRepository,
+            SyncMetaRepository syncMetaRepository,
+            F1ApiClient f1ApiClient) {
 
         this.driverRepository = driverRepository;
         this.teamRepository = teamRepository;
@@ -49,121 +49,120 @@ public class SyncService {
 
     // ================= DRIVERS =================
 
-   
     public List<Driver> syncDrivers() {
-    try {
-        String key = "drivers";
+        try {
+            String key = "drivers";
 
-        if (!shouldSync(key)) {
-            log.info("Using cached drivers data");
-            return driverRepository.findAll();
-        }
-
-        log.info("Syncing fresh drivers data");
-
-        List<DriverDTO> dtos = f1ApiClient.fetchDrivers();
-        List<Driver> drivers = new ArrayList<>();
-
-        for (DriverDTO dto : dtos) {
-
-            Driver existing = driverRepository.findByCode(dto.getCode());
-
-            if (existing != null) {
-                existing.setName(dto.getName());
-                existing.setNationality(dto.getNationality());
-                drivers.add(existing);
-            } else {
-                drivers.add(new Driver(
-                        dto.getName(),
-                        dto.getCode(),
-                        dto.getNationality()
-                ));
+            if (!shouldSync(key)) {
+                log.info("Using cached drivers data");
+                return driverRepository.findAll();
             }
+
+            log.info("Syncing fresh drivers data");
+
+            List<DriverDTO> dtos = f1ApiClient.fetchDrivers();
+            List<Driver> drivers = new ArrayList<>();
+
+            for (DriverDTO dto : dtos) {
+
+                Driver existing = driverRepository.findByCode(dto.getCode());
+
+                if (existing != null) {
+                    existing.setName(dto.getName());
+                    existing.setNationality(dto.getNationality());
+                    drivers.add(existing);
+                } else {
+                    drivers.add(new Driver(
+                            dto.getName(),
+                            dto.getCode(),
+                            dto.getNationality()));
+                }
+            }
+
+            updateSyncTime(key);
+
+            return driverRepository.saveAll(drivers);
+
+        } catch (Exception e) {
+            log.error("Error syncing drivers: {}", e.getMessage());
+            throw e;
         }
-
-        updateSyncTime(key);
-
-        return driverRepository.saveAll(drivers);
-
-    } catch (Exception e) {
-        log.error("Error syncing drivers: {}", e.getMessage());
-        throw e;
     }
-}
-
 
     public List<Team> syncTeams() {
         try {
-     String key = "teams";
+            String key = "teams";
 
-        if (!shouldSync(key)) {
-            System.out.println("Using cached teams data");
-            return teamRepository.findAll();
+            if (!shouldSync(key)) {
+                System.out.println("Using cached teams data");
+                return teamRepository.findAll();
+            }
+
+            System.out.println("Syncing fresh teams data");
+
+            List<TeamDTO> dtos = f1ApiClient.fetchTeams();
+            List<Team> teams = new ArrayList<>();
+
+            for (TeamDTO dto : dtos) {
+
+                Team existing = teamRepository.findByName(dto.getName());
+
+                if (existing != null) {
+                    existing.setNationality(dto.getNationality());
+                    teams.add(existing);
+                } else {
+                    teams.add(new Team(
+                            dto.getName(),
+                            dto.getNationality()));
+                }
+            }
+
+            updateSyncTime(key);
+
+            return teamRepository.saveAll(teams);
+        } catch (Exception e) {
+            log.error("Error syncing drivers: {}", e.getMessage());
+            throw e;
         }
-
-        System.out.println("Syncing fresh teams data");
-
-        List<TeamDTO> dtos = f1ApiClient.fetchTeams();
-        List<Team> teams = new ArrayList<>();
-
-        for (TeamDTO dto : dtos) {
-
-    Team existing = teamRepository.findByName(dto.getName());
-
-    if (existing != null) {
-        existing.setNationality(dto.getNationality());
-        teams.add(existing);
-    } else {
-        teams.add(new Team(
-                dto.getName(),
-                dto.getNationality()
-        ));
-    }
-}
-
-        updateSyncTime(key);
-
-        return teamRepository.saveAll(teams);
-} catch (Exception e) {
-    log.error("Error syncing drivers: {}", e.getMessage());
-    throw e;
-}
     }
 
     // ================= RACES =================
 
-    
     public List<Race> syncRaces() {
         try {
-    
-        String key = "races";
 
-        if (!shouldSync(key)) {
-            System.out.println("Using cached races data");
-            return raceRepository.findAll();
+            String key = "races";
+
+            if (!shouldSync(key)) {
+                System.out.println("Using cached races data");
+                return raceRepository.findAll();
+            }
+
+            System.out.println("Syncing fresh races data");
+
+            List<RaceDTO> dtos = f1ApiClient.fetchRaces();
+            List<Race> races = new ArrayList<>();
+
+            for (RaceDTO dto : dtos) {
+
+                Driver driver = driverRepository.findAll().get(0); // temporary mapping
+
+                races.add(new Race(
+                        driver,
+                        dto.getRaceName(),
+                        dto.getCircuitName(),
+                        dto.getLocation(),
+                        dto.getCountry(),
+                        dto.getDate(),
+                        new java.util.Random().nextInt(20) + 1));
+            }
+
+            updateSyncTime(key);
+
+            return raceRepository.saveAll(races);
+        } catch (Exception e) {
+            log.error("Error syncing drivers: {}", e.getMessage());
+            throw e;
         }
-
-        System.out.println("Syncing fresh races data");
-
-        List<RaceDTO> dtos = f1ApiClient.fetchRaces();
-        List<Race> races = new ArrayList<>();
-
-        for (RaceDTO dto : dtos) {
-            races.add(new Race(
-                    dto.getRaceName(),
-                    dto.getCircuitName(),
-                    dto.getLocation(),
-                    dto.getCountry(),
-                    dto.getDate()
-            ));
-        }
-
-        updateSyncTime(key);
-
-        return raceRepository.saveAll(races);
-} catch (Exception e) {
-    log.error("Error syncing drivers: {}", e.getMessage());
-    throw e;
-}
     }
 }
