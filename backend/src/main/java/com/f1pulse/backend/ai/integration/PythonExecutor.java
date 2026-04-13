@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 
 @Component
 public class PythonExecutor {
@@ -21,16 +22,23 @@ public class PythonExecutor {
             logger.info("Script Path: {}", scriptPath);
             logger.info("Input JSON: {}", inputJson);
 
+            // ❌ REMOVE inputJson from arguments
             ProcessBuilder processBuilder = new ProcessBuilder(
                     pythonPath,
-                    scriptPath,
-                    inputJson
+                    scriptPath
             );
 
             processBuilder.redirectErrorStream(true);
 
             Process process = processBuilder.start();
 
+            // 🔥 SEND JSON VIA STDIN (CRITICAL)
+            try (OutputStream os = process.getOutputStream()) {
+                os.write(inputJson.getBytes());
+                os.flush();
+            } // 🔥 THIS CLOSES STREAM → sends EOF
+
+            // 🔥 READ OUTPUT
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream())
             );
