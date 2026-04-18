@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* -------------------- */
-/* GLOBAL BASE STYLES   */
-/* -------------------- */
-
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -19,7 +15,6 @@
     @apply font-display uppercase tracking-widePlus;
   }
 
-  /* Scrollbar Styling (subtle, premium feel) */
   ::-webkit-scrollbar {
     width: 8px;
   }
@@ -38,68 +33,58 @@
   }
 }
 
-/* -------------------- */
-/* COMPONENT UTILITIES  */
-/* -------------------- */
-
 @layer components {
 
-  /* 🔴 F1 Racing Divider */
   .racing-divider {
     @apply w-full h-[2px] bg-primary my-4;
   }
 
-  /* 🧱 Card Base */
   .card {
     @apply bg-secondary border border-border rounded-2xl p-5 shadow-subtle;
   }
 
-  /* 🏁 Elevated Surface */
   .surface {
     @apply bg-surface border border-border rounded-2xl p-5;
   }
 
-  /* 🔥 Primary Button (F1 Red) */
+  /* 🔥 Improved Button */
   .btn-primary {
     @apply bg-primary text-white font-display uppercase tracking-widePlus px-6 py-3 rounded-lg transition-all duration-200 ease-smooth;
   }
 
   .btn-primary:hover {
-    @apply scale-[1.03];
+    transform: translateY(-1px) scale(1.02);
   }
 
-  /* ⚪ Secondary Button */
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
   .btn-secondary {
     @apply bg-surface text-textPrimary border border-border px-5 py-2 rounded-lg;
   }
 
-  /* 📥 Input Field */
+  /* 🔥 Improved Input */
   .input-field {
-    @apply w-full bg-secondary border border-border text-textPrimary px-4 py-2 rounded-lg outline-none transition-all duration-200;
+    @apply w-full bg-secondary border border-border text-textPrimary px-4 py-3 rounded-lg outline-none transition-all duration-200;
   }
 
   .input-field:focus {
     @apply border-primary;
+    box-shadow: 0 0 0 1px #E8002D;
   }
 }
 
-/* -------------------- */
-/* UTILITY ENHANCEMENTS */
-/* -------------------- */
-
 @layer utilities {
 
-  /* 🏎️ Big Stat Numbers */
   .stat-number {
     @apply font-mono text-4xl font-semibold;
   }
 
-  /* 🥇 Podium Highlight */
   .gold-text {
     color: #C9A84C;
   }
 
-  /* 🔴 Left Accent Border (used in active nav / highlights) */
   .left-accent {
     @apply border-l-4 border-primary pl-3;
   }

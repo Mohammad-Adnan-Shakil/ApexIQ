@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import AIPage from "./pages/AIPage";
 import Drivers from "./pages/Drivers";
 import Races from "./pages/Races";
-import Constructors from "./pages/Constructors";
+import Constructors from "./pages/Teams";
 import Profile from "./pages/Profile";
 
 function App() {

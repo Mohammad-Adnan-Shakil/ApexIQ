@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/axios";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,10 +17,7 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -29,11 +27,10 @@ const Login = () => {
 
     try {
       const res = await api.post("/auth/login", form);
-
-      login(res.data); // store token + user
+      login(res.data);
       navigate("/dashboard");
     } catch (err) {
-        console.log(err);
+      console.log(err);
       setError("Invalid email or password");
     } finally {
       setLoading(false);
@@ -43,83 +40,60 @@ const Login = () => {
   return (
     <div className="h-screen flex">
 
-      {/* LEFT SIDE — BRANDING */}
+      {/* LEFT */}
       <div className="hidden md:flex w-1/2 bg-background items-center justify-center relative">
-
-        {/* Red vertical stripe */}
         <div className="absolute right-0 top-0 h-full w-[3px] bg-primary"></div>
 
         <div className="px-12">
-          <h1 className="font-display text-6xl text-textPrimary tracking-widePlus">
-            F1 PULSE
-          </h1>
+          <h1 className="text-7xl">F1 PULSE</h1>
 
           <div className="racing-divider mt-4 mb-6"></div>
 
-          <p className="text-textSecondary text-lg max-w-md">
+          <p className="text-textSecondary text-lg max-w-md leading-relaxed">
             AI-powered Formula 1 intelligence platform for race prediction,
             performance insights, and strategic simulation.
           </p>
         </div>
       </div>
 
-      {/* RIGHT SIDE — FORM */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-background px-6">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md space-y-6"
-        >
-          <h2 className="font-display text-3xl tracking-widePlus">
-            LOGIN
-          </h2>
+      {/* RIGHT */}
+      <motion.div
+        className="w-full md:w-1/2 flex items-center justify-center bg-background px-6"
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
 
+          <h2 className="text-3xl">LOGIN</h2>
           <div className="racing-divider"></div>
 
-          {/* Email */}
-          <div>
-            <label className="text-sm text-textSecondary mb-1 block">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            className="input-field"
+            required
+          />
 
-          {/* Password */}
-          <div>
-            <label className="text-sm text-textSecondary mb-1 block">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            className="input-field"
+            required
+          />
 
-          {/* Error */}
-          {error && (
-            <p className="text-danger text-sm">{error}</p>
-          )}
+          {error && <p className="text-danger text-sm">{error}</p>}
 
-          {/* Button */}
-          <button
-            type="submit"
-            className="btn-primary w-full"
-            disabled={loading}
-          >
-            {loading ? "SIGNING IN..." : "SIGN IN"}
+          <button className="btn-primary w-full" disabled={loading}>
+            {loading ? "SIGNING IN..." : "ACCESS DASHBOARD"}
           </button>
 
-          {/* Register Link */}
           <p className="text-sm text-textSecondary text-center">
             Don’t have an account?{" "}
             <span
@@ -129,8 +103,9 @@ const Login = () => {
               Register
             </span>
           </p>
+
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };
