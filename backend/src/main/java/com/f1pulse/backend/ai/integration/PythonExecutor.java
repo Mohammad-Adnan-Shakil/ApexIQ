@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.f1pulse.backend.service.AIService;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -67,5 +69,10 @@ public class PythonExecutor {
             logger.error("Error executing Python script", e);
             throw new RuntimeException("Error executing Python script", e);
         }
+    }
+
+    public static <JsonNode> JsonNode runScript(String scriptPath, String jsonInput) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'runScript'");
     }
 }

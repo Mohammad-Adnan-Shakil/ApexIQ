@@ -1,12 +1,10 @@
 package com.f1pulse.backend.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import com.f1pulse.backend.dto.DriverIntelligenceResponse;
 import com.f1pulse.backend.service.AIService;
-import com.f1pulse.backend.dto.DriverInsightResponse;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -18,10 +16,10 @@ public class AIController {
         this.aiService = aiService;
     }
 
-    @GetMapping("/driver-insights/{driverId}")
-    public ResponseEntity<DriverInsightResponse> getDriverInsights(
+    @GetMapping("/driver-intelligence/{driverId}")
+    public ResponseEntity<DriverIntelligenceResponse> getDriverIntelligence(
             @PathVariable Long driverId
     ) {
-        return ResponseEntity.ok(aiService.getDriverInsights(driverId));
+        return ResponseEntity.ok(aiService.getDriverIntelligence(driverId));
     }
 }

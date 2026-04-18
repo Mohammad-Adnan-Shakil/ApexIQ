@@ -1,17 +1,16 @@
 package com.f1pulse.backend.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Service;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.List;
-
-import com.f1pulse.backend.dto.DriverInsightResponse;
+import com.f1pulse.backend.dto.DriverIntelligenceResponse;
 import com.f1pulse.backend.model.Race;
 import com.f1pulse.backend.repository.RaceRepository;
+import com.f1pulse.backend.util.PythonExecutor;
 import com.f1pulse.backend.util.StatsUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 @Service
 public class AIService {
 
@@ -21,12 +20,15 @@ public class AIService {
         this.raceRepository = raceRepository;
     }
 
-    public DriverInsightResponse getDriverInsights(Long driverId) {
+    public DriverIntelligenceResponse getDriverIntelligence(Long driverId) {
 
-        // 🔹 Step 1: Fetch recent races
+        // 🔹 1. Fetch recent races
         List<Race> races = raceRepository.findTop10ByDriverIdOrderByDateDesc(driverId);
 
-        // 🔹 Step 2: Stats (you already built StatsUtil)
+        if (races == null || races.isEmpty()) {
+            throw new RuntimeException("No race data found for driver: " + driverId);
+        }
+
         double avgLast5 = StatsUtil.calculateAverage(races, 5);
         double stdLast5 = StatsUtil.calculateStdDev(races, 5);
 
@@ -35,73 +37,41 @@ public class AIService {
 
         double lastRacePosition = races.get(0).getPosition();
 
-        // 🔹 Step 3: Call ML
-        double predicted = callRFModel(
-                driverId,
-                avgLast5,
-                stdLast5,
-                avgLast10,
-                stdLast10,
-                lastRacePosition
+        // 🔹 2. Build input JSON
+        String jsonInput = String.format(
+            "{\"driver_id\":%d,\"avg_last_5\":%.2f,\"std_last_5\":%.2f,\"avg_last_10\":%.2f,\"std_last_10\":%.2f,\"last_race_position\":%.2f," +
+            "\"qualifying_position\":2,\"constructor_id\":\"red_bull\",\"track_id\":\"monza\",\"season_year\":2026," +
+            "\"recent_avg_position_last_5\":%.2f,\"recent_std_last_5\":%.2f,\"grid_position\":2,\"is_home_race\":0}",
+            driverId, avgLast5, stdLast5, avgLast10, stdLast10, lastRacePosition,
+            avgLast5, stdLast5
         );
 
-        // 🔹 Step 4: Insight logic
-        String insight;
-        if (predicted < avgLast5) {
-            insight = "Driver is improving based on recent performance";
-        } else {
-            insight = "Driver performance is inconsistent or declining";
+        // 🔹 3. Call orchestrator
+        String scriptPath = "ml/scripts/ai_orchestrator.py";
+
+        JsonNode result = PythonExecutor.runScript(scriptPath, jsonInput);
+
+        // 🔥 DEBUG
+        System.out.println("AI Orchestrator Output: " + result);
+
+        // 🔥 ERROR HANDLING
+        if (result == null) {
+            throw new RuntimeException("AI Orchestrator returned null response");
         }
 
-        // 🔹 Step 5: Response
-        DriverInsightResponse res = new DriverInsightResponse();
+        if (result.has("error")) {
+            throw new RuntimeException("AI Orchestrator error: " + result.get("error").asText());
+        }
+
+        // 🔹 4. Safe Mapping
+        DriverIntelligenceResponse res = new DriverIntelligenceResponse();
         res.setDriverId(driverId);
-        res.setAvgLast5(avgLast5);
-        res.setStdLast5(stdLast5);
-        res.setAvgLast10(avgLast10);
-        res.setStdLast10(stdLast10);
-        res.setPredictedNextPosition(predicted);
-        res.setInsight(insight);
+
+        res.setRfPrediction(result.path("rf_prediction").asDouble());
+        res.setXgbPrediction(result.path("xgb_prediction").asDouble());
+        res.setSimulationImpact(result.path("simulation_impact").asText());
+        res.setFinalInsight(result.path("final_insight").asText());
 
         return res;
-    }
-
-    private double callRFModel(Long driverId,
-                               double avgLast5,
-                               double stdLast5,
-                               double avgLast10,
-                               double stdLast10,
-                               double lastRacePosition) {
-
-        try {
-            String json = String.format(
-                    "{\"driver_id\":%d,\"avg_last_5\":%.2f,\"std_last_5\":%.2f,\"avg_last_10\":%.2f,\"std_last_10\":%.2f,\"last_race_position\":%.2f}",
-                    driverId, avgLast5, stdLast5, avgLast10, stdLast10, lastRacePosition
-            );
-
-            ProcessBuilder pb = new ProcessBuilder(
-                    "python",
-                    "ml/scripts/predict_rf.py",
-                    json
-            );
-
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream())
-            );
-
-            String output = reader.readLine();
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode node = mapper.readTree(output);
-
-            return node.get("predicted_next_position").asDouble();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return -1;
-        }
     }
 }
