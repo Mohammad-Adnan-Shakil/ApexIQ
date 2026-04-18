@@ -19,8 +19,17 @@ public class Driver {
     private String code;
     private String name;
     private String nationality;
+    private Long teamId;
 
     public Driver() {}
+
+    public Long getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(Long teamId) {
+        this.teamId = teamId;
+    }
 
     public Driver(String code, String name, String nationality) {
         this.code = code;
