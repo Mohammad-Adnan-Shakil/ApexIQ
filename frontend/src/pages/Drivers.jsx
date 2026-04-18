@@ -1,67 +1,88 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/axios";
 
-function Drivers() {
+const Drivers = () => {
   const [drivers, setDrivers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // 🔹 Fetch from DB
-  const fetchDrivers = async () => {
-    try {
-      const res = await axios.get("http://localhost:8080/api/f1/drivers/db");
-      setDrivers(res.data);
-    } catch (err) {
-      console.error("Error fetching drivers:", err);
-    }
-  };
-
-  // 🔹 Sync (API → DB → UI)
-  const syncDrivers = async () => {
-    setLoading(true);
-    try {
-      await axios.post("http://localhost:8080/api/f1/drivers/save");
-      await fetchDrivers(); // refresh UI
-    } catch (err) {
-      console.error("Sync failed:", err);
-    }
-    setLoading(false);
-  };
-
-  // 🔹 Initial load
   useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const res = await api.get("/drivers");
+        setDrivers(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchDrivers();
   }, []);
 
+  const filteredDrivers = drivers.filter((d) =>
+    d.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return <div className="card">Loading drivers...</div>;
+  }
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Drivers</h1>
+    <div className="space-y-6">
 
-      {/* 🔹 Sync Button */}
-      <button
-        onClick={syncDrivers}
-        className="mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-      >
-        Sync Latest Data
-      </button>
-
-      {/* 🔹 Loading */}
-      {loading && <p className="mb-4 text-yellow-400">Syncing data...</p>}
-
-      {/* 🔹 Drivers Grid */}
-      <div className="grid grid-cols-3 gap-4">
-        {drivers.map((driver) => (
-          <div
-            key={driver.id}
-            className="bg-gray-800 text-white p-4 rounded-lg shadow hover:scale-105 transition"
-          >
-            <h2 className="text-lg font-bold">{driver.name}</h2>
-            <p className="text-sm text-gray-400">{driver.code}</p>
-            <p className="text-sm">{driver.nationality}</p>
-          </div>
-        ))}
+      {/* HEADER */}
+      <div>
+        <h1 className="text-2xl">DRIVERS</h1>
+        <div className="racing-divider"></div>
       </div>
+
+      {/* SEARCH */}
+      <div className="card">
+        <input
+          type="text"
+          placeholder="Search drivers..."
+          className="input-field"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* TABLE */}
+      <div className="card overflow-x-auto">
+        <table className="w-full text-left">
+
+          <thead className="border-b border-border text-textSecondary">
+            <tr>
+              <th className="py-3">Driver</th>
+              <th>Team</th>
+              <th>Points</th>
+              <th>Wins</th>
+              <th>Podiums</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredDrivers.map((d) => (
+              <tr
+                key={d.driverId}
+                className="border-b border-border hover:bg-[#111] transition-all"
+              >
+                <td className="py-3 font-medium">{d.name}</td>
+                <td>{d.team}</td>
+                <td className="font-mono">{d.points}</td>
+                <td className="font-mono">{d.wins}</td>
+                <td className="font-mono">{d.podiums}</td>
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+      </div>
+
     </div>
   );
-}
+};
 
 export default Drivers;
