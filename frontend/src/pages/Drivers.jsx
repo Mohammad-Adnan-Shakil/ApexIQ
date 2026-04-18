@@ -5,6 +5,7 @@ const Drivers = () => {
   const [drivers, setDrivers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchDrivers = async () => {
@@ -13,6 +14,7 @@ const Drivers = () => {
         setDrivers(res.data);
       } catch (err) {
         console.error(err);
+        setError("Failed to load drivers");
       } finally {
         setLoading(false);
       }
@@ -26,19 +28,21 @@ const Drivers = () => {
   );
 
   if (loading) {
-    return <div className="card">Loading drivers...</div>;
+    return <div className="card animate-pulse h-40"></div>;
+  }
+
+  if (error) {
+    return <div className="card text-danger">{error}</div>;
   }
 
   return (
     <div className="space-y-6">
 
-      {/* HEADER */}
       <div>
         <h1 className="text-2xl">DRIVERS</h1>
         <div className="racing-divider"></div>
       </div>
 
-      {/* SEARCH */}
       <div className="card">
         <input
           type="text"
@@ -49,7 +53,6 @@ const Drivers = () => {
         />
       </div>
 
-      {/* TABLE */}
       <div className="card overflow-x-auto">
         <table className="w-full text-left">
 
@@ -65,15 +68,12 @@ const Drivers = () => {
 
           <tbody>
             {filteredDrivers.map((d) => (
-              <tr
-                key={d.driverId}
-                className="border-b border-border hover:bg-[#111] transition-all"
-              >
-                <td className="py-3 font-medium">{d.name}</td>
+              <tr key={d.driverId} className="border-b border-border hover:bg-[#111]">
+                <td className="py-3">{d.name}</td>
                 <td>{d.team}</td>
-                <td className="font-mono">{d.points}</td>
-                <td className="font-mono">{d.wins}</td>
-                <td className="font-mono">{d.podiums}</td>
+                <td>{d.points}</td>
+                <td>{d.wins}</td>
+                <td>{d.podiums}</td>
               </tr>
             ))}
           </tbody>

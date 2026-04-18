@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../utils/axios";
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer
+} from "recharts";
 
 const Dashboard = () => {
   const [drivers, setDrivers] = useState([]);
   const [races, setRaces] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,6 +22,7 @@ const Dashboard = () => {
         setRaces(racesRes.data);
       } catch (err) {
         console.error(err);
+        setError("Failed to load dashboard");
       } finally {
         setLoading(false);
       }
@@ -26,67 +31,85 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  // ✅ FIX: inside component
+  const chartData = drivers.slice(0, 5).map((d) => ({
+    name: d.name,
+    points: d.points,
+  }));
+
   if (loading) {
-    return <div className="card">Loading dashboard...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="card animate-pulse h-24"></div>
+          ))}
+        </div>
+        <div className="card animate-pulse h-40"></div>
+        <div className="card animate-pulse h-40"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="card text-danger">{error}</div>;
   }
 
   return (
     <div className="space-y-6">
 
-      {/* 🔥 TOP STATS */}
+      {/* Stats */}
       <div className="grid grid-cols-3 gap-6">
-
         <div className="card">
-          <p className="text-textSecondary">Total Drivers</p>
+          <p>Total Drivers</p>
           <p className="stat-number">{drivers.length}</p>
         </div>
 
         <div className="card">
-          <p className="text-textSecondary">Total Races</p>
+          <p>Total Races</p>
           <p className="stat-number">{races.length}</p>
         </div>
 
         <div className="card">
-          <p className="text-textSecondary">Top Driver</p>
-          <p className="stat-number">
-            {drivers[0]?.name || "N/A"}
-          </p>
-        </div>
-
-      </div>
-
-      {/* 🏁 RECENT DRIVERS */}
-      <div className="card">
-        <h2 className="text-xl mb-4">Top Drivers</h2>
-
-        <div className="space-y-3">
-          {drivers.slice(0, 5).map((d) => (
-            <div
-              key={d.driverId}
-              className="flex justify-between border-b border-border pb-2"
-            >
-              <span>{d.name}</span>
-              <span className="text-textSecondary">{d.team}</span>
-            </div>
-          ))}
+          <p>Top Driver</p>
+          <p className="stat-number">{drivers[0]?.name}</p>
         </div>
       </div>
 
-      {/* 🏎️ UPCOMING RACES */}
+      {/* 🔥 Chart */}
       <div className="card">
-        <h2 className="text-xl mb-4">Upcoming Races</h2>
+        <h2 className="mb-4">Top Driver Performance</h2>
 
-        <div className="space-y-3">
-          {races.slice(0, 5).map((r) => (
-            <div
-              key={r.raceId}
-              className="flex justify-between border-b border-border pb-2"
-            >
-              <span>{r.name}</span>
-              <span className="text-textSecondary">{r.location}</span>
-            </div>
-          ))}
-        </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="points" stroke="#E8002D" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Drivers */}
+      <div className="card">
+        <h2>Top Drivers</h2>
+        {drivers.slice(0, 5).map((d) => (
+          <div key={d.driverId} className="flex justify-between">
+            <span>{d.name}</span>
+            <span>{d.team}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Races */}
+      <div className="card">
+        <h2>Upcoming Races</h2>
+        {races.slice(0, 5).map((r) => (
+          <div key={r.raceId} className="flex justify-between">
+            <span>{r.name}</span>
+            <span>{r.location}</span>
+          </div>
+        ))}
       </div>
 
     </div>
