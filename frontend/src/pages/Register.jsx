@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/axios";
 import { motion } from "framer-motion";
 
 const Register = () => {
+  useEffect(() => {
+    document.title = "Register | F1 Pulse";
+  }, []);
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
