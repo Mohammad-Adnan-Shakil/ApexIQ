@@ -8,7 +8,28 @@ const Races = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const races = data || [];
+  const races = useMemo(() => {
+    const source = data || [];
+    const unique = new Map();
+
+    for (const race of source) {
+      const key =
+        race?.round != null
+          ? `round-${race.round}`
+          : `fallback-${race?.raceName || "race"}-${race?.date || "date"}`;
+
+      if (!unique.has(key)) {
+        unique.set(key, race);
+      }
+    }
+
+    return Array.from(unique.values()).sort((a, b) => {
+      const aRound = a?.round ?? Number.MAX_SAFE_INTEGER;
+      const bRound = b?.round ?? Number.MAX_SAFE_INTEGER;
+      if (aRound !== bRound) return aRound - bRound;
+      return String(a?.date || "").localeCompare(String(b?.date || ""));
+    });
+  }, [data]);
 
   const filteredRaces = useMemo(() => {
     return races.filter((race) => {
