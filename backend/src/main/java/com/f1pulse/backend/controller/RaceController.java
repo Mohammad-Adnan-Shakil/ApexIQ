@@ -2,6 +2,7 @@ package com.f1pulse.backend.controller;
 
 import com.f1pulse.backend.model.Race;
 import com.f1pulse.backend.repository.RaceRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/races")
+@Tag(name = "Races", description = "F1 race schedule and results")
 public class RaceController {
 
     private final RaceRepository raceRepository;

@@ -7,6 +7,7 @@ import com.f1pulse.backend.ai.dto.SimulationResponseDTO;
 import com.f1pulse.backend.ai.service.PredictionService;
 import com.f1pulse.backend.ai.service.SimulationService;
 import com.f1pulse.backend.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ai")
+@Tag(name = "ApexIQ Predictions", description = "AI-powered race predictions and driver intelligence")
 public class PredictionController {
 
     private final PredictionService predictionService;

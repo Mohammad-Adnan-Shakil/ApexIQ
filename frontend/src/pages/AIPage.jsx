@@ -360,14 +360,43 @@ const AIPage = () => {
             <Card delay={0.32}>
               <div className="mb-3 flex items-center gap-2 text-accentGold">
                 <Lightbulb className="h-4 w-4" />
-                <p className="section-label">Performance Insight</p>
+                <p className="section-label">Why This Prediction?</p>
               </div>
-              <p className="text-lg italic text-whitePrimary">{result.summary || "No insight returned."}</p>
-              <div className="mt-4 h-2 rounded-full bg-white/10">
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-accentRed to-accentGold"
-                  style={{ width: `${Math.max(5, 100 - roundPosition(roundedPredictedPosition) * 4)}%` }}
-                />
+              {result.topFeatures && result.topFeatures.length > 0 ? (
+                <div className="space-y-3">
+                  {result.topFeatures.map((feature, idx) => (
+                    <div key={idx} className="rounded-lg border border-borderSoft bg-bgElevated p-3">
+                      <div className="flex items-start justify-between mb-1">
+                        <p className="text-sm font-semibold text-whitePrimary">{feature.explanation || `Factor ${idx + 1}`}</p>
+                        <span className="text-xs px-2 py-1 rounded-full bg-accentRed/20 text-accentRed">
+                          {(feature.importance * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-white/10 mt-2">
+                        <div 
+                          className="h-1.5 rounded-full bg-accentRed" 
+                          style={{ width: `${Math.min(100, (feature.importance * 100))}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-whiteMuted">Feature analysis not available for this prediction.</p>
+              )}
+            </Card>
+
+            <Card delay={0.36} className="border-accentRed/20 bg-accentRed/5">
+              <div className="flex gap-3">
+                <div className="flex-shrink-0">
+                  <p className="text-xs font-bold text-accentRed">ℹ️</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-whitePrimary mb-1">Prediction Disclaimer</p>
+                  <p className="text-xs text-whiteMuted leading-relaxed">
+                    Predictions are AI-generated based on historical race data and statistical models. They represent educated estimates only and do not guarantee actual race outcomes. Many real-world variables (weather, safety cars, mechanical issues, tactical decisions) cannot be predicted. Use these results for entertainment and strategic planning only.
+                  </p>
+                </div>
               </div>
             </Card>
           </motion.div>
@@ -378,4 +407,3 @@ const AIPage = () => {
 };
 
 export default AIPage;
-

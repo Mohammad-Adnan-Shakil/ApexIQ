@@ -1,6 +1,7 @@
 package com.f1pulse.backend.controller;
 
 import com.f1pulse.backend.service.HistoricalDataIngestionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Administration", description = "Admin endpoints for system management")
 public class AdminIngestionController {
 
     @Autowired

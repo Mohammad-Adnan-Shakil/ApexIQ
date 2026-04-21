@@ -7,6 +7,7 @@ import com.f1pulse.backend.ai.service.DriverInsightsService;
 import com.f1pulse.backend.ai.service.SimulationService;
 import com.f1pulse.backend.dto.DriverIntelligenceResponse;
 import com.f1pulse.backend.service.AIService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
+@Tag(name = "ApexIQ Predictions", description = "AI-powered race predictions and driver intelligence")
 public class AIController {
 
     private final AIService aiService;
@@ -65,6 +67,11 @@ public class AIController {
             response.put("summary", intelligence.getFinalInsight());
             response.put("confidenceLabel", intelligence.getConfidenceLabel());
             response.put("simulationImpact", intelligence.getSimulationImpact());
+            
+            // ✅ Add top features for "Why this prediction?" section
+            if (intelligence.getTopFeatures() != null && !intelligence.getTopFeatures().isEmpty()) {
+                response.put("topFeatures", intelligence.getTopFeatures());
+            }
 
             return ResponseEntity.ok(response);
 

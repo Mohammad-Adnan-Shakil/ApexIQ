@@ -80,6 +80,24 @@ public class AIService {
         response.setFinalInsight(result.path("final_insight").asText("Model output generated."));
         response.setConfidence(round2(result.path("confidence").asDouble()));
         response.setConfidenceLabel(result.path("confidence_label").asText("unknown"));
+        
+        // ✅ Extract top features for "Why this prediction?" explanation
+        try {
+            if (result.has("top_features") && result.get("top_features").isArray()) {
+                java.util.List<Map<String, Object>> topFeatures = new java.util.ArrayList<>();
+                for (JsonNode feature : result.get("top_features")) {
+                    Map<String, Object> featureMap = new java.util.HashMap<>();
+                    featureMap.put("feature", feature.path("feature").asText());
+                    featureMap.put("importance", feature.path("importance").asDouble());
+                    featureMap.put("explanation", feature.path("explanation").asText());
+                    topFeatures.add(featureMap);
+                }
+                response.setTopFeatures(topFeatures);
+            }
+        } catch (Exception e) {
+            // Skip top features if not available
+        }
+        
         return response;
     }
 

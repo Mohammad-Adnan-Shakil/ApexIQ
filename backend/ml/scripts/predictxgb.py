@@ -48,6 +48,18 @@ def safe_encode(encoder, value):
         return 0
 
 
+# Feature names must match training order
+feature_names = [
+    "qualifying_position",
+    "constructor_id",
+    "track_id",
+    "season_year",
+    "recent_avg_position_last_5",
+    "recent_std_last_5",
+    "grid_position",
+    "is_home_race"
+]
+
 constructor_encoded = safe_encode(le_constructor, input_json["constructor_id"])
 track_encoded = safe_encode(le_track, input_json["track_id"])
 
@@ -64,6 +76,53 @@ try:
     ]])
 
     prediction = float(model.predict(features)[0])
+
+    # ✅ Extract feature importances from XGBoost model
+    feature_importances = {}
+    if hasattr(model, 'feature_importances_'):
+        importances = model.feature_importances_
+        for i, name in enumerate(feature_names):
+            if i < len(importances):
+                feature_importances[name] = round(float(importances[i]), 4)
+
+    # ✅ Get top 3 most important features with human-readable explanations
+    top_features = []
+    if feature_importances:
+        sorted_features = sorted(feature_importances.items(), key=lambda x: x[1], reverse=True)
+        for feature_name, importance in sorted_features[:3]:
+            feature_value = input_json.get(feature_name)
+            
+            # Generate human-readable explanation
+            explanation = ""
+            if feature_name == "qualifying_position":
+                explanation = f"Grid position: Starting from P{int(feature_value) if feature_value else 'unknown'}"
+            elif feature_name == "recent_avg_position_last_5":
+                explanation = f"Recent form: Average finish of P{feature_value:.1f} in last 5 races" if feature_value else "Recent form: Insufficient data"
+            elif feature_name == "recent_std_last_5":
+                if feature_value is None or feature_value == 0:
+                    explanation = "Consistency: Very consistent performances"
+                elif feature_value < 2:
+                    explanation = "Consistency: Highly consistent"
+                elif feature_value < 4:
+                    explanation = "Consistency: Moderate variability"
+                else:
+                    explanation = "Consistency: Highly variable performance"
+            elif feature_name == "grid_position":
+                explanation = f"Qualifying: P{int(feature_value) if feature_value else 'unknown'}"
+            elif feature_name == "season_year":
+                explanation = f"Season: {int(feature_value) if feature_value else 'unknown'}"
+            elif feature_name == "constructor_id":
+                explanation = "Constructor: Team performance factor"
+            elif feature_name == "track_id":
+                explanation = "Circuit: Track-specific strengths"
+            elif feature_name == "is_home_race":
+                explanation = "Home race: Competing in home country"
+            
+            top_features.append({
+                "feature": feature_name,
+                "importance": importance,
+                "explanation": explanation
+            })
 
     # Confidence (heuristic)
     variance_proxy = float(np.std(features))
@@ -85,7 +144,9 @@ except Exception as e:
 output = {
     "predicted_position": round(prediction, 2),
     "confidence": round(confidence, 3),
-    "confidence_label": confidence_label
+    "confidence_label": confidence_label,
+    "feature_importances": feature_importances,
+    "top_features": top_features
 }
 
 print(json.dumps(output))

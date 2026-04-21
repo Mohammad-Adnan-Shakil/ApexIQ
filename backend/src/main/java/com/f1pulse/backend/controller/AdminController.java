@@ -3,6 +3,7 @@ package com.f1pulse.backend.controller;
 import com.f1pulse.backend.dto.ApiResponse;
 import com.f1pulse.backend.dto.UserSummaryResponse;
 import com.f1pulse.backend.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
+@Tag(name = "Administration", description = "Admin endpoints for system management")
 public class AdminController {
 
     private final UserService userService;

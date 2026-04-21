@@ -3,6 +3,7 @@ package com.f1pulse.backend.controller;
 import com.f1pulse.backend.model.*;
 import com.f1pulse.backend.repository.*;
 import com.f1pulse.backend.service.ErgastService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/api/historical")
+@Tag(name = "F1 History", description = "Historical F1 seasons, races, and champions (1950-2026)")
 public class HistoricalController {
 
     @Autowired

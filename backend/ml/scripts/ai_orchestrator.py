@@ -94,6 +94,7 @@ def main():
         "confidence_label": xgb_result["confidence_label"],
         "simulation_impact": impact,
         "final_insight": insight,
+        "top_features": xgb_result.get("top_features", [])
     }
 
     print(json.dumps(response))

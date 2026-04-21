@@ -1,5 +1,8 @@
 package com.f1pulse.backend.dto;
 
+import java.util.List;
+import java.util.Map;
+
 public class DriverIntelligenceResponse {
 
     private Long driverId;
@@ -9,6 +12,7 @@ public class DriverIntelligenceResponse {
     private String confidenceLabel;
     private String simulationImpact;
     private String finalInsight;
+    private List<Map<String, Object>> topFeatures;
 
     // GETTERS
 
@@ -40,6 +44,10 @@ public class DriverIntelligenceResponse {
         return finalInsight;
     }
 
+    public List<Map<String, Object>> getTopFeatures() {
+        return topFeatures;
+    }
+
     // SETTERS
 
     public void setDriverId(Long driverId) {
@@ -68,5 +76,9 @@ public class DriverIntelligenceResponse {
 
     public void setFinalInsight(String finalInsight) {
         this.finalInsight = finalInsight;
+    }
+
+    public void setTopFeatures(List<Map<String, Object>> topFeatures) {
+        this.topFeatures = topFeatures;
     }
 }
