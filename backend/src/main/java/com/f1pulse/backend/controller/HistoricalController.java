@@ -2,6 +2,7 @@ package com.f1pulse.backend.controller;
 
 import com.f1pulse.backend.model.*;
 import com.f1pulse.backend.repository.*;
+import com.f1pulse.backend.service.ErgastService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -14,11 +15,18 @@ import java.util.stream.Collectors;
 /**
  * Public endpoints for F1 historical data (1950-2026)
  * No authentication required - accessible to all users
+ * 
+ * Data sources:
+ * 1. Ergast API (https://api.jolpi.ca/ergast/) - primary source with caching
+ * 2. Local PostgreSQL database - fallback for data consistency
  */
 @Slf4j
 @RestController
 @RequestMapping("/api/historical")
 public class HistoricalController {
+
+    @Autowired
+    private ErgastService ergastService;
 
     @Autowired
     private HistoricalSeasonRepository seasonRepository;
@@ -37,45 +45,66 @@ public class HistoricalController {
 
     /**
      * GET /api/historical/seasons
-     * Returns all F1 seasons with champion information
+     * Returns all F1 seasons from Ergast API (cached)
+     * Falls back to database if API unavailable
      */
     @GetMapping("/seasons")
     public ResponseEntity<?> getAllSeasons() {
         try {
-            List<HistoricalSeason> seasons = seasonRepository.findAll();
-            seasons.sort(Comparator.comparing(HistoricalSeason::getYear).reversed());
-            return ResponseEntity.ok(seasons);
+            // ✅ Try Ergast API first (with caching)
+            List<Map<String, Object>> seasons = ergastService.getSeasons();
+            
+            if (!seasons.isEmpty()) {
+                log.info("✅ Returned {} seasons from Ergast API", seasons.size());
+                return ResponseEntity.ok(seasons);
+            }
+            
+            // ✅ Fallback to database
+            log.info("⚠️ Ergast API empty, falling back to database");
+            List<HistoricalSeason> dbSeasons = seasonRepository.findAll();
+            dbSeasons.sort(Comparator.comparing(HistoricalSeason::getYear).reversed());
+            return ResponseEntity.ok(dbSeasons);
+            
         } catch (Exception e) {
-            log.warn("Database query failed, returning empty list: {}", e.getMessage());
-            // Return empty list if tables don't exist yet
+            log.warn("⚠️ Error fetching seasons: {}", e.getMessage());
             return ResponseEntity.ok(new ArrayList<>());
         }
     }
 
     /**
      * GET /api/historical/season/{year}
-     * Returns all races for a specific season with results
+     * Returns all races for a specific season from Ergast API (cached)
+     * Falls back to database if API unavailable
      */
     @GetMapping("/season/{year}")
     public ResponseEntity<?> getSeasonDetail(@PathVariable Integer year) {
         try {
-            Optional<HistoricalSeason> season = seasonRepository.findByYear(year);
-            if (season.isEmpty()) {
-                return ResponseEntity.notFound().build();
+            // ✅ Try Ergast API first (with caching)
+            List<Map<String, Object>> ergastRaces = ergastService.getRacesByYear(year);
+            
+            if (!ergastRaces.isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("season", Map.of("year", year, "totalRounds", ergastRaces.size()));
+                response.put("races", ergastRaces);
+                response.put("raceCount", ergastRaces.size());
+                log.info("✅ Returned {} races for season {} from Ergast API", ergastRaces.size(), year);
+                return ResponseEntity.ok(response);
             }
-
+            
+            // ✅ Fallback to database
+            log.info("⚠️ Ergast API empty for year {}, falling back to database", year);
+            Optional<HistoricalSeason> season = seasonRepository.findByYear(year);
             List<HistoricalRace> races = raceRepository.findBySeasonYearOrderByRound(year);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("season", season.get());
+            response.put("season", season.isPresent() ? season.get() : null);
             response.put("races", races);
             response.put("raceCount", races.size());
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.warn("Database query failed, returning empty response for year {}: {}", year, e.getMessage());
-            // Return empty races list if tables don't exist yet
+            log.warn("Error fetching season {}: {}", year, e.getMessage());
             Map<String, Object> response = new HashMap<>();
             response.put("season", null);
             response.put("races", new ArrayList<>());
@@ -186,16 +215,26 @@ public class HistoricalController {
 
     /**
      * GET /api/historical/champions
-     * Returns all F1 world champions by year
+     * Returns all F1 world champions from Ergast API (cached)
+     * Falls back to database if API unavailable
      */
-
     @GetMapping("/champions")
     public ResponseEntity<?> getChampions() {
         try {
+            // ✅ Try Ergast API first (with caching)
+            List<Map<String, Object>> champions = ergastService.getChampions();
+            
+            if (!champions.isEmpty()) {
+                log.info("✅ Returned {} champions from Ergast API", champions.size());
+                return ResponseEntity.ok(champions);
+            }
+            
+            // ✅ Fallback to database
+            log.info("⚠️ Ergast API empty, falling back to database for champions");
             List<HistoricalSeason> seasons = seasonRepository.findAll();
             seasons.sort(Comparator.comparing(HistoricalSeason::getYear).reversed());
 
-            List<Map<String, Object>> champions = new ArrayList<>();
+            List<Map<String, Object>> dbChampions = new ArrayList<>();
             for (HistoricalSeason season : seasons) {
                 if (season.getChampionDriverId() != null) {
                     Map<String, Object> champion = new HashMap<>();
@@ -218,15 +257,14 @@ public class HistoricalController {
                                 });
                     }
 
-                    champions.add(champion);
+                    dbChampions.add(champion);
                 }
             }
 
-            return ResponseEntity.ok(champions);
+            return ResponseEntity.ok(dbChampions);
 
         } catch (Exception e) {
-            log.warn("Database query failed, returning empty champions list: {}", e.getMessage());
-            // Return empty champions list if tables don't exist yet
+            log.warn("Error fetching champions: {}", e.getMessage());
             return ResponseEntity.ok(new ArrayList<>());
         }
     }

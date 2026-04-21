@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, CalendarDays, Flag } from "lucide-react";
+import { AlertTriangle, CalendarDays, Flag, Trophy } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Loader } from "../components/common/Loader";
 import api from "../services/api";
@@ -147,22 +147,39 @@ const History = () => {
         <div>
           <h3 className="text-xl font-bold text-whitePrimary mb-4">Race Calendar</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {races.map((race) => (
-              <Card key={race.id || `${race.round}-${race.raceName}`} className="p-4 hover:border-accentRed/40 cursor-pointer">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="text-xs text-whiteMuted uppercase tracking-[0.2em]">Round {race.round}</p>
-                    <h4 className="text-whitePrimary font-bold mt-1">{race.raceName}</h4>
+            {races.map((race) => {
+              // Get race winner from results
+              const raceWinner = race.results && race.results.length > 0 
+                ? race.results.find(r => r.position === 1)
+                : null;
+              
+              return (
+                <Card key={race.id || `${race.round}-${race.raceName}`} className="p-4 hover:border-accentRed/40 cursor-pointer transition-all">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <p className="text-xs text-whiteMuted uppercase tracking-[0.2em]">Round {race.round}</p>
+                      <h4 className="text-whitePrimary font-bold mt-1">{race.raceName}</h4>
+                    </div>
+                    <Flag className="h-4 w-4 text-accentRed mt-1 flex-shrink-0 ml-2" />
                   </div>
-                  <Flag className="h-4 w-4 text-accentRed mt-1" />
-                </div>
-                <p className="text-sm text-whiteMuted">{race.circuitName}</p>
-                <p className="text-xs text-whiteMuted mt-1">{race.circuitCountry}</p>
-                {race.raceDate ? (
-                  <p className="text-xs text-whiteMuted mt-2">{new Date(race.raceDate).toLocaleDateString()}</p>
-                ) : null}
-              </Card>
-            ))}
+                  <p className="text-sm text-whiteMuted">{race.circuitName}</p>
+                  <p className="text-xs text-whiteMuted mt-1">{race.location}</p>
+                  {race.date ? (
+                    <p className="text-xs text-whiteMuted mt-2">{new Date(race.date).toLocaleDateString()}</p>
+                  ) : null}
+                  
+                  {/* Display race winner if available */}
+                  {raceWinner ? (
+                    <div className="mt-3 pt-3 border-t border-borderSoft flex items-center gap-2">
+                      <Trophy className="h-3.5 w-3.5 text-accentGold" />
+                      <span className="text-xs font-semibold text-accentGold">
+                        Winner: {raceWinner.driverName || "Unknown"}
+                      </span>
+                    </div>
+                  ) : null}
+                </Card>
+              );
+            })}
           </div>
         </div>
       ) : null}
