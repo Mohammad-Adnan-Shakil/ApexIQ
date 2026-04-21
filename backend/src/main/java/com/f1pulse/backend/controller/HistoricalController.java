@@ -122,10 +122,10 @@ public class HistoricalController {
                 Map<String, Object> raceMap = new HashMap<>();
                 raceMap.put("round", race.getRound());
                 raceMap.put("id", race.getRound());
-                raceMap.put("raceName", race.getName());
-                raceMap.put("date", race.getDate());
+                raceMap.put("raceName", race.getRaceName());
+                raceMap.put("date", race.getRaceDate());
                 raceMap.put("circuitName", race.getCircuitName());
-                raceMap.put("location", race.getLocation());
+                raceMap.put("location", race.getCircuitCountry());
                 raceMap.put("results", new ArrayList<>());
                 raceMap.put("hasResults", false);
                 convertedRaces.add(raceMap);
