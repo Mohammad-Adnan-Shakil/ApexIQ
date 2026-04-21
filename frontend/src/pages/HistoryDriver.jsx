@@ -13,7 +13,7 @@ const HistoryDriver = () => {
   const { driverCode } = useParams();
   
   useEffect(() => {
-    document.title = "Driver Career | F1 Pulse";
+    document.title = "Driver Career | ApexIQ";
   }, []);
 
   const [driver, setDriver] = useState(null);

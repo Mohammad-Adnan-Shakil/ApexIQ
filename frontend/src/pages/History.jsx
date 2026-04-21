@@ -13,7 +13,7 @@ const toSeasonArray = (payload) => {
 
 const History = () => {
   useEffect(() => {
-    document.title = "History | F1 Pulse";
+    document.title = "History | ApexIQ";
   }, []);
 
   const [seasons, setSeasons] = useState([]);

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 const Register = () => {
   useEffect(() => {
-    document.title = "Register | F1 Pulse";
+    document.title = "Register | ApexIQ";
   }, []);
 
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const Register = () => {
         <div className="absolute right-0 top-0 h-full w-[3px] bg-primary"></div>
 
         <div className="px-12">
-          <h1 className="text-7xl">F1 PULSE</h1>
+          <h1 className="text-7xl">APEX IQ</h1>
           <div className="racing-divider mt-4 mb-6"></div>
           <p className="text-textSecondary text-lg max-w-md leading-relaxed">
             Join the future of F1 analytics and intelligence.

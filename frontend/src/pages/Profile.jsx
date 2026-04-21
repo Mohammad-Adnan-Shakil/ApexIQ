@@ -68,7 +68,7 @@ const Profile = () => {
             <h1 className="mt-1 text-3xl font-bold">{emailOrUser}</h1>
             <div className="mt-2 flex items-center gap-2">
               <span className="rounded-full bg-accentRed/20 px-3 py-1 text-xs font-semibold text-accentRed">{role}</span>
-              <span className="text-sm text-whiteMuted">Member · F1 Pulse 2026</span>
+              <span className="text-sm text-whiteMuted">Member · ApexIQ 2026</span>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import api from "../utils/axios";
+import api, { setupResponseInterceptor } from "../utils/axios";
 
 const AuthContext = createContext();
 
@@ -10,6 +10,12 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
 
+  // ✅ Setup response interceptor on mount (only once)
+  useEffect(() => {
+    setupResponseInterceptor();
+  }, []);
+
+  // ✅ Fetch user data when token changes
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
@@ -62,3 +68,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+

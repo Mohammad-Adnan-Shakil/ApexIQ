@@ -10,7 +10,7 @@ import api from "../utils/axios";
  */
 const HistoryChampions = () => {
   useEffect(() => {
-    document.title = "Hall of Champions | F1 Pulse";
+    document.title = "Hall of Champions | ApexIQ";
   }, []);
 
   const [champions, setChampions] = useState([]);
