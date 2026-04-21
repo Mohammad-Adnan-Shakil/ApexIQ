@@ -51,22 +51,27 @@ public class HistoricalController {
     @GetMapping("/seasons")
     public ResponseEntity<?> getAllSeasons() {
         try {
+            log.info("📡 [HistoricalController] GET /api/historical/seasons requested");
+            
             // ✅ Try Ergast API first (with caching)
             List<Map<String, Object>> seasons = ergastService.getSeasons();
+            log.info("✅ [HistoricalController] ErgastService returned {} seasons", seasons.size());
             
             if (!seasons.isEmpty()) {
-                log.info("✅ Returned {} seasons from Ergast API", seasons.size());
+                log.info("✅ [HistoricalController] Returning {} seasons from Ergast API", seasons.size());
                 return ResponseEntity.ok(seasons);
             }
             
             // ✅ Fallback to database
-            log.info("⚠️ Ergast API empty, falling back to database");
+            log.info("⚠️ [HistoricalController] Ergast API empty, falling back to database");
             List<HistoricalSeason> dbSeasons = seasonRepository.findAll();
             dbSeasons.sort(Comparator.comparing(HistoricalSeason::getYear).reversed());
+            log.info("✅ [HistoricalController] Returned {} seasons from database", dbSeasons.size());
             return ResponseEntity.ok(dbSeasons);
             
         } catch (Exception e) {
-            log.warn("⚠️ Error fetching seasons: {}", e.getMessage());
+            log.error("❌ [HistoricalController] Error fetching seasons: {}", e.getMessage(), e);
+            log.info("⚠️ [HistoricalController] Returning empty list as fallback");
             return ResponseEntity.ok(new ArrayList<>());
         }
     }
@@ -79,36 +84,42 @@ public class HistoricalController {
     @GetMapping("/season/{year}")
     public ResponseEntity<?> getSeasonDetail(@PathVariable Integer year) {
         try {
+            log.info("📡 [HistoricalController] GET /api/historical/season/{} requested", year);
+            
             // ✅ Try Ergast API first (with caching)
             List<Map<String, Object>> ergastRaces = ergastService.getRacesByYear(year);
+            log.info("✅ [HistoricalController] ErgastService returned {} races for year {}", ergastRaces.size(), year);
             
             if (!ergastRaces.isEmpty()) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("season", Map.of("year", year, "totalRounds", ergastRaces.size()));
                 response.put("races", ergastRaces);
                 response.put("raceCount", ergastRaces.size());
-                log.info("✅ Returned {} races for season {} from Ergast API", ergastRaces.size(), year);
+                log.info("✅ [HistoricalController] Returning {} races for season {} from Ergast API", ergastRaces.size(), year);
+                log.debug("✅ [HistoricalController] Response body: {}", response);
                 return ResponseEntity.ok(response);
             }
             
             // ✅ Fallback to database
-            log.info("⚠️ Ergast API empty for year {}, falling back to database", year);
+            log.info("⚠️ [HistoricalController] Ergast API empty for year {}, falling back to database", year);
             Optional<HistoricalSeason> season = seasonRepository.findByYear(year);
             List<HistoricalRace> races = raceRepository.findBySeasonYearOrderByRound(year);
-
+            
             Map<String, Object> response = new HashMap<>();
             response.put("season", season.isPresent() ? season.get() : null);
             response.put("races", races);
             response.put("raceCount", races.size());
-
+            
+            log.info("✅ [HistoricalController] Returned {} races for season {} from database", races.size(), year);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.warn("Error fetching season {}: {}", year, e.getMessage());
+            log.error("❌ [HistoricalController] Error fetching season {}: {}", year, e.getMessage(), e);
             Map<String, Object> response = new HashMap<>();
             response.put("season", null);
             response.put("races", new ArrayList<>());
             response.put("raceCount", 0);
+            log.info("⚠️ [HistoricalController] Returning empty response as fallback");
             return ResponseEntity.ok(response);
         }
     }

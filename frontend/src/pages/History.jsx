@@ -2,6 +2,7 @@
 import { AlertTriangle, CalendarDays, Flag, Trophy } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Loader } from "../components/common/Loader";
+import ErrorBoundary from "../components/ErrorBoundary";
 import api from "../services/api";
 
 const toSeasonArray = (payload) => {
@@ -35,16 +36,30 @@ const History = () => {
       setError(null);
       setSeasonsLoading(true);
 
+      console.log("📡 [History] Fetching seasons from /historical/seasons");
       const response = await api.get("/historical/seasons");
+      console.log("✅ [History] Raw API response:", response.data);
+      
       const list = toSeasonArray(response.data);
+      console.log("✅ [History] Processed seasons array:", list);
       setSeasons(list);
 
       if (list.length > 0) {
         const firstYear = Number(list[0].year);
         setSelectedYear(firstYear);
+        console.log("✅ [History] Set first year:", firstYear);
+      } else {
+        console.warn("⚠️ [History] No seasons returned from API");
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Failed to load seasons");
+      const errorMsg = err.response?.data?.message || err.message || "Failed to load seasons";
+      console.error("❌ [History] Error fetching seasons:", {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        message: errorMsg,
+        fullError: err
+      });
+      setError(errorMsg);
     } finally {
       setSeasonsLoading(false);
     }
@@ -57,12 +72,34 @@ const History = () => {
       setError(null);
       setSeasonLoading(true);
 
-      const response = await api.get(`/historical/season/${year}`);
+      const url = `/historical/season/${year}`;
+      console.log("📡 [History] Fetching season detail from", url);
+      const response = await api.get(url);
+      console.log("✅ [History] Raw season API response:", response.data);
+      
       const payload = response.data;
-      setSeasonDetail(payload?.season || null);
-      setRaces(Array.isArray(payload?.races) ? payload.races : []);
+      const season = payload?.season || null;
+      const racesArray = Array.isArray(payload?.races) ? payload.races : [];
+      
+      console.log("✅ [History] Parsed season:", season);
+      console.log("✅ [History] Parsed races count:", racesArray.length);
+      
+      setSeasonDetail(season);
+      setRaces(racesArray);
+      
+      if (racesArray.length > 0) {
+        console.log("✅ [History] First race:", racesArray[0]);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Failed to load season details");
+      const errorMsg = err.response?.data?.message || err.message || "Failed to load season details";
+      console.error("❌ [History] Error fetching season detail:", {
+        year,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        message: errorMsg,
+        fullError: err
+      });
+      setError(errorMsg);
       setSeasonDetail(null);
       setRaces([]);
     } finally {
@@ -89,7 +126,8 @@ const History = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <ErrorBoundary>
+      <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-whitePrimary">F1 History Browser</h1>
         <p className="text-whiteMuted mt-1">Explore full season calendars and race details.</p>
@@ -186,10 +224,17 @@ const History = () => {
 
       {!seasonLoading && selectedYear && races.length === 0 && !error ? (
         <Card className="text-center py-10">
-          <p className="text-whiteMuted">No races found for {selectedYear}.</p>
+          <p className="text-whiteMuted">
+            No race data available for {selectedYear}. 
+            <br />
+            <span className="text-xs mt-2 block">
+              If this persists, check your internet connection and try again.
+            </span>
+          </p>
         </Card>
       ) : null}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 

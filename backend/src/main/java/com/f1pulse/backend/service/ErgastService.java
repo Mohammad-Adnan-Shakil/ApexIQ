@@ -44,6 +44,7 @@ public class ErgastService {
     public List<Map<String, Object>> getSeasons() {
         String cacheKey = "seasons:all";
         if (cache.containsKey(cacheKey)) {
+            logger.info("✅ [ErgastService] Found {} seasons in cache", ((List<?>) cache.get(cacheKey)).size());
             return (List<Map<String, Object>>) cache.get(cacheKey);
         }
 
@@ -52,9 +53,17 @@ public class ErgastService {
         try {
             // Fetch available seasons from Ergast
             String url = ERGAST_API_BASE + ".json?limit=100";
+            logger.info("📡 [ErgastService] Fetching seasons from: {}", url);
             JsonNode response = restTemplate.getForObject(url, JsonNode.class);
+            
+            if (response == null) {
+                logger.error("❌ [ErgastService] Null response from Ergast API");
+                return seasons;
+            }
+            
+            logger.info("✅ [ErgastService] Got response from Ergast API");
 
-            if (response != null && response.has("MRData")) {
+            if (response.has("MRData")) {
                 JsonNode mrData = response.get("MRData");
                 if (mrData.has("SeasonTable") && mrData.get("SeasonTable").has("Seasons")) {
                     JsonNode seasonNodes = mrData.get("SeasonTable").get("Seasons");
@@ -62,18 +71,23 @@ public class ErgastService {
                     for (JsonNode node : seasonNodes) {
                         Map<String, Object> season = new HashMap<>();
                         season.put("year", node.get("year").asInt());
-                        season.put("rounds", node.get("url").asText()); // Store API URL
+                        season.put("id", node.get("year").asInt());
                         seasons.add(season);
                     }
+                    logger.info("✅ [ErgastService] Parsed {} seasons from MRData", seasons.size());
+                } else {
+                    logger.warn("⚠️ [ErgastService] SeasonTable or Seasons not found in response");
                 }
+            } else {
+                logger.error("❌ [ErgastService] MRData not found in response. Response keys: {}", response.fieldNames());
             }
 
             // Cache the result
             cache.put(cacheKey, seasons);
-            logger.info("✅ Loaded {} seasons from Ergast API", seasons.size());
+            logger.info("✅ [ErgastService] Loaded {} seasons from Ergast API and cached", seasons.size());
 
         } catch (Exception e) {
-            logger.warn("⚠️ Failed to fetch seasons from Ergast: {}", e.getMessage());
+            logger.error("❌ [ErgastService] Failed to fetch seasons from Ergast: {}", e.getMessage(), e);
             // Return empty list on failure — frontend will show appropriate message
         }
 
@@ -87,6 +101,7 @@ public class ErgastService {
     public List<Map<String, Object>> getRacesByYear(Integer year) {
         String cacheKey = "races:" + year;
         if (cache.containsKey(cacheKey)) {
+            logger.info("✅ [ErgastService] Found {} races for year {} in cache", ((List<?>) cache.get(cacheKey)).size(), year);
             return (List<Map<String, Object>>) cache.get(cacheKey);
         }
 
@@ -95,9 +110,17 @@ public class ErgastService {
         try {
             // Fetch races for season
             String url = String.format("%s/%d/races.json", ERGAST_API_BASE, year);
+            logger.info("📡 [ErgastService] Fetching races from: {}", url);
             JsonNode response = restTemplate.getForObject(url, JsonNode.class);
+            
+            if (response == null) {
+                logger.error("❌ [ErgastService] Null response from Ergast API for year {}", year);
+                return races;
+            }
+            
+            logger.info("✅ [ErgastService] Got response from Ergast API for year {}", year);
 
-            if (response != null && response.has("MRData")) {
+            if (response.has("MRData")) {
                 JsonNode mrData = response.get("MRData");
                 if (mrData.has("RaceTable") && mrData.get("RaceTable").has("Races")) {
                     JsonNode raceNodes = mrData.get("RaceTable").get("Races");
@@ -105,6 +128,7 @@ public class ErgastService {
                     for (JsonNode raceNode : raceNodes) {
                         Map<String, Object> race = new HashMap<>();
                         race.put("round", raceNode.get("round").asInt());
+                        race.put("id", raceNode.get("round").asInt());
                         race.put("raceName", raceNode.get("name").asText());
                         race.put("date", raceNode.get("date").asText());
 
@@ -112,7 +136,10 @@ public class ErgastService {
                         JsonNode circuit = raceNode.get("Circuit");
                         if (circuit != null) {
                             race.put("circuitName", circuit.get("circuitName").asText());
-                            race.put("location", circuit.get("Location").get("country").asText());
+                            JsonNode location = circuit.get("Location");
+                            if (location != null) {
+                                race.put("location", location.get("country").asText());
+                            }
                         }
 
                         // Race results (if race has finished)
@@ -122,15 +149,20 @@ public class ErgastService {
 
                         races.add(race);
                     }
+                    logger.info("✅ [ErgastService] Parsed {} races for year {} from MRData", races.size(), year);
+                } else {
+                    logger.warn("⚠️ [ErgastService] RaceTable or Races not found for year {} in response", year);
                 }
+            } else {
+                logger.error("❌ [ErgastService] MRData not found for year {} in response", year);
             }
 
             // Cache the result
             cache.put(cacheKey, races);
-            logger.info("✅ Loaded {} races for season {} from Ergast API", races.size(), year);
+            logger.info("✅ [ErgastService] Loaded {} races for season {} from Ergast API and cached", races.size(), year);
 
         } catch (Exception e) {
-            logger.warn("⚠️ Failed to fetch races for year {} from Ergast: {}", year, e.getMessage());
+            logger.error("❌ [ErgastService] Failed to fetch races for year {} from Ergast: {}", year, e.getMessage(), e);
         }
 
         return races;
