@@ -12,7 +12,7 @@ const MainLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-bgPrimary text-whitePrimary">
-      <div className="lg:hidden flex h-14 items-center justify-between border-b border-borderSoft px-4">
+      <div className="lg:hidden flex h-14 items-center justify-between border-b border-borderSoft px-4 sticky top-0 bg-bgPrimary z-50">
         <button
           className="rounded-lg border border-borderSoft bg-bgElevated p-2 text-whiteMuted"
           onClick={() => setMobileNavOpen((prev) => !prev)}
@@ -30,7 +30,7 @@ const MainLayout = ({ children }) => {
         <Sidebar mobileOpen={mobileNavOpen} onNavigate={() => setMobileNavOpen(false)} />
 
         <main className="min-w-0 flex-1">
-          <div className="hidden h-16 items-center justify-end border-b border-borderSoft px-6 lg:flex">
+          <div className="hidden h-16 items-center justify-end border-b border-borderSoft px-6 lg:flex sticky top-0 bg-bgPrimary z-50">
             <p className="text-sm text-whiteMuted">{user?.username || "User"}</p>
           </div>
 
