@@ -57,7 +57,7 @@ const Login = () => {
       const from = location.state?.from || "/dashboard";
       navigate(from);
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
+      setError("Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ const Login = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#0a0a0f" }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#0a0a0f", backgroundImage: "radial-gradient(ellipse at top left, rgba(232, 0, 45, 0.08), transparent 50%), radial-gradient(ellipse at bottom right, rgba(255, 255, 255, 0.03), transparent 50%)" }}>
       <style>{`
         @media (max-width: 767px) {
           .login-container { flex-direction: column; }
@@ -173,10 +173,11 @@ const Login = () => {
             display: "flex",
             width: "55%",
             backgroundColor: "#0f0f1a",
-            borderRight: "1px solid rgba(255,255,255,0.06)",
+            borderRight: "2px solid rgba(232, 0, 45, 0.3)",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
+            backgroundImage: "linear-gradient(135deg, rgba(232, 0, 45, 0.1) 0%, transparent 50%), linear-gradient(45deg, transparent 50%, rgba(232, 0, 45, 0.05) 100%)",
           }}
         >
           <div
@@ -189,11 +190,11 @@ const Login = () => {
             }}
           >
             {/* DeltaBox Logo */}
-            <div style={{ display: "flex", alignItems: "baseline", gap: 0, letterSpacing: "-2px" }}>
-              <h1 className="logo-text" style={{ fontSize: "64px", fontWeight: 900, color: "#e8002d", margin: 0 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 0, letterSpacing: "-3px" }}>
+              <h1 className="logo-text" style={{ fontSize: "80px", fontWeight: 900, color: "#e8002d", margin: 0, textShadow: "0 0 40px rgba(232, 0, 45, 0.5)" }}>
                 F1
               </h1>
-              <h1 className="logo-text" style={{ fontSize: "64px", fontWeight: 900, color: "white", margin: 0 }}>
+              <h1 className="logo-text" style={{ fontSize: "80px", fontWeight: 900, color: "white", margin: 0, textShadow: "0 0 40px rgba(255, 255, 255, 0.3)" }}>
                 PULSE
               </h1>
             </div>
@@ -217,16 +218,21 @@ const Login = () => {
                 justifyContent: "center",
               }}
             >
-              <div style={{ padding: "8px 16px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.1)", backgroundColor: "rgba(255,255,255,0.06)", color: "white", fontSize: "13px" }}>
+              <div style={{ padding: "10px 20px", borderRadius: "999px", border: "1px solid rgba(232, 0, 45, 0.5)", backgroundColor: "rgba(232, 0, 45, 0.15)", color: "white", fontSize: "13px", fontWeight: 600, boxShadow: "0 0 20px rgba(232, 0, 45, 0.3)" }}>
                 Race Prediction
               </div>
-              <div style={{ padding: "8px 16px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.1)", backgroundColor: "rgba(255,255,255,0.06)", color: "white", fontSize: "13px" }}>
+              <div style={{ padding: "10px 20px", borderRadius: "999px", border: "1px solid rgba(232, 0, 45, 0.5)", backgroundColor: "rgba(232, 0, 45, 0.15)", color: "white", fontSize: "13px", fontWeight: 600, boxShadow: "0 0 20px rgba(232, 0, 45, 0.3)" }}>
                 Performance Insights
               </div>
-              <div style={{ padding: "8px 16px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.1)", backgroundColor: "rgba(255,255,255,0.06)", color: "white", fontSize: "13px" }}>
+              <div style={{ padding: "10px 20px", borderRadius: "999px", border: "1px solid rgba(232, 0, 45, 0.5)", backgroundColor: "rgba(232, 0, 45, 0.15)", color: "white", fontSize: "13px", fontWeight: 600, boxShadow: "0 0 20px rgba(232, 0, 45, 0.3)" }}>
                 What-if Simulation
               </div>
             </div>
+
+            {/* Tagline below feature pills */}
+            <p style={{ marginTop: "32px", fontSize: "14px", color: "rgba(255,255,255,0.5)", letterSpacing: "1px" }}>
+              Your Competitive Advantage in Formula 1 Analytics
+            </p>
 
             {/* Bottom Footer Text */}
             <p
@@ -253,9 +259,10 @@ const Login = () => {
             alignItems: "center",
             justifyContent: "center",
             padding: "48px 24px",
+            backgroundColor: "rgba(15, 15, 26, 0.5)",
           }}
         >
-          <div style={{ width: "100%", maxWidth: "360px" }}>
+          <div style={{ width: "100%", maxWidth: "400px", padding: "40px", backgroundColor: "rgba(15, 15, 26, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "20px", backdropFilter: "blur(10px)" }}>
             {/* Header */}
             <p style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "3px", color: "rgba(255,255,255,0.4)", fontWeight: 600, margin: 0 }}>
               {isLogin ? "Member Access" : "New Member"}
