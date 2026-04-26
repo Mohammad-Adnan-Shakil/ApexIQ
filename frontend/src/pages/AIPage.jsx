@@ -153,7 +153,7 @@ const AIPage = () => {
           </div>
           <div>
             <p className="section-label">AI Intelligence</p>
-            <p className="text-lg font-semibold">Prediction Setup</p>
+            <p className="font-display font-semibold text-xl uppercase tracking-wider">Prediction Setup</p>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ const AIPage = () => {
             <label className="section-label mb-2 block">Driver</label>
             <div className="relative">
               <div className="pointer-events-none absolute left-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-xs text-whiteMuted">
-                {selectedDriverData?.code?.slice(0, 2) || "DR"}
+<span className="font-display font-bold uppercase tracking-wide">{selectedDriverData?.code?.slice(0, 2) || "DR"}</span>
               </div>
               <select
                 value={selectedDriver}
@@ -205,7 +205,7 @@ const AIPage = () => {
                 className="absolute top-0 -translate-x-1/2 rounded-md bg-accentRed px-2 py-1 text-xs font-semibold text-white"
                 style={{ left: `${sliderPercent}%` }}
               >
-                P{simulatedPosition}
+<span className="font-mono">P{simulatedPosition}</span>
               </div>
               <input
                 type="range"
@@ -227,7 +227,7 @@ const AIPage = () => {
                 {selectedDriverData.team || "Unknown Team"}
               </div>
               <div className="mt-2 flex items-center gap-2 text-sm text-accentGold">
-                <Trophy className="h-4 w-4" /> {Math.round(selectedDriverData.points || 0)} pts
+                <Trophy className="h-4 w-4" /> <span className="font-mono">{Math.round(selectedDriverData.points || 0)} pts</span>
               </div>
             </div>
           ) : null}
@@ -254,7 +254,7 @@ const AIPage = () => {
               <path d="M26 55C26 41 36 31 50 31C60 31 68 37 72 46" stroke="#e8002d" strokeWidth="4" strokeLinecap="round" />
               <path d="M24 56H74V65C74 68 72 70 69 70H29C26 70 24 68 24 65V56Z" fill="#141420" stroke="rgba(255,255,255,0.2)" />
             </svg>
-            <p className="text-xl font-semibold">Select driver and race to generate AI prediction</p>
+            <p className="font-display font-bold text-4xl uppercase tracking-widest">Select driver and race to generate AI prediction</p>
             <p className="mt-2 max-w-md text-sm text-whiteMuted">
               Choose inputs from the panel to run XGBoost/Random Forest intelligence with confidence and simulation impact.
             </p>
@@ -268,9 +268,9 @@ const AIPage = () => {
             <Card delay={0.1} className="border-accentRed/40 bg-accentRed/10">
               <p className="text-sm text-whitePrimary leading-relaxed">
                 Based on {selectedDriverData?.name || "this driver's"} recent form and starting from{" "}
-                <span className="font-semibold">P{simulatedPosition}</span>
+<span className="font-mono font-semibold">P{simulatedPosition}</span>
                 {selectedRaceData?.raceName ? ` at ${selectedRaceData.raceName}` : ""}, our models predict a{" "}
-                <span className="font-semibold">P{roundedPredictedPosition}</span> finish with{" "}
+<span className="font-mono font-semibold">P{roundedPredictedPosition}</span> finish with{" "}
                 <span className="font-semibold">{confidencePercent}% confidence</span>.{" "}
                 {trendImproving
                   ? "This driver is on an improving trend and looks set for a strong result."
@@ -283,7 +283,7 @@ const AIPage = () => {
             <Card className="grid items-center gap-4 md:grid-cols-[1fr_auto]" delay={0.12}>
               <div>
                 <p className="section-label">Predicted Finish</p>
-                <p className={`mt-3 text-7xl font-bold tracking-tight ${resultColorByPosition(roundedPredictedPosition)}`}>
+                <p className={`font-mono mt-3 text-7xl font-bold tracking-tight ${resultColorByPosition(roundedPredictedPosition)}`}>
                   P{roundedPredictedPosition}
                 </p>
                 <span className={`inline-flex mt-3 items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${verdict.className}`}>
@@ -301,12 +301,12 @@ const AIPage = () => {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Card delay={0.16}>
                 <p className="section-label">AVG FINISH</p>
-                <p className="mt-2 text-4xl font-bold">P{roundedAvgFinish}</p>
+                <p className="font-mono mt-2 text-4xl font-bold">P{roundedAvgFinish}</p>
               </Card>
 
               <Card delay={0.2}>
                 <p className="section-label">CONSISTENCY</p>
-                <p className="mt-2 text-3xl font-bold">{consistencyPercent}%</p>
+                <p className="font-mono mt-2 text-3xl font-bold">{consistencyPercent}%</p>
                 <div className="mt-3 h-2 rounded-full bg-white/10">
                   <div className="h-2 rounded-full bg-successGreen" style={{ width: `${consistencyPercent}%` }} />
                 </div>
@@ -338,18 +338,18 @@ const AIPage = () => {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="rounded-xl2 border border-borderSoft bg-bgElevated p-4">
                   <p className="text-xs text-whiteMuted">CURRENT AVG</p>
-                  <p className="mt-2 text-3xl font-bold text-whitePrimary">P{simOld}</p>
+                  <p className="font-mono mt-2 text-3xl font-bold text-whitePrimary">P{simOld}</p>
                 </div>
                 <div className="rounded-xl2 border border-borderSoft bg-bgElevated p-4">
                   <p className="text-xs text-whiteMuted">PROJECTED AVG</p>
-                  <p className="mt-2 text-3xl font-bold text-successGreen">P{simNew}</p>
+                  <p className="font-mono mt-2 text-3xl font-bold text-successGreen">P{simNew}</p>
                 </div>
               </div>
               <p className="mt-4 text-sm text-whiteMuted">
                 {impactIcon(simImpact)} {formatImpact(simImpact)}
               </p>
               <p className="mt-2 text-sm text-whiteMuted">
-                Starting from P{simulatedPosition} instead of the current average grid context is projected to{" "}
+                Starting from <span className="font-mono">P{simulatedPosition}</span> instead of the current average grid context is projected to{" "}
                 {typeof simOld === "number" && typeof simNew === "number"
                   ? `${simNew > simOld ? "cost" : "improve"} about ${Math.abs((simNew - simOld)).toFixed(1)} positions on average finish`
                   : "have a measurable impact on average finish"}
@@ -369,7 +369,7 @@ const AIPage = () => {
                       <div className="flex items-start justify-between mb-1">
                         <p className="text-sm font-semibold text-whitePrimary">{feature.explanation || `Factor ${idx + 1}`}</p>
                         <span className="text-xs px-2 py-1 rounded-full bg-accentRed/20 text-accentRed">
-                          {(feature.importance * 100).toFixed(1)}%
+<span className="font-mono">{(feature.importance * 100).toFixed(1)}%</span>
                         </span>
                       </div>
                       <div className="h-1.5 rounded-full bg-white/10 mt-2">

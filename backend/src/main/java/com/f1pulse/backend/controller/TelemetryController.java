@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 @Tag(name = "Telemetry Analysis", description = "FastF1 lap telemetry extraction and comparison")
 public class TelemetryController {
 
-    private static final long EXEC_TIMEOUT_SECONDS = 90L;
+    private static final long EXEC_TIMEOUT_SECONDS = 300L;
 
     @GetMapping("/compare")
     @Operation(summary = "Compare telemetry between two drivers",
@@ -48,10 +48,15 @@ public class TelemetryController {
                 year, grandPrix, sessionType, driver1, driver2);
 
         try {
-            // Build ProcessBuilder with CLI arguments
+            // Get absolute path to the script
+            java.io.File scriptFile = new java.io.File("ml/scripts/telemetry_analysis.py").getAbsoluteFile();
+            String scriptPath = scriptFile.getCanonicalPath();
+
+            // Build ProcessBuilder with CLI arguments using absolute path
             ProcessBuilder processBuilder = new ProcessBuilder(
-                    "python3",
-                    "ml/scripts/telemetry_analysis.py",
+                    "python",
+                    "-u",  // Unbuffered output
+                    scriptPath,
                     String.valueOf(year),
                     grandPrix,
                     sessionType,
@@ -59,14 +64,32 @@ public class TelemetryController {
                     driver2.toUpperCase()
             );
 
-            // Set working directory to project root
-            processBuilder.directory(new java.io.File(".").getAbsoluteFile().getParentFile());
+            // Redirect error stream to output stream
+            processBuilder.redirectErrorStream(true);
+
+            log.info("📂 [TelemetryController] Script path: {}", scriptPath);
 
             log.info("🚀 [TelemetryController] Launching Python process with timeout {}s", EXEC_TIMEOUT_SECONDS);
             Process process = processBuilder.start();
 
+            // Read streams in separate threads to prevent blocking
+            StringBuilder outputBuilder = new StringBuilder();
+            Thread outputReader = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        outputBuilder.append(line).append("\n");
+                    }
+                } catch (IOException e) {
+                    log.error("Error reading process output: {}", e.getMessage());
+                }
+            });
+            outputReader.start();
+
             // Wait for process to complete with timeout
             boolean finished = process.waitFor(EXEC_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            outputReader.join(5000); // Wait for output reader to finish
             
             if (!finished) {
                 process.destroyForcibly();
@@ -77,17 +100,19 @@ public class TelemetryController {
                         .body("{\"error\":\"Telemetry analysis timed out after " + EXEC_TIMEOUT_SECONDS + " seconds\"}");
             }
 
-            // Read stdout as JSON
-            String stdout = readStream(process.getInputStream());
-            String stderr = readStream(process.getErrorStream());
+            // Read stdout from output builder
+            String stdout = outputBuilder.toString().trim();
             int exitCode = process.exitValue();
 
+            log.info("📤 [TelemetryController] Process completed. Exit code: {}", exitCode);
+            log.info("📤 [TelemetryController] Stdout length: {} chars", stdout.length());
+
             if (exitCode != 0) {
-                log.error("❌ [TelemetryController] Process failed with exit code {}: {}", exitCode, stderr);
+                log.error("❌ [TelemetryController] Process failed with exit code {}: {}", exitCode, stdout);
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body("{\"error\":\"Python process failed: " + sanitizeForJson(stderr) + "\"}");
+                        .body("{\"error\":\"Python process failed: " + sanitizeForJson(stdout) + "\"}");
             }
 
             if (stdout == null || stdout.isBlank()) {

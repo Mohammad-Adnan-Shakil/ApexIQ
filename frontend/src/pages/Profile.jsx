@@ -77,23 +77,23 @@ const Profile = () => {
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card delay={0.1}>
           <div className="mb-3 flex items-center gap-2 text-accentRed"><Users className="h-4 w-4" /><span className="section-label">Drivers Loaded</span></div>
-          <p className="hero-number text-[52px]">{driverList.length}</p>
+          <p className="font-mono hero-number text-[52px]">{driverList.length}</p>
         </Card>
 
         <Card delay={0.15}>
           <div className="mb-3 flex items-center gap-2 text-accentRed"><Flag className="h-4 w-4" /><span className="section-label">Completed Races</span></div>
-          <p className="hero-number text-[52px] text-successGreen">{completedRaces}</p>
+          <p className="font-mono hero-number text-[52px] text-successGreen">{completedRaces}</p>
         </Card>
 
         <Card delay={0.2}>
           <div className="mb-3 flex items-center gap-2 text-accentRed"><Calendar className="h-4 w-4" /><span className="section-label">Upcoming Rounds</span></div>
-          <p className="hero-number text-[52px]">{upcomingRaces}</p>
+          <p className="font-mono hero-number text-[52px]">{upcomingRaces}</p>
         </Card>
       </section>
 
       <Card delay={0.25}>
         <p className="section-label">Session</p>
-        <h2 className="mt-2 text-xl font-semibold">JWT Session Status</h2>
+        <h2 className="font-display font-semibold text-xl uppercase tracking-wider mt-2">JWT Session Status</h2>
         <div className="mt-4 space-y-2 text-sm">
           <p className="flex items-center gap-2 text-whiteMuted"><span className="h-2.5 w-2.5 rounded-full bg-successGreen" /> Active</p>
           <p className="text-whiteMuted">Token Preview:</p>
@@ -106,7 +106,7 @@ const Profile = () => {
 
       <Card delay={0.3}>
         <p className="section-label">Favourite Driver</p>
-        <h2 className="mt-2 text-xl font-semibold">Set Your Favourite Driver</h2>
+        <h2 className="font-display font-semibold text-xl uppercase tracking-wider mt-2">Set Your Favourite Driver</h2>
 
         <select
           value={favouriteDriverId}
@@ -126,11 +126,11 @@ const Profile = () => {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-lg font-semibold">{favouriteDriver.name}</p>
-                <p className="mt-1 text-sm text-whiteMuted">{favouriteDriver.code || "DRV"} · {nationalityFlag(favouriteDriver.nationality)} {favouriteDriver.nationality}</p>
+                <p className="mt-1 text-sm text-whiteMuted"><span className="font-display font-bold uppercase tracking-wide">{favouriteDriver.code || "DRV"}</span> · {nationalityFlag(favouriteDriver.nationality)} {favouriteDriver.nationality}</p>
               </div>
               <div className="text-right">
                 <p className="section-label">Points</p>
-                <p className="text-2xl font-bold text-accentGold">{Math.round(favouriteDriver.points || 0)}</p>
+                <p className="font-mono text-2xl font-bold text-accentGold">{Math.round(favouriteDriver.points || 0)}</p>
               </div>
             </div>
             <div className="mt-3 flex items-center gap-2 text-sm text-whiteMuted">

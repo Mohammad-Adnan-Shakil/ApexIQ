@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/axios";
 import { Eye, EyeOff } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   useEffect(() => {
@@ -88,6 +89,25 @@ const Login = () => {
       }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await api.post("/auth/google", {
+        idToken: credentialResponse.credential,
+      });
+      login(res.data);
+      
+      const from = location.state?.from || "/dashboard";
+      navigate(from);
+    } catch (err) {
+      setError(err.response?.data?.message || "Google authentication failed");
     } finally {
       setLoading(false);
     }
@@ -438,6 +458,20 @@ const Login = () => {
               <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }}></div>
               <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>OR</span>
               <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }}></div>
+            </div>
+
+            {/* Google Login Button */}
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => setError("Google login failed")}
+                useOneTap
+                theme="filled_black"
+                text="signin_with"
+                shape="rectangular"
+                width="100%"
+                disabled={loading}
+              />
             </div>
 
             {/* Toggle Button */}

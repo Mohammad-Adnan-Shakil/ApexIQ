@@ -58,7 +58,7 @@ const Drivers = () => {
                 <circle cx="14" cy="18" r="3" />
                 <circle cx="49" cy="18" r="3" />
               </svg>
-              <h1 className="text-3xl font-bold tracking-tight">DRIVER STANDINGS</h1>
+              <h1 className="font-display font-bold text-4xl uppercase tracking-widest">DRIVER STANDINGS</h1>
             </div>
             <p className="mt-2 text-sm text-whiteMuted">{drivers.length} drivers · 2026 season</p>
           </div>
@@ -106,13 +106,13 @@ const Drivers = () => {
                 <Card className="group relative overflow-hidden border border-borderSoft">
                   <div className="flex items-start justify-between">
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${positionBadgeClass(pos)}`}>#{pos}</span>
-                    <p className={`text-4xl font-bold tracking-tight ${highlightPointColor}`}>{points}</p>
+                    <p className={`font-mono text-4xl font-bold tracking-tight ${highlightPointColor}`}>{points}</p>
                   </div>
 
                   <div className="mt-4">
                     <h2 className="text-2xl font-bold text-whitePrimary">{driver.name}</h2>
                     <span className="mt-2 inline-flex rounded-md bg-accentRed/20 px-2 py-1 text-xs font-semibold text-accentRed">
-                      {driver.code || "DRV"}
+                      <span className="font-display font-bold uppercase tracking-wide">{driver.code || "DRV"}</span>
                     </span>
                   </div>
 

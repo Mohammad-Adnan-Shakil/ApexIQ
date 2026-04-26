@@ -7,10 +7,14 @@ import com.deltabox.backend.ai.service.DriverInsightsService;
 import com.deltabox.backend.ai.service.SimulationService;
 import com.deltabox.backend.dto.DriverIntelligenceResponse;
 import com.deltabox.backend.service.AIService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -85,5 +89,39 @@ public class AIController {
 
     private static double round2(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    /**
+     * GET /api/ai/model-metrics
+     * Returns model performance metrics from ml/model_metrics.json
+     */
+    @GetMapping("/model-metrics")
+    public ResponseEntity<?> getModelMetrics() {
+        try {
+            // Path to model metrics file
+            String metricsPath = System.getProperty("user.dir") + "/ml/models/model_metrics.json";
+            File metricsFile = new File(metricsPath);
+            
+            if (!metricsFile.exists()) {
+                Map<String, Object> error = new LinkedHashMap<>();
+                error.put("error", "Model metrics file not found");
+                error.put("message", "Please run the training script first: python ml/scripts/train_all_models_v3.py");
+                error.put("expectedPath", metricsPath);
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            // Read and parse JSON
+            String jsonContent = new String(Files.readAllBytes(Paths.get(metricsPath)));
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> metrics = mapper.readValue(jsonContent, Map.class);
+            
+            return ResponseEntity.ok(metrics);
+            
+        } catch (Exception e) {
+            Map<String, String> error = new LinkedHashMap<>();
+            error.put("error", "Failed to read model metrics");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
 }

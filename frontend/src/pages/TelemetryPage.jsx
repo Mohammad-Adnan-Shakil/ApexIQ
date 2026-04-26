@@ -110,7 +110,7 @@ const TelemetryPage = () => {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-whitePrimary mb-2">Telemetry Comparison</h1>
+          <h1 className="font-display font-bold text-4xl uppercase tracking-widest text-whitePrimary mb-2">Telemetry Comparison</h1>
           <p className="text-whiteMuted">Compare lap telemetry between two drivers</p>
         </motion.div>
 
@@ -121,7 +121,7 @@ const TelemetryPage = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="bg-bgSecondary border border-red-900/30 rounded-lg p-6 mb-8"
         >
-          <h2 className="text-xl font-semibold mb-4 text-whitePrimary">Session Parameters</h2>
+          <h2 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Session Parameters</h2>
           
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             {/* Year */}
@@ -247,19 +247,19 @@ const TelemetryPage = () => {
               <div className="flex items-center gap-6">
                 <div>
                   <p className="text-xs text-whiteMuted">Driver 1</p>
-                  <p className="text-lg font-bold text-red-600">{formData.driver1}</p>
-                  <p className="text-sm text-whiteMuted">{telemetryData.driver1_lap_time}</p>
+                  <p className="font-display font-bold uppercase tracking-wide text-lg text-red-600">{formData.driver1}</p>
+                  <p className="font-mono text-sm text-whiteMuted">{telemetryData.driver1_lap_time}</p>
                 </div>
                 <div className="text-red-600">●</div>
                 <div>
                   <p className="text-xs text-whiteMuted">Driver 2</p>
-                  <p className="text-lg font-bold text-blue-600">{formData.driver2}</p>
-                  <p className="text-sm text-whiteMuted">{telemetryData.driver2_lap_time}</p>
+                  <p className="font-display font-bold uppercase tracking-wide text-lg text-blue-600">{formData.driver2}</p>
+                  <p className="font-mono text-sm text-whiteMuted">{telemetryData.driver2_lap_time}</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-xs text-whiteMuted">Max Gap</p>
-                <p className="text-lg font-bold text-whitePrimary">{getMaxDelta()}s</p>
+                <p className="font-mono text-lg font-bold text-whitePrimary">{getMaxDelta()}s</p>
               </div>
             </div>
 
@@ -272,7 +272,7 @@ const TelemetryPage = () => {
                 transition={{ delay: 0.1 }}
                 className="bg-bgSecondary border border-red-900/30 rounded-lg p-4"
               >
-                <h3 className="text-lg font-semibold mb-4 text-whitePrimary">Speed (km/h)</h3>
+                <h3 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Speed (km/h)</h3>
                 <ResponsiveContainer width="100%" height={180}>
                   <LineChart data={chartData}>
                     <CartesianGrid stroke="#222" />
@@ -293,7 +293,7 @@ const TelemetryPage = () => {
                 transition={{ delay: 0.2 }}
                 className="bg-bgSecondary border border-red-900/30 rounded-lg p-4"
               >
-                <h3 className="text-lg font-semibold mb-4 text-whitePrimary">Throttle (%)</h3>
+                <h3 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Throttle (%)</h3>
                 <ResponsiveContainer width="100%" height={180}>
                   <LineChart data={chartData}>
                     <CartesianGrid stroke="#222" />
@@ -314,7 +314,7 @@ const TelemetryPage = () => {
                 transition={{ delay: 0.3 }}
                 className="bg-bgSecondary border border-red-900/30 rounded-lg p-4"
               >
-                <h3 className="text-lg font-semibold mb-4 text-whitePrimary">Brake (0/1)</h3>
+                <h3 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Brake (0/1)</h3>
                 <ResponsiveContainer width="100%" height={180}>
                   <LineChart data={chartData}>
                     <CartesianGrid stroke="#222" />
@@ -335,7 +335,7 @@ const TelemetryPage = () => {
                 transition={{ delay: 0.4 }}
                 className="bg-bgSecondary border border-red-900/30 rounded-lg p-4"
               >
-                <h3 className="text-lg font-semibold mb-4 text-whitePrimary">Gear</h3>
+                <h3 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Gear</h3>
                 <ResponsiveContainer width="100%" height={180}>
                   <LineChart data={chartData}>
                     <CartesianGrid stroke="#222" />
@@ -356,7 +356,7 @@ const TelemetryPage = () => {
                 transition={{ delay: 0.5 }}
                 className="bg-bgSecondary border border-red-900/30 rounded-lg p-4"
               >
-                <h3 className="text-lg font-semibold mb-4 text-whitePrimary">Time Delta (s)</h3>
+                <h3 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Time Delta (s)</h3>
                 <ResponsiveContainer width="100%" height={180}>
                   <AreaChart data={chartData}>
                     <CartesianGrid stroke="#222" />

@@ -16,7 +16,8 @@ export default {
         successGreen: "#00d4a0",
       },
       fontFamily: {
-        inter: ["Inter", "sans-serif"],
+        display: ['Barlow Condensed', 'sans-serif'],
+        mono: ['DM Mono', 'monospace'],
       },
       borderRadius: {
         xl2: "16px",

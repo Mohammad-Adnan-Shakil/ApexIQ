@@ -5,7 +5,7 @@ Extracts and compares lap telemetry for two drivers from a specific F1 session.
 
 Usage:
     python3 telemetry_analysis.py <year> <grand_prix> <session_type> <driver1_code> <driver2_code>
-    
+
 Example:
     python3 telemetry_analysis.py 2024 Monaco Q VER LEC
 """
@@ -16,8 +16,18 @@ import numpy as np
 import fastf1
 from typing import Optional, Dict, List, Any
 
+# Disable output buffering for proper streaming when called from Java
+sys.stdout.reconfigure(line_buffering=True)
+
+# Suppress FastF1 logging to stdout
+import logging
+logging.getLogger('fastf1').setLevel(logging.WARNING)
+
 # Enable FastF1 cache to speed up subsequent runs
-fastf1.Cache.enable_cache('cache/')
+import os
+cache_dir = os.path.join(os.path.dirname(__file__), 'cache')
+os.makedirs(cache_dir, exist_ok=True)
+fastf1.Cache.enable_cache(cache_dir)
 
 
 def get_session(year: int, grand_prix: str, session_type: str):

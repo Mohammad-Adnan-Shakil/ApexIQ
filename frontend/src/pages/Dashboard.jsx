@@ -46,7 +46,7 @@ const HeroSection = () => (
   <section className="flex flex-col justify-between gap-4 rounded-xl2 border border-borderSoft bg-bgElevated p-6 md:flex-row md:items-center">
     <div>
       <p className="section-label">Season Overview</p>
-      <h1 className="mt-2 text-4xl font-bold tracking-tight md:text-5xl">
+      <h1 className="font-display font-bold text-4xl uppercase tracking-widest mt-2 md:text-5xl">
         <span className="text-whitePrimary">2026 SEASON</span> <span className="text-accentRed">COMMAND CENTER</span>
       </h1>
       <p className="mt-2 text-sm text-whiteMuted">Real-time standings, race progress, and race intelligence at a glance.</p>
@@ -106,7 +106,7 @@ const StatCardsSection = ({ drivers, races, loading }) => {
         icon={Trophy} 
         label="Top Driver" 
         value={topDriver.name} 
-        subValue={`${Math.round(topDriver.points || 0)} pts`} 
+        subValue={<span className="font-mono">{Math.round(topDriver.points || 0)} pts</span>} 
         delay={0.15}
         loading={loading}
       />
@@ -114,7 +114,7 @@ const StatCardsSection = ({ drivers, races, loading }) => {
         icon={Zap} 
         label="Top Team" 
         value={topTeam.name} 
-        subValue={`${Math.round(topTeam.points || 0)} pts`} 
+        subValue={<span className="font-mono">{Math.round(topTeam.points || 0)} pts</span>} 
         delay={0.2}
         loading={loading}
       />
@@ -163,7 +163,7 @@ const ChartsSection = ({ drivers, races, loading }) => {
     <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
       <Card delay={0.25}>
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-whitePrimary">Driver Standings</h2>
+          <h2 className="font-display font-semibold text-xl uppercase tracking-wider text-whitePrimary">Driver Standings</h2>
           <p className="section-label">Top 8</p>
         </div>
 
@@ -176,7 +176,7 @@ const ChartsSection = ({ drivers, races, loading }) => {
 
               return (
                 <div key={driver.driverId || driver.code} className="grid grid-cols-[64px_1fr_40px] items-center gap-3">
-                  <span className="text-sm font-semibold text-whiteMuted">{driver.code || "DRV"}</span>
+                  <span className="font-display font-bold uppercase tracking-wide text-sm text-whiteMuted">{driver.code || "DRV"}</span>
                   <div className="h-8 overflow-hidden rounded-lg bg-white/5">
                     <div
                       className="h-full rounded-lg transition-all duration-700"
@@ -188,7 +188,7 @@ const ChartsSection = ({ drivers, races, loading }) => {
                       }}
                     />
                   </div>
-                  <span className="text-right text-sm font-semibold text-whitePrimary">{Math.round(points)}</span>
+                  <span className="font-mono text-right text-sm font-semibold text-whitePrimary">{Math.round(points)}</span>
                 </div>
               );
             })}
@@ -208,7 +208,7 @@ const ChartsSection = ({ drivers, races, loading }) => {
 
       <Card delay={0.3}>
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-whitePrimary">Race Progress</h2>
+          <h2 className="font-display font-semibold text-xl uppercase tracking-wider text-whitePrimary">Race Progress</h2>
           <p className="section-label">Completion Curve</p>
         </div>
 
@@ -268,7 +268,7 @@ const UpcomingRacesSection = ({ races, loading }) => {
       {inView ? (
         <Card delay={0.35}>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-whitePrimary">Upcoming Races</h2>
+            <h2 className="font-display font-semibold text-xl uppercase tracking-wider text-whitePrimary">Upcoming Races</h2>
             <p className="section-label">Next 6</p>
           </div>
 
@@ -284,7 +284,7 @@ const UpcomingRacesSection = ({ races, loading }) => {
                 <div key={race.raceId} className="rounded-xl2 border border-white/5 bg-bgElevated px-4 py-3">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-sm font-semibold text-whitePrimary">R{race.round} · {race.raceName}</p>
+                      <p className="font-mono text-sm font-semibold text-whitePrimary">R{race.round} · {race.raceName}</p>
                       <p className="text-xs text-whiteMuted">{race.circuitName} · {race.location}, {race.country}</p>
                     </div>
                     <p className="text-xs text-whiteMuted">{race.date}</p>

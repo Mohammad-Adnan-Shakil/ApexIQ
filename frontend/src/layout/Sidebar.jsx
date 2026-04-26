@@ -23,10 +23,8 @@ const NAV_ITEMS_PUBLIC = [
 ];
 
 const NAV_ITEMS_PROTECTED = [
-  { to: "/ai", label: "AI Prediction", icon: Brain },
   { to: "/telemetry", label: "Telemetry", icon: Gauge },
   { to: "/race-engineer", label: "Race Engineer", icon: Radio },
-  { to: "/profile", label: "Profile", icon: User },
 ];
 
 const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
@@ -60,7 +58,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
           <div>
             <div className="border-b border-borderSoft px-5 py-6 lg:px-4 xl:px-5">
               <h1 className="text-xl font-bold tracking-tight lg:text-center xl:text-left">
-                <span className="text-accentRed">APEX</span> <span className="text-whitePrimary lg:hidden xl:inline">IQ</span>
+                <span className="text-accentRed">Delta</span><span className="text-whitePrimary">Box</span>
               </h1>
             </div>
 
@@ -76,7 +74,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                       `}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
-                      <span className="lg:hidden xl:inline">{label}</span>
+                      <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">{label}</span>
 
                       {isActive ? (
                         <motion.div
@@ -102,9 +100,35 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                 `}
               >
                 <Brain className="h-4 w-4 shrink-0" />
-                <span className="lg:hidden xl:inline">AI Prediction</span>
+                <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">AI Prediction</span>
                 {!isAuthenticated && <Lock className="h-3 w-3 ml-auto lg:ml-0 xl:ml-auto" />}
               </button>
+
+              {/* Telemetry and Race Engineer - Only show if authenticated */}
+              {isAuthenticated && NAV_ITEMS_PROTECTED.map(({ to, label, icon: Icon }) => (
+                <NavLink key={to} to={to} onClick={onNavigate} className="group relative mb-1 block">
+                  {({ isActive }) => (
+                    <div
+                      className={`
+                        flex items-center gap-3 rounded-xl2 px-3 py-3 text-sm transition-all duration-200
+                        ${isActive ? "bg-accentRed/10 text-whitePrimary" : "text-whiteMuted hover:bg-white/5 hover:text-whitePrimary"}
+                      `}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">{label}</span>
+
+                      {isActive ? (
+                        <motion.div
+                          layoutId="active-nav-underline"
+                          className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-accentRed"
+                        />
+                      ) : null}
+
+                      {isActive ? <span className="absolute left-0 top-2 h-7 w-[3px] rounded-r-full bg-accentRed" /> : null}
+                    </div>
+                  )}
+                </NavLink>
+              ))}
 
               {/* Profile - Only show if authenticated */}
               {isAuthenticated && (
@@ -117,7 +141,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                       `}
                     >
                       <User className="h-4 w-4 shrink-0" />
-                      <span className="lg:hidden xl:inline">Profile</span>
+                      <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">Profile</span>
 
                       {isActive ? (
                         <motion.div
@@ -152,7 +176,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                   className="flex w-full items-center gap-3 rounded-xl2 px-3 py-3 text-left text-sm text-accentRed transition hover:bg-accentRed/10"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span className="lg:hidden xl:inline">Logout</span>
+                  <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">Logout</span>
                 </button>
               </>
             ) : (
@@ -163,7 +187,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                   className="flex w-full items-center gap-3 rounded-xl2 px-3 py-3 text-left text-sm bg-accentRed text-white font-medium transition hover:bg-accentRed/90 mb-2"
                 >
                   <LogIn className="h-4 w-4" />
-                  <span className="lg:hidden xl:inline">Sign In</span>
+                  <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">Sign In</span>
                 </button>
 
                 {/* Sign Up Button */}
@@ -172,7 +196,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                   className="flex w-full items-center gap-3 rounded-xl2 px-3 py-3 text-left text-sm border border-borderSoft text-whiteMuted font-medium transition hover:bg-white/5"
                 >
                   <User className="h-4 w-4" />
-                  <span className="lg:hidden xl:inline">Sign Up</span>
+                  <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">Sign Up</span>
                 </button>
               </>
             )}

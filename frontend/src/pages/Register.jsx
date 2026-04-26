@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import api from "../utils/axios";
 import { motion } from "framer-motion";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Register = () => {
   useEffect(() => {
@@ -9,6 +11,7 @@ const Register = () => {
   }, []);
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     username: "",
@@ -36,6 +39,23 @@ const Register = () => {
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setError("Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await api.post("/auth/google", {
+        idToken: credentialResponse.credential,
+      });
+      login(res.data);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Google authentication failed");
     } finally {
       setLoading(false);
     }
@@ -75,6 +95,21 @@ const Register = () => {
           <button className="btn-primary w-full">
             {loading ? "CREATING..." : "CREATE ACCOUNT"}
           </button>
+
+          <div className="racing-divider"></div>
+
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => setError("Google login failed")}
+              useOneTap
+              theme="filled_black"
+              text="signup_with"
+              shape="rectangular"
+              width="100%"
+              disabled={loading}
+            />
+          </div>
         </form>
       </motion.div>
     </div>

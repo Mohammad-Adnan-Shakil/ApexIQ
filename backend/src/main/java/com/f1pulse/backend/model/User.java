@@ -19,6 +19,9 @@ public class User {
 
     private String role;
 
+    @Column(name = "google_sub")
+    private String googleSub;
+
 	public Long getId() {
 		return id;
 	}
@@ -57,6 +60,14 @@ public class User {
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	public String getGoogleSub() {
+		return googleSub;
+	}
+
+	public void setGoogleSub(String googleSub) {
+		this.googleSub = googleSub;
 	}
 
     // getters & setters

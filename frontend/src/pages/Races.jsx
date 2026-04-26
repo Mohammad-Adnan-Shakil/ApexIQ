@@ -40,7 +40,7 @@ const Races = () => {
             <p className="section-label">Season Calendar</p>
             <div className="mt-2 flex items-center gap-3">
               <CalendarClock className="h-6 w-6 text-accentRed" />
-              <h1 className="text-3xl font-bold tracking-tight">2026 RACE CALENDAR</h1>
+              <h1 className="font-display font-bold text-4xl uppercase tracking-widest">2026 RACE CALENDAR</h1>
             </div>
             <p className="mt-2 text-sm text-whiteMuted">{completed.length} completed · {scheduled.length} scheduled</p>
           </div>
@@ -72,7 +72,7 @@ const Races = () => {
 
                 <div className="grid grid-cols-[64px_1fr_auto] items-center gap-4">
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-semibold ${
+                    className={`font-display font-bold uppercase tracking-wide flex h-12 w-12 items-center justify-center rounded-full border text-sm font-semibold ${
                       isCompleted
                         ? "border-accentRed bg-accentRed text-white"
                         : "border-borderSoft bg-bgElevated text-whiteMuted"
@@ -90,7 +90,7 @@ const Races = () => {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-sm text-whiteMuted">{formatRaceDate(race.date)}</p>
+                    <p className="font-mono text-sm text-whiteMuted">{formatRaceDate(race.date)}</p>
                     <div className="mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold">
                       {isNext ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-accentRed/20 px-2 py-1 text-accentRed">

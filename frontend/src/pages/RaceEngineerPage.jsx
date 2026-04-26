@@ -114,7 +114,7 @@ const RaceEngineerPage = () => {
         >
           <div className="flex items-center gap-3 mb-2">
             <Radio className="w-8 h-8 text-red-600" />
-            <h1 className="text-4xl font-bold text-whitePrimary">Race Engineer</h1>
+            <h1 className="font-display font-bold text-4xl uppercase tracking-widest text-whitePrimary">Race Engineer</h1>
           </div>
           <p className="text-whiteMuted">AI-powered pit wall strategy — powered by DeepSeek R1</p>
           
@@ -135,7 +135,7 @@ const RaceEngineerPage = () => {
             className="lg:col-span-1"
           >
             <div className="bg-bgSecondary border border-red-900/30 rounded-lg p-6 sticky top-6">
-              <h2 className="text-lg font-semibold mb-4 text-whitePrimary">Race Status</h2>
+              <h2 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Race Status</h2>
               
               <div className="space-y-4">
                 {/* Lap */}
@@ -147,7 +147,7 @@ const RaceEngineerPage = () => {
                       name="lap"
                       value={raceContext.lap}
                       onChange={handleContextChange}
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     />
                   </div>
                   <div className="flex flex-col">
@@ -157,7 +157,7 @@ const RaceEngineerPage = () => {
                       name="totalLaps"
                       value={raceContext.totalLaps}
                       onChange={handleContextChange}
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     />
                   </div>
                 </div>
@@ -171,7 +171,7 @@ const RaceEngineerPage = () => {
                       name="position"
                       value={raceContext.position}
                       onChange={handleContextChange}
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     />
                   </div>
                   <div className="flex flex-col">
@@ -182,7 +182,7 @@ const RaceEngineerPage = () => {
                       value={raceContext.gapToLeader}
                       onChange={handleContextChange}
                       placeholder="+12.4s"
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     />
                   </div>
                 </div>
@@ -195,7 +195,7 @@ const RaceEngineerPage = () => {
                       name="tyreCompound"
                       value={raceContext.tyreCompound}
                       onChange={handleContextChange}
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     >
                       <option>SOFT</option>
                       <option>MEDIUM</option>
@@ -211,7 +211,7 @@ const RaceEngineerPage = () => {
                       name="tyreAge"
                       value={raceContext.tyreAge}
                       onChange={handleContextChange}
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     />
                   </div>
                 </div>
@@ -226,7 +226,7 @@ const RaceEngineerPage = () => {
                       value={raceContext.fuelLoad}
                       onChange={handleContextChange}
                       step="0.1"
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     />
                   </div>
                   <div className="flex flex-col">
@@ -235,7 +235,7 @@ const RaceEngineerPage = () => {
                       name="weather"
                       value={raceContext.weather}
                       onChange={handleContextChange}
-                      className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
                     >
                       <option>Dry</option>
                       <option>Damp</option>
@@ -268,7 +268,7 @@ const RaceEngineerPage = () => {
             className="lg:col-span-2"
           >
             <div className="bg-bgSecondary border border-red-900/30 rounded-lg p-6 flex flex-col h-[600px] lg:h-auto lg:min-h-[600px]">
-              <h2 className="text-lg font-semibold mb-4 text-whitePrimary">Engineer Radio</h2>
+              <h2 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Engineer Radio</h2>
 
               {/* Conversation Area */}
               <div className="flex-1 overflow-y-auto mb-4 space-y-3 pr-2 pb-2">

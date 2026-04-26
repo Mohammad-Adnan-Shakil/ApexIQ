@@ -16,20 +16,20 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * AI-powered Race Engineer service using DeepSeek R1 for strategic decision making.
+ * AI-powered Race Engineer service using Groq API for strategic decision making.
  * Provides pit wall radio-style tactical recommendations based on race telemetry.
  */
 @Slf4j
 @Service
 public class RaceEngineerService {
 
-    @Value("${deepseek.api.key}")
+    @Value("${groq.api.key}")
     private String apiKey;
 
-    @Value("${deepseek.api.url}")
+    @Value("${groq.api.url}")
     private String apiUrl;
 
-    @Value("${deepseek.model}")
+    @Value("${groq.model}")
     private String model;
 
     private final RestTemplate restTemplate;
@@ -43,7 +43,7 @@ public class RaceEngineerService {
     }
 
     /**
-     * Generate race engineering strategic advice using DeepSeek R1.
+     * Generate race engineering strategic advice using Groq API.
      * 
      * @param context Race context including position, tires, fuel, and driver message
      * @return Map containing "response" key with engineer message value
@@ -90,20 +90,20 @@ public class RaceEngineerService {
             );
             requestBody.put("messages", messages);
 
-            log.info("🚀 [RaceEngineer] Sending request to DeepSeek API: {}", apiUrl);
+            log.info("🚀 [RaceEngineer] Sending request to Groq API: {}", apiUrl);
 
-            // Call DeepSeek API with timeout handling
+            // Call Groq API with timeout handling
             long startTime = System.currentTimeMillis();
             
-            JsonNode response = callDeepSeekApi(requestBody);
+            JsonNode response = callGroqApi(requestBody);
             
             long elapsed = System.currentTimeMillis() - startTime;
-            log.info("⏱️ [RaceEngineer] DeepSeek response received in {}ms", elapsed);
+            log.info("⏱️ [RaceEngineer] Groq response received in {}ms", elapsed);
 
             // Extract engineer message from response
             if (response == null || !response.has("choices") || response.get("choices").isEmpty()) {
                 log.warn("⚠️ [RaceEngineer] Invalid response structure from API");
-                throw new Exception("Invalid response from DeepSeek API");
+                throw new Exception("Invalid response from Groq API");
             }
 
             String engineerMessage = response
@@ -121,8 +121,8 @@ public class RaceEngineerService {
             return result;
 
         } catch (RestClientException e) {
-            log.error("❌ [RaceEngineer] DeepSeek API error: {}", e.getMessage(), e);
-            throw new PythonExecutionException("DeepSeek API communication failed: " + e.getMessage(), e);
+            log.error("❌ [RaceEngineer] Groq API error: {}", e.getMessage(), e);
+            throw new PythonExecutionException("Groq API communication failed: " + e.getMessage(), e);
         } catch (Exception e) {
             log.error("❌ [RaceEngineer] Unexpected error: {}", e.getMessage(), e);
             throw new PythonExecutionException("Failed to generate race engineer advice: " + e.getMessage(), e);
@@ -130,9 +130,9 @@ public class RaceEngineerService {
     }
 
     /**
-     * Call DeepSeek API with proper headers and error handling.
+     * Call Groq API with proper headers and error handling.
      */
-    private JsonNode callDeepSeekApi(Map<String, Object> requestBody) {
+    private JsonNode callGroqApi(Map<String, Object> requestBody) {
         try {
             // Create HTTP headers with Bearer token
             var headers = new org.springframework.http.HttpHeaders();
@@ -146,7 +146,7 @@ public class RaceEngineerService {
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("❌ [RaceEngineer] API returned status: {}", response.getStatusCode());
-                throw new Exception("DeepSeek API error: " + response.getStatusCode());
+                throw new Exception("Groq API error: " + response.getStatusCode());
             }
 
             // Parse response JSON
@@ -157,7 +157,7 @@ public class RaceEngineerService {
             throw e;
         } catch (Exception e) {
             log.error("❌ [RaceEngineer] Failed to parse API response: {}", e.getMessage());
-            throw new RuntimeException("Failed to parse DeepSeek response", e);
+            throw new RuntimeException("Failed to parse Groq response", e);
         }
     }
 }
