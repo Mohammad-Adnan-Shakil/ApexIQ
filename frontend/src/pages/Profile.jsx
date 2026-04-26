@@ -23,7 +23,8 @@ const Profile = () => {
   }, [favouriteDriverId]);
 
   const profile = profileData || user || {};
-  const emailOrUser = profile.email || profile.username || "user@deltabox.app";
+  const username = profile.username || "User";
+  const email = profile.email || "user@deltabox.app";
   const role = String(profile.role || user?.role || "USER").toUpperCase();
 
   const driverList = drivers || [];
@@ -60,12 +61,13 @@ const Profile = () => {
       <Card className="bg-gradient-to-r from-accentRed/10 to-bgElevated" delay={0.05}>
         <div className="flex flex-col items-start gap-4 md:flex-row md:items-center">
           <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-accentRed text-3xl font-bold text-white">
-            {emailOrUser[0]?.toUpperCase() || "U"}
+            {username[0]?.toUpperCase() || "U"}
           </div>
 
           <div>
             <p className="section-label">Member Profile</p>
-            <h1 className="mt-1 text-3xl font-bold">{emailOrUser}</h1>
+            <h1 className="mt-1 text-3xl font-bold">{username}</h1>
+            <p className="mt-1 text-sm text-whiteMuted">{email}</p>
             <div className="mt-2 flex items-center gap-2">
               <span className="rounded-full bg-accentRed/20 px-3 py-1 text-xs font-semibold text-accentRed">{role}</span>
               <span className="text-sm text-whiteMuted">Member · DeltaBox 2026</span>

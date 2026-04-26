@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, user.getEmail(), user.getRole());
+        return new AuthResponse(token, user.getUsername(), user.getRole());
     }
 
     // ✅ LOGIN
@@ -99,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, user.getEmail(), user.getRole());
+        return new AuthResponse(token, user.getUsername(), user.getRole());
     }
 
     // ✅ GOOGLE OAUTH2
@@ -162,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
                 
                 String token = jwtService.generateToken(userDetails);
                 
-                return new AuthResponse(token, user.getEmail(), user.getRole());
+                return new AuthResponse(token, user.getUsername(), user.getRole());
             } else {
                 throw new RuntimeException("Failed to verify Google token");
             }

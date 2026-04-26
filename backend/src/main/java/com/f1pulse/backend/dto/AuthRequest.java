@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 
 public class AuthRequest {
 
-    private String username;  // Optional for registration
+    @NotBlank
+    @jakarta.validation.constraints.Size(min = 3, max = 50)
+    private String username;
 
     @NotBlank
     private String email;
