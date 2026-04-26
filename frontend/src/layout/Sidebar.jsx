@@ -164,7 +164,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                 {/* User Info */}
                 <div className="px-3 py-2 mb-2 rounded-lg bg-white/5 lg:hidden xl:block">
                   <p className="text-xs text-whiteMuted truncate">Signed in as:</p>
-                  <p className="text-sm font-medium text-whitePrimary truncate">{user?.email || "User"}</p>
+                  <p className="text-sm font-medium text-whitePrimary truncate">{user?.username || "User"}</p>
                 </div>
 
                 {/* Logout Button */}

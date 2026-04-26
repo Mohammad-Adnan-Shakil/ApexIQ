@@ -34,6 +34,12 @@ const RaceEngineerPage = () => {
     conversationEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation]);
 
+  // Get timestamp for message
+  const getTimestamp = () => {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+  };
+
   /**
    * Handle form field changes
    */
@@ -64,7 +70,7 @@ const RaceEngineerPage = () => {
       // Add driver message to conversation
       const updatedConversation = [
         ...conversation,
-        { role: "driver", message: driverMessage }
+        { role: "driver", message: driverMessage, timestamp: getTimestamp() }
       ];
       setConversation(updatedConversation);
       setDriverMessage("");
@@ -80,13 +86,13 @@ const RaceEngineerPage = () => {
         setError(response.data.error);
         setConversation(prev => [
           ...prev,
-          { role: "engineer", message: `⚠️ ${response.data.error}`, isError: true }
+          { role: "engineer", message: `⚠️ ${response.data.error}`, isError: true, timestamp: getTimestamp() }
         ]);
       } else {
         // Add engineer response
         setConversation(prev => [
           ...prev,
-          { role: "engineer", message: response.data.response }
+          { role: "engineer", message: response.data.response, timestamp: getTimestamp() }
         ]);
       }
     } catch (err) {
@@ -95,7 +101,7 @@ const RaceEngineerPage = () => {
       setError(errorMsg);
       setConversation(prev => [
         ...prev,
-        { role: "engineer", message: `⚠️ ${errorMsg}`, isError: true }
+        { role: "engineer", message: `⚠️ ${errorMsg}`, isError: true, timestamp: getTimestamp() }
       ]);
     } finally {
       setLoading(false);
@@ -294,10 +300,17 @@ const RaceEngineerPage = () => {
                             : "bg-gray-900/50 text-whitePrimary border border-gray-600/30"
                         } ${msg.role === "engineer" && !msg.isError ? "font-mono" : ""}`}
                       >
-                        {msg.role === "engineer" && !msg.isError && (
-                          <p className="text-xs text-whiteMuted mb-1">🎙️ Engineer</p>
-                        )}
-                        {msg.message}
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1">
+                            {msg.role === "engineer" && !msg.isError && (
+                              <p className="text-xs text-whiteMuted mb-1">🎙️ Engineer</p>
+                            )}
+                            {msg.message}
+                          </div>
+                          {msg.timestamp && (
+                            <span className="text-xs text-whiteMuted/50 whitespace-nowrap">{msg.timestamp}</span>
+                          )}
+                        </div>
                       </div>
                     </motion.div>
                   ))

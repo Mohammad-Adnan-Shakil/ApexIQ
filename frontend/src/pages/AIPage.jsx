@@ -48,7 +48,8 @@ const resultColorByPosition = (pos) => {
 const confidenceLabel = (percent) => {
   if (percent >= 75) return "High Confidence";
   if (percent >= 50) return "Moderate Confidence";
-  return "Low Confidence";
+  if (percent >= 40) return "Low Confidence";
+  return "Very Low Confidence";
 };
 
 const verdictForPosition = (position) => {

@@ -66,7 +66,7 @@ const Profile = () => {
 
           <div>
             <p className="section-label">Member Profile</p>
-            <h1 className="mt-1 text-3xl font-bold">{username}</h1>
+            <h1 className="mt-1 text-3xl font-display font-bold uppercase tracking-wide">{username}</h1>
             <p className="mt-1 text-sm text-whiteMuted">{email}</p>
             <div className="mt-2 flex items-center gap-2">
               <span className="rounded-full bg-accentRed/20 px-3 py-1 text-xs font-semibold text-accentRed">{role}</span>
