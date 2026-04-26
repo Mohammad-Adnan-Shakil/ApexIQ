@@ -49,7 +49,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
       <aside
         className={`
           fixed inset-y-0 left-0 z-50 border-r border-borderSoft bg-bgPrimary
-          transition-transform duration-200 lg:static
+          transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen
           ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           w-[240px] lg:w-[84px] xl:w-[240px]
         `}
