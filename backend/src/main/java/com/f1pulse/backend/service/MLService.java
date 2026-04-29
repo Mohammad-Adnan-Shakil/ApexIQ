@@ -117,6 +117,15 @@ public class MLService {
             response.setAppliedWeights(appliedWeights);
         }
         
+        // Map insights
+        if (json.has("insights") && json.get("insights").isArray()) {
+            List<String> insights = new java.util.ArrayList<>();
+            for (JsonNode insight : json.get("insights")) {
+                insights.add(insight.asText());
+            }
+            response.setInsights(insights);
+        }
+        
         // Map top features
         if (json.has("top_features") && json.get("top_features").isArray()) {
             List<Map<String, Object>> topFeatures = new java.util.ArrayList<>();

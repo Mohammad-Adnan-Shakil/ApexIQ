@@ -429,6 +429,26 @@ const AIPage = () => {
               </Card>
             )}
 
+            {result?.prediction?.insights && result.prediction.insights.length > 0 && (
+              <Card delay={0.27} className="border-accentGold/30 bg-accentGold/5">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <p className="text-lg">🧠</p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="section-label mb-2 text-accentGold">Model Insights</p>
+                    <ul className="space-y-1">
+                      {result.prediction.insights.map((insight, idx) => (
+                        <li key={idx} className="text-sm text-whitePrimary">
+                          • {insight}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             <Card delay={0.28}>
               <p className="section-label">What-if Simulation</p>
               <div className="mt-4 grid grid-cols-2 gap-4">

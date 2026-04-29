@@ -87,6 +87,7 @@ class PredictionResponse(BaseModel):
     uncertainty_factors: Optional[List[str]] = None
     performance_breakdown: Optional[Dict[str, float]] = None
     applied_weights: Optional[Dict[str, float]] = None
+    insights: Optional[List[str]] = None
 
 def simulate_impact(predicted: float, avg_last5: float) -> str:
     if predicted < avg_last5:
@@ -150,6 +151,97 @@ def adjust_confidence_divergence(confidence: float, career_avg: float, recent_av
         confidence *= 0.85
     
     return max(confidence, 0.05)  # clamp minimum 5%
+
+def generate_weight_insight(weights: Dict[str, float], trend: str) -> str:
+    """Generate insight based on dominant weight and trend"""
+    max_weight = max(weights["career"], weights["season"], weights["recent"])
+    
+    # Primary driver
+    if max_weight == weights["recent"]:
+        if trend == "DECLINING":
+            return "Recent performance decline is significantly impacting the prediction."
+        if trend == "IMPROVING":
+            return "Recent improvement in performance is boosting the prediction."
+        return "Recent performance is the primary factor influencing this prediction."
+    
+    if max_weight == weights["season"]:
+        return "Current season form is the dominant factor in this prediction."
+    
+    if max_weight == weights["career"]:
+        return "Strong long-term consistency is driving this prediction."
+    
+    return "Prediction is based on a balanced combination of performance factors."
+
+def generate_divergence_insight(career_avg: float, recent_avg: float) -> Optional[str]:
+    """Generate insight based on divergence between career and recent performance"""
+    diff = abs(career_avg - recent_avg)
+    
+    if diff > 3:
+        return "High variance between long-term and recent performance reduces prediction reliability."
+    
+    if diff > 1.5:
+        return "Moderate variation between career and recent performance detected."
+    
+    return None
+
+def get_final_insights(weights: Dict[str, float], trend: str, career_avg: float, recent_avg: float) -> List[str]:
+    """Combine all insights into a list"""
+    main_insight = generate_weight_insight(weights, trend)
+    divergence_insight = generate_divergence_insight(career_avg, recent_avg)
+    
+    insights = [main_insight]
+    if divergence_insight:
+        insights.append(divergence_insight)
+    
+    return insights
+
+def test_prediction_scenarios() -> List[Dict[str, Any]]:
+    """Test prediction scenarios to validate dynamic weighting behavior"""
+    scenarios = [
+        {
+            "name": "Declining Driver",
+            "career": 2.0,
+            "season": 3.5,
+            "recent": 6.0,
+            "trend": "DECLINING",
+            "consistency": 85
+        },
+        {
+            "name": "Improving Driver",
+            "career": 6.0,
+            "season": 4.0,
+            "recent": 2.5,
+            "trend": "IMPROVING",
+            "consistency": 80
+        },
+        {
+            "name": "Inconsistent Driver",
+            "career": 5.0,
+            "season": 3.0,
+            "recent": 8.0,
+            "trend": "STABLE",
+            "consistency": 60
+        }
+    ]
+    
+    results = []
+    for scenario in scenarios:
+        weights = get_dynamic_weights(scenario["trend"], scenario["consistency"])
+        prediction = compute_weighted_finish(
+            scenario["career"],
+            scenario["season"],
+            scenario["recent"],
+            scenario["trend"],
+            scenario["consistency"]
+        )
+        
+        results.append({
+            "name": scenario["name"],
+            "weights": weights,
+            "prediction": prediction
+        })
+    
+    return results
 
 def calculate_prediction_range(avg_finish: float, confidence: float, trend: str, simulation_impact: str) -> str:
     # Base range from confidence (strict ranges)
@@ -307,19 +399,11 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         # Calculate probability distribution
         probability_distribution = calculate_probability_distribution(avg_finish, confidence * 100)
         
-        # Generate insight with recent vs season comparison and weight-based messaging
-        if recent_avg > season_avg + 1:
-            insight = "Recent performance is declining compared to season average"
-        elif recent_avg < season_avg - 1:
-            insight = "Recent performance is improving compared to season average"
-        else:
-            insight = generate_insight(rf_pred, xgb_pred, avg_finish, std_last5)
+        # Generate insights using the new insight engine
+        insights = get_final_insights(weights, trend, career_avg, recent_avg)
         
-        # Add weight-based insight
-        if weights["recent"] > weights["career"]:
-            insight += ". Recent performance is heavily influencing prediction"
-        elif weights["career"] > weights["recent"]:
-            insight += ". Long-term consistency is driving prediction"
+        # Keep a single final_insight for backward compatibility
+        final_insight = insights[0] if insights else generate_insight(rf_pred, xgb_pred, avg_finish, std_last5)
         
         # Build performance breakdown
         performance_breakdown = {
@@ -339,14 +423,15 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
             "confidence": confidence,
             "confidence_label": confidence_label,
             "simulation_impact": impact,
-            "final_insight": insight,
+            "final_insight": final_insight,
             "top_features": xgb_result.get("top_features", []),
             "predicted_range": predicted_range,
             "probability_distribution": probability_distribution,
             "trend": trend,
             "uncertainty_factors": uncertainty_factors,
             "performance_breakdown": performance_breakdown,
-            "applied_weights": applied_weights
+            "applied_weights": applied_weights,
+            "insights": insights
         }
         
         return response
