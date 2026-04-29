@@ -1,6 +1,7 @@
 package com.deltabox.backend.service;
 
 import com.deltabox.backend.dto.DriverIntelligenceResponse;
+import com.f1pulse.backend.dto.DriverComparisonResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -159,5 +160,85 @@ public class MLService {
         }
         
         return response;
+    }
+
+    public DriverComparisonResponse compare(Map<String, Object> payload) {
+        try {
+            String url = mlServiceUrl + "/compare";
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+            
+            log.info("Calling ML service compare endpoint at: {}", url);
+            ResponseEntity<JsonNode> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                request,
+                JsonNode.class
+            );
+            
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("ML service returned error: " + response.getStatusCode());
+            }
+            
+            JsonNode json = response.getBody();
+            DriverComparisonResponse comparisonResponse = new DriverComparisonResponse();
+            
+            // Map driverA
+            if (json.has("driverA") && json.get("driverA").isObject()) {
+                JsonNode driverA = json.get("driverA");
+                DriverComparisonResponse.DriverComparison driverAData = new DriverComparisonResponse.DriverComparison();
+                driverAData.setName(driverA.path("name").asText());
+                driverAData.setRange(driverA.path("range").asText());
+                driverAData.setConfidence(driverA.path("confidence").asDouble());
+                driverAData.setWinProbability(driverA.path("winProbability").asDouble());
+                
+                if (driverA.has("insights") && driverA.get("insights").isArray()) {
+                    List<String> insights = new java.util.ArrayList<>();
+                    for (JsonNode insight : driverA.get("insights")) {
+                        insights.add(insight.asText());
+                    }
+                    driverAData.setInsights(insights);
+                }
+                comparisonResponse.setDriverA(driverAData);
+            }
+            
+            // Map driverB
+            if (json.has("driverB") && json.get("driverB").isObject()) {
+                JsonNode driverB = json.get("driverB");
+                DriverComparisonResponse.DriverComparison driverBData = new DriverComparisonResponse.DriverComparison();
+                driverBData.setName(driverB.path("name").asText());
+                driverBData.setRange(driverB.path("range").asText());
+                driverBData.setConfidence(driverB.path("confidence").asDouble());
+                driverBData.setWinProbability(driverB.path("winProbability").asDouble());
+                
+                if (driverB.has("insights") && driverB.get("insights").isArray()) {
+                    List<String> insights = new java.util.ArrayList<>();
+                    for (JsonNode insight : driverB.get("insights")) {
+                        insights.add(insight.asText());
+                    }
+                    driverBData.setInsights(insights);
+                }
+                comparisonResponse.setDriverB(driverBData);
+            }
+            
+            // Map winner
+            if (json.has("winner") && json.get("winner").isTextual()) {
+                comparisonResponse.setWinner(json.get("winner").asText());
+            }
+            
+            // Map low confidence warning
+            if (json.has("lowConfidenceWarning") && json.get("lowConfidenceWarning").isTextual()) {
+                comparisonResponse.setLowConfidenceWarning(json.get("lowConfidenceWarning").asText());
+            }
+            
+            return comparisonResponse;
+            
+        } catch (Exception e) {
+            log.error("Error calling ML service compare endpoint", e);
+            throw new RuntimeException("Failed to get comparison from ML service: " + e.getMessage(), e);
+        }
     }
 }

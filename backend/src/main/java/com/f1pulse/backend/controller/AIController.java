@@ -7,6 +7,9 @@ import com.deltabox.backend.ai.service.DriverInsightsService;
 import com.deltabox.backend.ai.service.SimulationService;
 import com.deltabox.backend.dto.DriverIntelligenceResponse;
 import com.deltabox.backend.service.AIService;
+import com.f1pulse.backend.dto.DriverComparisonRequest;
+import com.f1pulse.backend.dto.DriverComparisonResponse;
+import com.f1pulse.backend.service.MLService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +29,16 @@ public class AIController {
     private final AIService aiService;
     private final DriverInsightsService driverInsightsService;
     private final SimulationService simulationService;
+    private final MLService mlService;
 
     public AIController(AIService aiService,
                         DriverInsightsService driverInsightsService,
-                        SimulationService simulationService) {
+                        SimulationService simulationService,
+                        MLService mlService) {
         this.aiService = aiService;
         this.driverInsightsService = driverInsightsService;
         this.simulationService = simulationService;
+        this.mlService = mlService;
     }
 
     @GetMapping("/driver-intelligence/{driverId}")
@@ -127,7 +133,32 @@ public class AIController {
             
         } catch (Exception e) {
             Map<String, String> error = new LinkedHashMap<>();
-            error.put("error", "Failed to read model metrics");
+            error.put("error", "Failed to load model metrics");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * POST /api/ai/compare
+     * Compare two drivers and calculate win probabilities
+     */
+    @PostMapping("/compare")
+    public ResponseEntity<?> compareDrivers(@RequestBody DriverComparisonRequest request) {
+        try {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("driverA_id", request.getDriverAId());
+            payload.put("driverB_id", request.getDriverBId());
+            payload.put("gridA", request.getGridA());
+            payload.put("gridB", request.getGridB());
+            payload.put("race_id", request.getRaceId());
+
+            DriverComparisonResponse comparison = mlService.compare(payload);
+            return ResponseEntity.ok(comparison);
+
+        } catch (Exception e) {
+            Map<String, String> error = new LinkedHashMap<>();
+            error.put("error", "Driver comparison failed");
             error.put("message", e.getMessage());
             return ResponseEntity.status(500).body(error);
         }

@@ -91,6 +91,25 @@ class PredictionResponse(BaseModel):
     divergence: Optional[Dict[str, Any]] = None
     confidence_reason: Optional[str] = None
 
+class ComparisonRequest(BaseModel):
+    driverA_id: int
+    driverB_id: int
+    gridA: int
+    gridB: int
+    race_id: Optional[int] = None
+
+class DriverComparison(BaseModel):
+    name: str
+    range: str
+    confidence: float
+    winProbability: float
+    insights: Optional[List[str]] = None
+
+class ComparisonResponse(BaseModel):
+    driverA: DriverComparison
+    driverB: DriverComparison
+    winner: str
+
 def simulate_impact(predicted: float, avg_last5: float) -> str:
     if predicted < avg_last5:
         return "positive"
@@ -278,6 +297,58 @@ def test_prediction_scenarios() -> List[Dict[str, Any]]:
         })
     
     return results
+
+def compare_drivers(driverA_data: Dict[str, Any], driverB_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Compare two drivers and calculate win probabilities"""
+    # Run prediction pipeline for both drivers
+    resultA = run_prediction(driverA_data)
+    resultB = run_prediction(driverB_data)
+    
+    if "error" in resultA:
+        raise Exception(f"Driver A prediction failed: {resultA['error']}")
+    if "error" in resultB:
+        raise Exception(f"Driver B prediction failed: {resultB['error']}")
+    
+    # Get weighted avg finish from performance breakdown
+    avg_finish_A = resultA.get("performance_breakdown", {}).get("weighted", 10.0)
+    avg_finish_B = resultB.get("performance_breakdown", {}).get("weighted", 10.0)
+    
+    # Convert avg finish to performance score (lower is better, so invert)
+    scoreA = 1 / avg_finish_A
+    scoreB = 1 / avg_finish_B
+    
+    # Calculate win probabilities
+    total = scoreA + scoreB
+    win_prob_A = scoreA / total
+    win_prob_B = scoreB / total
+    
+    # Apply confidence weighting (optional)
+    confidence_A = resultA.get("confidence", 0.5) * 100
+    confidence_B = resultB.get("confidence", 0.5) * 100
+    
+    # If both low confidence, show warning
+    low_confidence_warning = None
+    if confidence_A < 20 and confidence_B < 20:
+        low_confidence_warning = "Comparison unreliable due to low confidence"
+    
+    return {
+        "driverA": {
+            "name": driverA_data.get("driver_name", "Driver A"),
+            "range": resultA.get("predicted_range", "P5–P10"),
+            "confidence": confidence_A,
+            "winProbability": win_prob_A,
+            "insights": resultA.get("insights", [])
+        },
+        "driverB": {
+            "name": driverB_data.get("driver_name", "Driver B"),
+            "range": resultB.get("predicted_range", "P5–P10"),
+            "confidence": confidence_B,
+            "winProbability": win_prob_B,
+            "insights": resultB.get("insights", [])
+        },
+        "winner": driverA_data.get("driver_name", "Driver A") if win_prob_A > win_prob_B else driverB_data.get("driver_name", "Driver B"),
+        "lowConfidenceWarning": low_confidence_warning
+    }
 
 def calculate_prediction_range(avg_finish: float, confidence: float, trend: str, simulation_impact: str) -> str:
     # Base range from confidence (strict ranges)
@@ -523,6 +594,34 @@ async def telemetry(year: int, grand_prix: str, session_type: str, driver1: str,
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Telemetry analysis failed: {str(e)}")
+
+@app.post("/compare", response_model=ComparisonResponse)
+async def compare(request: ComparisonRequest):
+    """Compare two drivers and calculate win probabilities"""
+    try:
+        # Prepare data for driver A
+        driverA_data = {
+            "driver_id": str(request.driverA_id),
+            "driver_name": f"Driver {request.driverA_id}",
+            "grid_position": request.gridA,
+            "race_id": request.race_id
+        }
+        
+        # Prepare data for driver B
+        driverB_data = {
+            "driver_id": str(request.driverB_id),
+            "driver_name": f"Driver {request.driverB_id}",
+            "grid_position": request.gridB,
+            "race_id": request.race_id
+        }
+        
+        # Run comparison
+        result = compare_drivers(driverA_data, driverB_data)
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Comparison failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
