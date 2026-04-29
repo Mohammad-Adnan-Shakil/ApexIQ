@@ -97,6 +97,16 @@ public class MLService {
             response.setProbabilityDistribution(probDist);
         }
         
+        // Map performance breakdown
+        if (json.has("performance_breakdown") && json.get("performance_breakdown").isObject()) {
+            JsonNode breakdown = json.get("performance_breakdown");
+            Map<String, Double> perfBreakdown = new LinkedHashMap<>();
+            breakdown.fields().forEachRemaining(entry -> {
+                perfBreakdown.put(entry.getKey(), entry.getValue().asDouble());
+            });
+            response.setPerformanceBreakdown(perfBreakdown);
+        }
+        
         // Map top features
         if (json.has("top_features") && json.get("top_features").isArray()) {
             List<Map<String, Object>> topFeatures = new java.util.ArrayList<>();

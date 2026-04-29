@@ -17,6 +17,7 @@ public class DriverIntelligenceResponse {
     private List<Map<String, Object>> probabilityDistribution;
     private String trend;
     private List<String> uncertaintyFactors;
+    private Map<String, Double> performanceBreakdown;
 
     // GETTERS
 
@@ -68,6 +69,10 @@ public class DriverIntelligenceResponse {
         return uncertaintyFactors;
     }
 
+    public Map<String, Double> getPerformanceBreakdown() {
+        return performanceBreakdown;
+    }
+
     // SETTERS
 
     public void setDriverId(Long driverId) {
@@ -116,5 +121,9 @@ public class DriverIntelligenceResponse {
 
     public void setUncertaintyFactors(List<String> uncertaintyFactors) {
         this.uncertaintyFactors = uncertaintyFactors;
+    }
+
+    public void setPerformanceBreakdown(Map<String, Double> performanceBreakdown) {
+        this.performanceBreakdown = performanceBreakdown;
     }
 }

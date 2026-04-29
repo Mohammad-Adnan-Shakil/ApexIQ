@@ -371,6 +371,39 @@ const AIPage = () => {
               </Card>
             </div>
 
+            {result?.prediction?.performanceBreakdown && (
+              <Card delay={0.26}>
+                <p className="section-label">Performance Breakdown</p>
+                <p className="text-xs text-whiteMuted mb-4">Prediction combines long-term skill, current season form, and recent race performance</p>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-xs text-whiteMuted">Career Form</p>
+                    <p className="font-mono mt-1 text-2xl font-bold text-whitePrimary">
+                      P{result.prediction.performanceBreakdown.career?.toFixed(1) || "N/A"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-xs text-whiteMuted">Season Form</p>
+                    <p className="font-mono mt-1 text-2xl font-bold text-whitePrimary">
+                      P{result.prediction.performanceBreakdown.season?.toFixed(1) || "N/A"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-xs text-whiteMuted">Recent Form</p>
+                    <p className="font-mono mt-1 text-2xl font-bold text-whitePrimary">
+                      P{result.prediction.performanceBreakdown.recent?.toFixed(1) || "N/A"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-accentRed/30 bg-accentRed/10 p-3">
+                    <p className="text-xs text-accentRed">Weighted Avg</p>
+                    <p className="font-mono mt-1 text-2xl font-bold text-accentRed">
+                      P{result.prediction.performanceBreakdown.weighted?.toFixed(1) || "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             <Card delay={0.28}>
               <p className="section-label">What-if Simulation</p>
               <div className="mt-4 grid grid-cols-2 gap-4">

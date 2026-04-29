@@ -60,6 +60,7 @@ public class AIController {
             prediction.put("trend", intelligence.getTrend());
             prediction.put("uncertaintyFactors", intelligence.getUncertaintyFactors());
             prediction.put("probabilityDistribution", intelligence.getProbabilityDistribution());
+            prediction.put("performanceBreakdown", intelligence.getPerformanceBreakdown());
 
             Map<String, Object> insightPayload = new LinkedHashMap<>();
             insightPayload.put("averageFinish", round2(insights.getAvgPosition()));

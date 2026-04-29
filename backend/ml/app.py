@@ -63,6 +63,9 @@ class PredictionRequest(BaseModel):
     recent_std_last_5: Optional[float] = 0.0
     grid_position: Optional[int] = 0
     is_home_race: Optional[int] = 0
+    career_avg_finish: Optional[float] = 0.0
+    season_avg_finish: Optional[float] = 0.0
+    recent_avg_finish: Optional[float] = 0.0
 
 class FeatureImportance(BaseModel):
     feature: str
@@ -82,6 +85,7 @@ class PredictionResponse(BaseModel):
     probability_distribution: Optional[List[Dict[str, float]]] = None
     trend: Optional[str] = None
     uncertainty_factors: Optional[List[str]] = None
+    performance_breakdown: Optional[Dict[str, float]] = None
 
 def simulate_impact(predicted: float, avg_last5: float) -> str:
     if predicted < avg_last5:
@@ -99,14 +103,28 @@ def generate_insight(rf_pred: float, xgb_pred: float, avg_last5: float, std_last
         return "Driver performance is unstable and unpredictable"
     return "Driver performance is moderate with no clear trend"
 
-def calculate_trend(avg_last5: float, avg_last10: float) -> str:
-    """Calculate trend based on recent performance"""
-    if avg_last5 < avg_last10 - 1:
+def calculate_trend(recent_avg_finish: float, season_avg_finish: float) -> str:
+    """Calculate trend based on recent vs season performance"""
+    if recent_avg_finish < season_avg_finish - 1:
         return "IMPROVING"
-    elif avg_last5 > avg_last10 + 1:
+    elif recent_avg_finish > season_avg_finish + 1:
         return "DECLINING"
     else:
         return "STABLE"
+
+def compute_weighted_finish(career_avg: float, season_avg: float, recent_avg: float) -> float:
+    """Compute weighted average finish using multi-timescale model"""
+    weights = {
+        "career": 0.25,
+        "season": 0.45,
+        "recent": 0.30
+    }
+    
+    return (
+        weights["career"] * career_avg +
+        weights["season"] * season_avg +
+        weights["recent"] * recent_avg
+    )
 
 def calculate_prediction_range(avg_finish: float, confidence: float, trend: str, simulation_impact: str) -> str:
     """Calculate prediction range based on confidence level, trend, and simulation impact"""
@@ -200,8 +218,21 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         avg_last10 = input_data["avg_last_10"]
         std_last5 = input_data["std_last_5"]
         
-        # Calculate trend
-        trend = calculate_trend(avg_last5, avg_last10)
+        # Get multi-timescale performance data
+        career_avg = input_data.get("career_avg_finish", avg_last5)
+        season_avg = input_data.get("season_avg_finish", avg_last5)
+        recent_avg = input_data.get("recent_avg_finish", avg_last5)
+        
+        # Fallback to legacy fields if new fields not provided
+        if career_avg == 0:
+            career_avg = avg_last5
+        if season_avg == 0:
+            season_avg = avg_last5
+        if recent_avg == 0:
+            recent_avg = avg_last5
+        
+        # Calculate trend using recent vs season performance
+        trend = calculate_trend(recent_avg, season_avg)
         
         # Get confidence and clamp to minimum 5%
         confidence = xgb_result["confidence"]
@@ -211,6 +242,12 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         if trend == "DECLINING":
             confidence *= 0.7  # Reduce confidence for declining trend
             confidence = max(0.05, confidence)  # Still clamp to minimum 5%
+        
+        # Adjust confidence based on performance divergence
+        divergence = abs(season_avg - recent_avg)
+        if divergence > 2.0:
+            confidence *= 0.8  # Reduce confidence when season and recent diverge significantly
+            confidence = max(0.05, confidence)
         
         # Update confidence label based on adjusted confidence
         if confidence > 0.75:
@@ -223,11 +260,11 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         # Calculate average prediction
         avg_prediction = (rf_pred + xgb_pred) / 2
         
-        # Use avg_last5 as the base finish position for range calculation
-        avg_finish = avg_last5 if avg_last5 > 0 else avg_prediction
+        # Use weighted multi-timescale model for base finish position
+        avg_finish = compute_weighted_finish(career_avg, season_avg, recent_avg)
         
         # Calculate simulation impact
-        impact = simulate_impact(rf_pred, avg_last5)
+        impact = simulate_impact(rf_pred, avg_finish)
         
         # Calculate prediction range based on confidence, trend, and simulation impact
         predicted_range = calculate_prediction_range(avg_finish, confidence * 100, trend, impact)
@@ -242,7 +279,21 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         # Calculate probability distribution
         probability_distribution = calculate_probability_distribution(avg_finish, confidence * 100)
         
-        insight = generate_insight(rf_pred, xgb_pred, avg_last5, std_last5)
+        # Generate insight with recent vs season comparison
+        if recent_avg > season_avg + 1:
+            insight = "Recent performance is declining compared to season average"
+        elif recent_avg < season_avg - 1:
+            insight = "Recent performance is improving compared to season average"
+        else:
+            insight = generate_insight(rf_pred, xgb_pred, avg_finish, std_last5)
+        
+        # Build performance breakdown
+        performance_breakdown = {
+            "career": career_avg,
+            "season": season_avg,
+            "recent": recent_avg,
+            "weighted": avg_finish
+        }
         
         response = {
             "driver_id": input_data["driver_id"],
@@ -256,7 +307,8 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
             "predicted_range": predicted_range,
             "probability_distribution": probability_distribution,
             "trend": trend,
-            "uncertainty_factors": uncertainty_factors
+            "uncertainty_factors": uncertainty_factors,
+            "performance_breakdown": performance_breakdown
         }
         
         return response
