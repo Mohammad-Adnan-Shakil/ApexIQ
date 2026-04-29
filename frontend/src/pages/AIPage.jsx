@@ -175,7 +175,7 @@ const AIPage = () => {
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[360px_1fr]">
-      <Card className="h-fit" delay={0.05}>
+      <Card className="sticky top-4 h-fit" delay={0.05}>
         <div className="mb-6 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accentRed/20 text-accentRed">
             <Brain className="h-5 w-5" />
