@@ -6,3 +6,6 @@ joblib
 matplotlib
 psycopg2-binary
 fastf1
+fastapi
+uvicorn
+pydantic

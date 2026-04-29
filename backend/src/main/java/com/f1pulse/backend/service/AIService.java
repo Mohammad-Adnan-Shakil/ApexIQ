@@ -1,6 +1,5 @@
 package com.deltabox.backend.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.deltabox.backend.dto.DriverIntelligenceResponse;
 import com.deltabox.backend.model.Driver;
 import com.deltabox.backend.model.Race;
@@ -8,7 +7,6 @@ import com.deltabox.backend.model.Team;
 import com.deltabox.backend.repository.DriverRepository;
 import com.deltabox.backend.repository.RaceRepository;
 import com.deltabox.backend.repository.TeamRepository;
-import com.deltabox.backend.util.PythonExecutor;
 import com.deltabox.backend.util.StatsUtil;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +21,16 @@ public class AIService {
     private final RaceRepository raceRepository;
     private final DriverRepository driverRepository;
     private final TeamRepository teamRepository;
-    private final PythonExecutor pythonExecutor;
+    private final MLService mlService;
 
     public AIService(RaceRepository raceRepository,
                      DriverRepository driverRepository,
                      TeamRepository teamRepository,
-                     PythonExecutor pythonExecutor) {
+                     MLService mlService) {
         this.raceRepository = raceRepository;
         this.driverRepository = driverRepository;
         this.teamRepository = teamRepository;
-        this.pythonExecutor = pythonExecutor;
+        this.mlService = mlService;
     }
 
     public DriverIntelligenceResponse getDriverIntelligence(Long driverId) {
@@ -70,34 +68,7 @@ public class AIService {
         modelInput.put("grid_position", qualifyingPosition);
         modelInput.put("is_home_race", 0);
 
-        JsonNode result = pythonExecutor.runScript("ml/scripts/ai_orchestrator.py", modelInput);
-
-        DriverIntelligenceResponse response = new DriverIntelligenceResponse();
-        response.setDriverId(driverId);
-        response.setRfPrediction(round2(result.path("rf_prediction").asDouble()));
-        response.setXgbPrediction(round2(result.path("xgb_prediction").asDouble()));
-        response.setSimulationImpact(result.path("simulation_impact").asText("neutral"));
-        response.setFinalInsight(result.path("final_insight").asText("Model output generated."));
-        response.setConfidence(round2(result.path("confidence").asDouble()));
-        response.setConfidenceLabel(result.path("confidence_label").asText("unknown"));
-        
-        // ✅ Extract top features for "Why this prediction?" explanation
-        try {
-            if (result.has("top_features") && result.get("top_features").isArray()) {
-                java.util.List<Map<String, Object>> topFeatures = new java.util.ArrayList<>();
-                for (JsonNode feature : result.get("top_features")) {
-                    Map<String, Object> featureMap = new java.util.HashMap<>();
-                    featureMap.put("feature", feature.path("feature").asText());
-                    featureMap.put("importance", feature.path("importance").asDouble());
-                    featureMap.put("explanation", feature.path("explanation").asText());
-                    topFeatures.add(featureMap);
-                }
-                response.setTopFeatures(topFeatures);
-            }
-        } catch (Exception e) {
-            // Skip top features if not available
-        }
-        
+        DriverIntelligenceResponse response = mlService.predict(modelInput);
         return response;
     }
 
