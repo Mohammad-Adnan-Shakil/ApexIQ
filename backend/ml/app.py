@@ -4,7 +4,7 @@ import pickle
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 import sys
 
 # Add scripts directory to path for imports
@@ -48,7 +48,7 @@ def startup_event():
     load_models()
 
 class PredictionRequest(BaseModel):
-    driver_id: str
+    driver_id: Union[str, int] = 0
     avg_last_5: Optional[float] = 0.0
     std_last_5: Optional[float] = 0.0
     avg_last_10: Optional[float] = 0.0
@@ -138,6 +138,9 @@ async def predict(request: PredictionRequest):
     try:
         # Convert Pydantic model to dict
         input_data = request.dict()
+        
+        # Convert driver_id to string for model compatibility
+        input_data["driver_id"] = str(input_data.get("driver_id", "0"))
         
         # Run prediction
         result = run_prediction(input_data)
