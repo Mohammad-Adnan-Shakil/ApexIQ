@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import joblib
+import pickle
 import os
 
 from sklearn.model_selection import train_test_split
@@ -66,7 +66,9 @@ for name, score in zip(X.columns, model.feature_importances_):
 # Save
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-joblib.dump(model, os.path.join(MODEL_DIR, "rf_model.pkl"))
-joblib.dump(le_driver, os.path.join(MODEL_DIR, "le_driver.pkl"))
+with open(os.path.join(MODEL_DIR, "rf_model.pkl"), "wb") as f:
+    pickle.dump(model, f, protocol=4)
+with open(os.path.join(MODEL_DIR, "le_driver.pkl"), "wb") as f:
+    pickle.dump(le_driver, f, protocol=4)
 
 print("\nRandom Forest model saved successfully.")

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import joblib
+import pickle
 import os
 
 from sklearn.model_selection import train_test_split
@@ -73,8 +73,11 @@ for name, score in zip(X.columns, model.feature_importances_):
 # Save models
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-joblib.dump(model, os.path.join(MODEL_DIR, "xgb_model.pkl"))
-joblib.dump(le_constructor, os.path.join(MODEL_DIR, "le_constructor.pkl"))
-joblib.dump(le_track, os.path.join(MODEL_DIR, "le_track.pkl"))
+with open(os.path.join(MODEL_DIR, "xgb_model.pkl"), "wb") as f:
+    pickle.dump(model, f, protocol=4)
+with open(os.path.join(MODEL_DIR, "le_constructor.pkl"), "wb") as f:
+    pickle.dump(le_constructor, f, protocol=4)
+with open(os.path.join(MODEL_DIR, "le_track.pkl"), "wb") as f:
+    pickle.dump(le_track, f, protocol=4)
 
 print("\nModel saved successfully.")
