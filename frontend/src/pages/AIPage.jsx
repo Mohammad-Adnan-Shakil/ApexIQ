@@ -13,6 +13,7 @@ import { Card, Button, LoadingState, ErrorState, EmptyState } from "../component
 import { useFetch, usePost } from "../hooks/useFetch";
 import usePageTitle from "../hooks/usePageTitle";
 import { confidenceToPercent, formatImpact, impactIcon, roundAverage, roundPosition, teamColor } from "../utils/formatters";
+import PredictionDistributionChart from "../components/PredictionDistributionChart";
 
 const ConfidenceRing = ({ percent }) => {
   const radius = 46;
@@ -310,6 +311,10 @@ const AIPage = () => {
                 )}
               </div>
             </Card>
+
+            {result?.prediction?.probabilityDistribution && result.prediction.probabilityDistribution.length > 0 && (
+              <PredictionDistributionChart data={result.prediction.probabilityDistribution} />
+            )}
 
             {confidencePercent < 30 && result?.prediction?.uncertaintyFactors && result.prediction.uncertaintyFactors.length > 0 && (
               <Card delay={0.14} className="border-accentRed/30 bg-accentRed/5">

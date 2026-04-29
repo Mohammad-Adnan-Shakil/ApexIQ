@@ -14,7 +14,7 @@ public class DriverIntelligenceResponse {
     private String finalInsight;
     private List<Map<String, Object>> topFeatures;
     private String predictedRange;
-    private Map<String, Double> probabilityDistribution;
+    private List<Map<String, Object>> probabilityDistribution;
     private String trend;
     private List<String> uncertaintyFactors;
 
@@ -56,7 +56,7 @@ public class DriverIntelligenceResponse {
         return predictedRange;
     }
 
-    public Map<String, Double> getProbabilityDistribution() {
+    public List<Map<String, Object>> getProbabilityDistribution() {
         return probabilityDistribution;
     }
 
@@ -106,7 +106,7 @@ public class DriverIntelligenceResponse {
         this.predictedRange = predictedRange;
     }
 
-    public void setProbabilityDistribution(Map<String, Double> probabilityDistribution) {
+    public void setProbabilityDistribution(List<Map<String, Object>> probabilityDistribution) {
         this.probabilityDistribution = probabilityDistribution;
     }
 

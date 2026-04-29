@@ -86,13 +86,15 @@ public class MLService {
         }
         
         // Map probability distribution
-        if (json.has("probability_distribution") && json.get("probability_distribution").isObject()) {
-            JsonNode probDist = json.get("probability_distribution");
-            Map<String, Double> probMap = new java.util.LinkedHashMap<>();
-            probDist.fields().forEachRemaining(entry -> {
-                probMap.put(entry.getKey(), entry.getValue().asDouble());
-            });
-            response.setProbabilityDistribution(probMap);
+        if (json.has("probability_distribution") && json.get("probability_distribution").isArray()) {
+            List<Map<String, Object>> probDist = new java.util.ArrayList<>();
+            for (JsonNode item : json.get("probability_distribution")) {
+                Map<String, Object> distItem = new LinkedHashMap<>();
+                distItem.put("position", item.path("position").asInt());
+                distItem.put("probability", item.path("probability").asDouble());
+                probDist.add(distItem);
+            }
+            response.setProbabilityDistribution(probDist);
         }
         
         // Map top features

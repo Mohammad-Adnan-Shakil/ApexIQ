@@ -1,6 +1,7 @@
 import os
 import json
 import pickle
+import math
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -78,7 +79,7 @@ class PredictionResponse(BaseModel):
     final_insight: str
     top_features: List[FeatureImportance]
     predicted_range: Optional[str] = None
-    probability_distribution: Optional[Dict[str, float]] = None
+    probability_distribution: Optional[List[Dict[str, float]]] = None
     trend: Optional[str] = None
     uncertainty_factors: Optional[List[str]] = None
 
@@ -160,32 +161,24 @@ def calculate_uncertainty_factors(confidence: float, trend: str, std_last5: floa
     
     return factors if factors else ["Prediction based on stable performance data"]
 
-def calculate_probability_distribution(predicted: float, confidence: float) -> Dict[str, float]:
-    """Calculate probability distribution for finish positions"""
-    base_prob = confidence / 100
+def calculate_probability_distribution(avg_finish: float, confidence: float) -> List[Dict[str, float]]:
+    """Calculate probability distribution for finish positions using gaussian distribution"""
+    distribution = []
+    variance = (100 - confidence) / 100 * 5
     
-    # Distribute probability based on confidence
-    if confidence < 30:
-        return {
-            "p1": max(0.01, base_prob * 0.2),
-            "p2": max(0.02, base_prob * 0.3),
-            "p3": max(0.03, base_prob * 0.4),
-            "p4plus": max(0.05, 1.0 - (base_prob * 0.9))
-        }
-    elif confidence < 50:
-        return {
-            "p1": max(0.05, base_prob * 0.3),
-            "p2": max(0.08, base_prob * 0.35),
-            "p3": max(0.1, base_prob * 0.35),
-            "p4plus": max(0.1, 1.0 - (base_prob))
-        }
-    else:
-        return {
-            "p1": max(0.1, base_prob * 0.4),
-            "p2": max(0.15, base_prob * 0.35),
-            "p3": max(0.2, base_prob * 0.25),
-            "p4plus": max(0.15, 1.0 - (base_prob))
-        }
+    for pos in range(1, 21):
+        prob = math.exp(-math.pow(pos - avg_finish, 2) / (2 * variance))
+        distribution.append({
+            "position": pos,
+            "probability": prob
+        })
+    
+    # Normalize to sum to 1.0
+    total = sum(d["probability"] for d in distribution)
+    for d in distribution:
+        d["probability"] = d["probability"] / total
+    
+    return distribution
 
 def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
     """Run ML prediction using loaded models"""
@@ -247,7 +240,7 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         uncertainty_factors = calculate_uncertainty_factors(confidence * 100, trend, std_last5, impact)
         
         # Calculate probability distribution
-        probability_distribution = calculate_probability_distribution(avg_prediction, confidence * 100)
+        probability_distribution = calculate_probability_distribution(avg_finish, confidence * 100)
         
         insight = generate_insight(rf_pred, xgb_pred, avg_last5, std_last5)
         
