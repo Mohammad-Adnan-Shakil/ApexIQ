@@ -162,43 +162,36 @@ def downsample_to_max_points(data_dict: Dict[str, List[float]], max_points: int 
     return downsampled
 
 
-def main():
-    """Main execution function."""
-    # Validate arguments
-    if len(sys.argv) != 6:
-        error_output = {
-            "error": "Invalid arguments. Usage: telemetry_analysis.py <year> <grand_prix> <session_type> <driver1_code> <driver2_code>"
-        }
-        print(json.dumps(error_output))
-        sys.exit(1)
+def analyze(year: int, grand_prix: str, session_type: str, driver1: str, driver2: str) -> Dict[str, Any]:
+    """
+    Analyze telemetry for two drivers from a specific F1 session.
     
-    try:
-        year = int(sys.argv[1])
-        grand_prix = sys.argv[2]
-        session_type = sys.argv[3]
-        driver1_code = sys.argv[4].upper()
-        driver2_code = sys.argv[5].upper()
-    except (ValueError, IndexError) as e:
-        error_output = {"error": f"Failed to parse arguments: {str(e)}"}
-        print(json.dumps(error_output))
-        sys.exit(1)
+    Args:
+        year: F1 season year
+        grand_prix: Grand prix name (e.g., "Monaco")
+        session_type: Session type (e.g., "Q", "R")
+        driver1: First driver code (e.g., "VER")
+        driver2: Second driver code (e.g., "LEC")
+    
+    Returns:
+        Dictionary with telemetry data for both drivers
+    """
+    # Normalize driver codes
+    driver1 = driver1.upper()
+    driver2 = driver2.upper()
     
     # Fetch session
     session = get_session(year, grand_prix, session_type)
     if session is None:
-        error_output = {"error": f"Failed to load session: {year} {grand_prix} {session_type}"}
-        print(json.dumps(error_output))
-        sys.exit(1)
+        return {"error": f"Failed to load session: {year} {grand_prix} {session_type}"}
     
     # Extract telemetry for both drivers
-    tel1_data = get_driver_telemetry(session, driver1_code)
-    tel2_data = get_driver_telemetry(session, driver2_code)
+    tel1_data = get_driver_telemetry(session, driver1)
+    tel2_data = get_driver_telemetry(session, driver2)
     
     if tel1_data is None or tel2_data is None:
-        missing = driver1_code if tel1_data is None else driver2_code
-        error_output = {"error": f"Could not extract telemetry for driver {missing}"}
-        print(json.dumps(error_output))
-        sys.exit(1)
+        missing = driver1 if tel1_data is None else driver2
+        return {"error": f"Could not extract telemetry for driver {missing}"}
     
     # Align telemetry on distance
     max_distance = min(
@@ -231,8 +224,8 @@ def main():
     
     # Build output JSON
     output = {
-        "driver1": driver1_code,
-        "driver2": driver2_code,
+        "driver1": driver1,
+        "driver2": driver2,
         "distance": downsampled['distance'],
         "driver1_speed": downsampled['driver1_speed'],
         "driver2_speed": downsampled['driver2_speed'],
@@ -247,8 +240,37 @@ def main():
         "driver2_lap_time": tel2_data['lap_time']
     }
     
-    # Output JSON only (zero other print statements)
-    print(json.dumps(output))
+    return output
+
+
+def main():
+    """Main execution function for CLI usage."""
+    # Validate arguments
+    if len(sys.argv) != 6:
+        error_output = {
+            "error": "Invalid arguments. Usage: telemetry_analysis.py <year> <grand_prix> <session_type> <driver1_code> <driver2_code>"
+        }
+        print(json.dumps(error_output))
+        sys.exit(1)
+    
+    try:
+        year = int(sys.argv[1])
+        grand_prix = sys.argv[2]
+        session_type = sys.argv[3]
+        driver1_code = sys.argv[4].upper()
+        driver2_code = sys.argv[5].upper()
+    except (ValueError, IndexError) as e:
+        error_output = {"error": f"Failed to parse arguments: {str(e)}"}
+        print(json.dumps(error_output))
+        sys.exit(1)
+    
+    result = analyze(year, grand_prix, session_type, driver1_code, driver2_code)
+    
+    if "error" in result:
+        print(json.dumps(result))
+        sys.exit(1)
+    
+    print(json.dumps(result))
     sys.exit(0)
 
 

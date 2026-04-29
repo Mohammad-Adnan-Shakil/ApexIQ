@@ -6,20 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.env.Environment;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @RestController
@@ -27,7 +20,13 @@ import java.util.concurrent.TimeUnit;
 @Tag(name = "Telemetry Analysis", description = "FastF1 lap telemetry extraction and comparison")
 public class TelemetryController {
 
-    private static final long EXEC_TIMEOUT_SECONDS = 300L;
+    private final RestTemplate restTemplate;
+    private final String mlServiceUrl;
+
+    public TelemetryController(RestTemplate restTemplate, Environment environment) {
+        this.restTemplate = restTemplate;
+        this.mlServiceUrl = environment.getProperty("ML_SERVICE_URL", "http://localhost:8000");
+    }
 
     @GetMapping("/compare")
     @Operation(summary = "Compare telemetry between two drivers",
@@ -48,131 +47,55 @@ public class TelemetryController {
                 year, grandPrix, sessionType, driver1, driver2);
 
         try {
-            // Get absolute path to the script
-            java.io.File scriptFile = new java.io.File("ml/scripts/telemetry_analysis.py").getAbsoluteFile();
-            String scriptPath = scriptFile.getCanonicalPath();
+            String url = mlServiceUrl + "/telemetry?year=" + year + 
+                    "&grand_prix=" + grandPrix + 
+                    "&session_type=" + sessionType + 
+                    "&driver1=" + driver1.toUpperCase() + 
+                    "&driver2=" + driver2.toUpperCase();
 
-            // Build ProcessBuilder with CLI arguments using absolute path
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    "python",
-                    "-u",  // Unbuffered output
-                    scriptPath,
-                    String.valueOf(year),
-                    grandPrix,
-                    sessionType,
-                    driver1.toUpperCase(),
-                    driver2.toUpperCase()
-            );
+            log.info("📂 [TelemetryController] Calling ML service at: {}", url);
 
-            // Redirect error stream to output stream
-            processBuilder.redirectErrorStream(true);
-
-            log.info("📂 [TelemetryController] Script path: {}", scriptPath);
-
-            log.info("🚀 [TelemetryController] Launching Python process with timeout {}s", EXEC_TIMEOUT_SECONDS);
-            Process process = processBuilder.start();
-
-            // Read streams in separate threads to prevent blocking
-            StringBuilder outputBuilder = new StringBuilder();
-            Thread outputReader = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        outputBuilder.append(line).append("\n");
-                    }
-                } catch (IOException e) {
-                    log.error("Error reading process output: {}", e.getMessage());
-                }
-            });
-            outputReader.start();
-
-            // Wait for process to complete with timeout
-            boolean finished = process.waitFor(EXEC_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            outputReader.join(5000); // Wait for output reader to finish
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
             
-            if (!finished) {
-                process.destroyForcibly();
-                log.error("❌ [TelemetryController] Process timed out after {}s", EXEC_TIMEOUT_SECONDS);
+            HttpEntity<String> request = new HttpEntity<>(headers);
+            
+            ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                request,
+                String.class
+            );
+            
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                log.error("❌ [TelemetryController] ML service returned error: {}", response.getStatusCode());
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body("{\"error\":\"Telemetry analysis timed out after " + EXEC_TIMEOUT_SECONDS + " seconds\"}");
+                        .body("{\"error\":\"ML service returned error: " + response.getStatusCode() + "\"}");
             }
-
-            // Read stdout from output builder
-            String stdout = outputBuilder.toString().trim();
-            int exitCode = process.exitValue();
-
-            log.info("📤 [TelemetryController] Process completed. Exit code: {}", exitCode);
-            log.info("📤 [TelemetryController] Stdout length: {} chars", stdout.length());
-
-            if (exitCode != 0) {
-                log.error("❌ [TelemetryController] Process failed with exit code {}: {}", exitCode, stdout);
+            
+            String body = response.getBody();
+            if (body == null || body.isBlank()) {
+                log.error("❌ [TelemetryController] ML service returned empty response");
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body("{\"error\":\"Python process failed: " + sanitizeForJson(stdout) + "\"}");
-            }
-
-            if (stdout == null || stdout.isBlank()) {
-                log.error("❌ [TelemetryController] Process returned empty output");
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body("{\"error\":\"Telemetry process returned no data\"}");
+                        .body("{\"error\":\"ML service returned no data\"}");
             }
 
             log.info("✅ [TelemetryController] Successfully retrieved telemetry data");
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(stdout);
+                    .body(body);
 
-        } catch (IOException e) {
-            log.error("❌ [TelemetryController] IO Error: {}", e.getMessage(), e);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body("{\"error\":\"Failed to launch telemetry process\"}");
-        } catch (InterruptedException e) {
-            log.error("❌ [TelemetryController] Interrupted: {}", e.getMessage(), e);
-            Thread.currentThread().interrupt();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body("{\"error\":\"Telemetry process was interrupted\"}");
         } catch (Exception e) {
-            log.error("❌ [TelemetryController] Unexpected error: {}", e.getMessage(), e);
+            log.error("❌ [TelemetryController] Error calling ML service: {}", e.getMessage(), e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body("{\"error\":\"Unexpected error occurred\"}");
+                    .body("{\"error\":\"Failed to call ML service: " + e.getMessage() + "\"}");
         }
-    }
-
-    /**
-     * Read entire stream into a single string.
-     */
-    private static String readStream(InputStream inputStream) throws IOException {
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append("\n");
-            }
-            return builder.toString().trim();
-        }
-    }
-
-    /**
-     * Sanitize error messages for JSON output.
-     */
-    private static String sanitizeForJson(String input) {
-        if (input == null || input.isEmpty()) {
-            return "Unknown error";
-        }
-        return input.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
     }
 }

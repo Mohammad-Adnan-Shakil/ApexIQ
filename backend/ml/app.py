@@ -158,6 +158,21 @@ async def health():
     """Health check endpoint"""
     return {"status": "healthy", "models_loaded": len(models) > 0}
 
+@app.get("/telemetry")
+async def telemetry(year: int, grand_prix: str, session_type: str, driver1: str, driver2: str):
+    """Analyze telemetry for two drivers from a specific F1 session"""
+    try:
+        from telemetry_analysis import analyze
+        result = analyze(year, grand_prix, session_type, driver1, driver2)
+        
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Telemetry analysis failed: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
