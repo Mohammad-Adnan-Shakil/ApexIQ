@@ -7,39 +7,6 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
-try:
-    model = joblib.load(os.path.join(MODEL_DIR, "xgb_model.pkl"))
-    le_constructor = joblib.load(os.path.join(MODEL_DIR, "le_constructor.pkl"))
-    le_track = joblib.load(os.path.join(MODEL_DIR, "le_track.pkl"))
-except Exception as e:
-    print(json.dumps({"error": f"Model loading failed: {str(e)}"}))
-    sys.exit(1)
-
-
-try:
-    input_json = json.loads(sys.stdin.read())
-except Exception as e:
-    print(json.dumps({"error": f"Invalid input: {str(e)}"}))
-    sys.exit(1)
-
-
-required_fields = [
-    "qualifying_position",
-    "constructor_id",
-    "track_id",
-    "season_year",
-    "recent_avg_position_last_5",
-    "recent_std_last_5",
-    "grid_position",
-    "is_home_race"
-]
-
-missing_fields = [f for f in required_fields if f not in input_json]
-
-if missing_fields:
-    print(json.dumps({"error": f"Missing fields: {missing_fields}"}))
-    sys.exit(1)
-
 
 def safe_encode(encoder, value):
     try:
@@ -60,37 +27,47 @@ feature_names = [
     "is_home_race"
 ]
 
-constructor_encoded = safe_encode(le_constructor, input_json["constructor_id"])
-track_encoded = safe_encode(le_track, input_json["track_id"])
 
-try:
+def predict(input_data: dict, model=None, le_constructor=None, le_driver=None, le_track=None):
+    """Predict using XGBoost model"""
+    # Load models if not provided
+    if model is None:
+        model = joblib.load(os.path.join(MODEL_DIR, "xgb_model.pkl"))
+    if le_constructor is None:
+        le_constructor = joblib.load(os.path.join(MODEL_DIR, "le_constructor.pkl"))
+    if le_track is None:
+        le_track = joblib.load(os.path.join(MODEL_DIR, "le_track.pkl"))
+    
+    constructor_encoded = safe_encode(le_constructor, input_data["constructor_id"])
+    track_encoded = safe_encode(le_track, input_data["track_id"])
+    
     features = np.array([[ 
-        float(input_json["qualifying_position"]),
+        float(input_data["qualifying_position"]),
         float(constructor_encoded),
         float(track_encoded),
-        float(input_json["season_year"]),
-        float(input_json["recent_avg_position_last_5"]),
-        float(input_json["recent_std_last_5"]),
-        float(input_json["grid_position"]),
-        float(input_json["is_home_race"])
+        float(input_data["season_year"]),
+        float(input_data["recent_avg_position_last_5"]),
+        float(input_data["recent_std_last_5"]),
+        float(input_data["grid_position"]),
+        float(input_data["is_home_race"])
     ]])
-
+    
     prediction = float(model.predict(features)[0])
-
-    # ✅ Extract feature importances from XGBoost model
+    
+    # Extract feature importances from XGBoost model
     feature_importances = {}
     if hasattr(model, 'feature_importances_'):
         importances = model.feature_importances_
         for i, name in enumerate(feature_names):
             if i < len(importances):
                 feature_importances[name] = round(float(importances[i]), 4)
-
-    # ✅ Get top 3 most important features with human-readable explanations
+    
+    # Get top 3 most important features with human-readable explanations
     top_features = []
     if feature_importances:
         sorted_features = sorted(feature_importances.items(), key=lambda x: x[1], reverse=True)
         for feature_name, importance in sorted_features[:3]:
-            feature_value = input_json.get(feature_name)
+            feature_value = input_data.get(feature_name)
             
             # Generate human-readable explanation
             explanation = ""
@@ -123,30 +100,62 @@ try:
                 "importance": importance,
                 "explanation": explanation
             })
-
+    
     # Confidence (heuristic)
     variance_proxy = float(np.std(features))
     confidence = 1 / (1 + variance_proxy)
     confidence = max(0.0, min(1.0, confidence))
-
+    
     if confidence > 0.75:
         confidence_label = "high"
     elif confidence > 0.5:
         confidence_label = "medium"
     else:
         confidence_label = "low"
+    
+    output = {
+        "predicted_position": round(prediction, 2),
+        "confidence": round(confidence, 3),
+        "confidence_label": confidence_label,
+        "feature_importances": feature_importances,
+        "top_features": top_features
+    }
+    
+    return output
 
-except Exception as e:
-    print(json.dumps({"error": f"Prediction failed: {str(e)}"}))
-    sys.exit(1)
 
-
-output = {
-    "predicted_position": round(prediction, 2),
-    "confidence": round(confidence, 3),
-    "confidence_label": confidence_label,
-    "feature_importances": feature_importances,
-    "top_features": top_features
-}
-
-print(json.dumps(output))
+# Legacy subprocess support (for backward compatibility)
+if __name__ == "__main__":
+    try:
+        model = joblib.load(os.path.join(MODEL_DIR, "xgb_model.pkl"))
+        le_constructor = joblib.load(os.path.join(MODEL_DIR, "le_constructor.pkl"))
+        le_track = joblib.load(os.path.join(MODEL_DIR, "le_track.pkl"))
+    except Exception as e:
+        print(json.dumps({"error": f"Model loading failed: {str(e)}"}))
+        sys.exit(1)
+    
+    try:
+        input_json = json.loads(sys.stdin.read())
+    except Exception as e:
+        print(json.dumps({"error": f"Invalid input: {str(e)}"}))
+        sys.exit(1)
+    
+    required_fields = [
+        "qualifying_position",
+        "constructor_id",
+        "track_id",
+        "season_year",
+        "recent_avg_position_last_5",
+        "recent_std_last_5",
+        "grid_position",
+        "is_home_race"
+    ]
+    
+    missing_fields = [f for f in required_fields if f not in input_json]
+    
+    if missing_fields:
+        print(json.dumps({"error": f"Missing fields: {missing_fields}"}))
+        sys.exit(1)
+    
+    result = predict(input_json, model, le_constructor, None, le_track)
+    print(json.dumps(result))
