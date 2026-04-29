@@ -131,10 +131,11 @@ const AIPage = () => {
 
   const roundedPredictedPosition = roundPosition(result?.prediction?.predictedPosition);
   const confidencePercent = confidenceToPercent(result?.prediction?.confidence);
+  const predictedRange = result?.prediction?.predictedRange || `P${roundedPredictedPosition}`;
   const roundedAvgFinish = roundPosition(result?.insights?.averageFinish);
   const consistencyPercent = confidenceToPercent(result?.insights?.consistencyScore);
 
-  const trend = String(result?.insights?.trend || "STABLE").toUpperCase();
+  const trend = String(result?.prediction?.trend || result?.insights?.trend || "STABLE").toUpperCase();
   const trendImproving = trend === "IMPROVING";
   const trendDeclining = trend === "DECLINING";
 
@@ -271,13 +272,15 @@ const AIPage = () => {
                 Based on {selectedDriverData?.name || "this driver's"} recent form and starting from{" "}
 <span className="font-mono font-semibold">P{simulatedPosition}</span>
                 {selectedRaceData?.raceName ? ` at ${selectedRaceData.raceName}` : ""}, our models predict a{" "}
-<span className="font-mono font-semibold">P{roundedPredictedPosition}</span> finish with{" "}
+<span className="font-mono font-semibold">{predictedRange}</span> finish with{" "}
                 <span className="font-semibold">{confidencePercent}% confidence</span>.{" "}
-                {trendImproving
-                  ? "This driver is on an improving trend and looks set for a strong result."
-                  : trendDeclining
-                    ? "Recent trend is declining, so execution and strategy will be critical."
-                    : "Current trend is stable, with a result close to expected pace."}
+                {confidencePercent < 30
+                  ? "Prediction has low confidence due to limited data or inconsistent performance. Use as a rough guide only."
+                  : trendImproving
+                    ? "This driver is on an improving trend and looks set for a strong result."
+                    : trendDeclining
+                      ? "Recent trend is declining, so execution and strategy will be critical."
+                      : "Current trend is stable, with a result close to expected pace."}
               </p>
             </Card>
 
@@ -285,8 +288,13 @@ const AIPage = () => {
               <div>
                 <p className="section-label">Predicted Finish</p>
                 <p className={`font-mono mt-3 text-7xl font-bold tracking-tight ${resultColorByPosition(roundedPredictedPosition)}`}>
-                  P{roundedPredictedPosition}
+                  {predictedRange}
                 </p>
+                {confidencePercent < 50 && (
+                  <p className="mt-2 text-xs text-whiteMuted">
+                    {confidencePercent < 30 ? "Wide range due to low confidence" : "Range based on moderate confidence"}
+                  </p>
+                )}
                 <span className={`inline-flex mt-3 items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${verdict.className}`}>
                   {verdict.icon} {verdict.label}
                 </span>
@@ -296,6 +304,11 @@ const AIPage = () => {
                 <p className="mt-2 text-xs text-whiteMuted uppercase tracking-[0.2em]">
                   {confidenceLabel(confidencePercent)}
                 </p>
+                {confidencePercent < 30 && (
+                  <p className="mt-1 text-xs text-accentRed">
+                    Prediction unreliable
+                  </p>
+                )}
               </div>
             </Card>
 

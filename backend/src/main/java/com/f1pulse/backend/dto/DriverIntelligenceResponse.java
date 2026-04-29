@@ -13,6 +13,9 @@ public class DriverIntelligenceResponse {
     private String simulationImpact;
     private String finalInsight;
     private List<Map<String, Object>> topFeatures;
+    private String predictedRange;
+    private Map<String, Double> probabilityDistribution;
+    private String trend;
 
     // GETTERS
 
@@ -48,6 +51,18 @@ public class DriverIntelligenceResponse {
         return topFeatures;
     }
 
+    public String getPredictedRange() {
+        return predictedRange;
+    }
+
+    public Map<String, Double> getProbabilityDistribution() {
+        return probabilityDistribution;
+    }
+
+    public String getTrend() {
+        return trend;
+    }
+
     // SETTERS
 
     public void setDriverId(Long driverId) {
@@ -80,5 +95,17 @@ public class DriverIntelligenceResponse {
 
     public void setTopFeatures(List<Map<String, Object>> topFeatures) {
         this.topFeatures = topFeatures;
+    }
+
+    public void setPredictedRange(String predictedRange) {
+        this.predictedRange = predictedRange;
+    }
+
+    public void setProbabilityDistribution(Map<String, Double> probabilityDistribution) {
+        this.probabilityDistribution = probabilityDistribution;
+    }
+
+    public void setTrend(String trend) {
+        this.trend = trend;
     }
 }

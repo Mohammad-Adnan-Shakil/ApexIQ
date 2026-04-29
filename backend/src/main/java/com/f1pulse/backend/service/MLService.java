@@ -73,6 +73,18 @@ public class MLService {
         response.setConfidenceLabel(json.path("confidence_label").asText());
         response.setSimulationImpact(json.path("simulation_impact").asText());
         response.setFinalInsight(json.path("final_insight").asText());
+        response.setPredictedRange(json.has("predicted_range") ? json.path("predicted_range").asText() : null);
+        response.setTrend(json.has("trend") ? json.path("trend").asText() : null);
+        
+        // Map probability distribution
+        if (json.has("probability_distribution") && json.get("probability_distribution").isObject()) {
+            JsonNode probDist = json.get("probability_distribution");
+            Map<String, Double> probMap = new java.util.LinkedHashMap<>();
+            probDist.fields().forEachRemaining(entry -> {
+                probMap.put(entry.getKey(), entry.getValue().asDouble());
+            });
+            response.setProbabilityDistribution(probMap);
+        }
         
         // Map top features
         if (json.has("top_features") && json.get("top_features").isArray()) {
