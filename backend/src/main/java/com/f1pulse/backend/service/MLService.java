@@ -76,6 +76,15 @@ public class MLService {
         response.setPredictedRange(json.has("predicted_range") ? json.path("predicted_range").asText() : null);
         response.setTrend(json.has("trend") ? json.path("trend").asText() : null);
         
+        // Map uncertainty factors
+        if (json.has("uncertainty_factors") && json.get("uncertainty_factors").isArray()) {
+            List<String> uncertaintyFactors = new java.util.ArrayList<>();
+            for (JsonNode factor : json.get("uncertainty_factors")) {
+                uncertaintyFactors.add(factor.asText());
+            }
+            response.setUncertaintyFactors(uncertaintyFactors);
+        }
+        
         // Map probability distribution
         if (json.has("probability_distribution") && json.get("probability_distribution").isObject()) {
             JsonNode probDist = json.get("probability_distribution");

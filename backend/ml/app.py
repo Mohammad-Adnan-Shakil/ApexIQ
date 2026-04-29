@@ -80,6 +80,7 @@ class PredictionResponse(BaseModel):
     predicted_range: Optional[str] = None
     probability_distribution: Optional[Dict[str, float]] = None
     trend: Optional[str] = None
+    uncertainty_factors: Optional[List[str]] = None
 
 def simulate_impact(predicted: float, avg_last5: float) -> str:
     if predicted < avg_last5:
@@ -106,26 +107,92 @@ def calculate_trend(avg_last5: float, avg_last10: float) -> str:
     else:
         return "STABLE"
 
-def calculate_prediction_range(predicted: float, confidence: float) -> str:
-    """Calculate prediction range based on confidence level"""
+def calculate_prediction_range(avg_finish: float, confidence: float, trend: str, simulation_impact: str) -> str:
+    """Calculate prediction range based on confidence level, trend, and simulation impact"""
+    # Base range based on confidence
     if confidence < 15:
-        # Very low confidence - wide range
-        min_pos = max(1, int(predicted - 5))
-        max_pos = min(20, int(predicted + 5))
-        return f"P{min_pos}-P{max_pos}"
+        # Very low confidence - wide range starting from midfield
+        min_pos = max(5, int(avg_finish - 2))
+        max_pos = min(20, int(avg_finish + 5))
+        base_range = f"P{min_pos}-P{max_pos}"
     elif confidence < 30:
         # Low confidence - moderate range
-        min_pos = max(1, int(predicted - 3))
-        max_pos = min(20, int(predicted + 3))
-        return f"P{min_pos}-P{max_pos}"
-    elif confidence < 50:
+        min_pos = max(3, int(avg_finish - 2))
+        max_pos = min(20, int(avg_finish + 3))
+        base_range = f"P{min_pos}-P{max_pos}"
+    elif confidence < 60:
         # Moderate confidence - narrow range
-        min_pos = max(1, int(predicted - 2))
-        max_pos = min(20, int(predicted + 2))
-        return f"P{min_pos}-P{max_pos}"
+        min_pos = max(2, int(avg_finish - 1))
+        max_pos = min(20, int(avg_finish + 2))
+        base_range = f"P{min_pos}-P{max_pos}"
     else:
-        # High confidence - single position
-        return f"P{int(predicted)}"
+        # High confidence - narrow range near top
+        min_pos = max(1, int(avg_finish - 1))
+        max_pos = min(20, int(avg_finish + 1))
+        base_range = f"P{min_pos}-P{max_pos}"
+    
+    # Adjust range based on trend
+    if trend == "DECLINING":
+        # Widen and worsen prediction range
+        parts = base_range.split("-")
+        if len(parts) == 2:
+            min_pos = int(parts[0].replace("P", "")) + 1
+            max_pos = int(parts[1].replace("P", "")) + 2
+            min_pos = min(20, max(1, min_pos))
+            max_pos = min(20, max(1, max_pos))
+            base_range = f"P{min_pos}-P{max_pos}"
+    elif trend == "IMPROVING":
+        # Improve prediction range slightly
+        parts = base_range.split("-")
+        if len(parts) == 2:
+            min_pos = int(parts[0].replace("P", "")) - 1
+            max_pos = int(parts[1].replace("P", "")) - 1
+            min_pos = min(20, max(1, min_pos))
+            max_pos = min(20, max(1, max_pos))
+            base_range = f"P{min_pos}-P{max_pos}"
+    
+    # Adjust range based on simulation impact
+    if simulation_impact == "negative":
+        # Projected performance is worse
+        parts = base_range.split("-")
+        if len(parts) == 2:
+            min_pos = int(parts[0].replace("P", "")) + 1
+            max_pos = int(parts[1].replace("P", "")) + 1
+            min_pos = min(20, max(1, min_pos))
+            max_pos = min(20, max(1, max_pos))
+            base_range = f"P{min_pos}-P{max_pos}"
+    elif simulation_impact == "positive":
+        # Projected performance is better
+        parts = base_range.split("-")
+        if len(parts) == 2:
+            min_pos = int(parts[0].replace("P", "")) - 1
+            max_pos = int(parts[1].replace("P", "")) - 1
+            min_pos = min(20, max(1, min_pos))
+            max_pos = min(20, max(1, max_pos))
+            base_range = f"P{min_pos}-P{max_pos}"
+    
+    return base_range
+
+def calculate_uncertainty_factors(confidence: float, trend: str, std_last5: float, simulation_impact: str) -> List[str]:
+    """Calculate factors contributing to low confidence"""
+    factors = []
+    
+    if confidence < 30:
+        factors.append("Low confidence due to limited data or inconsistent performance")
+    
+    if trend == "DECLINING":
+        factors.append("Declining recent performance trend")
+    
+    if std_last5 > 3:
+        factors.append("High performance variance (unstable results)")
+    
+    if simulation_impact == "negative":
+        factors.append("Projected performance drop in simulation")
+    
+    if confidence < 15:
+        factors.append("Outcome variance is very high")
+    
+    return factors if factors else ["Prediction based on stable performance data"]
 
 def calculate_probability_distribution(predicted: float, confidence: float) -> Dict[str, float]:
     """Calculate probability distribution for finish positions"""
@@ -197,13 +264,21 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         # Calculate average prediction
         avg_prediction = (rf_pred + xgb_pred) / 2
         
-        # Calculate prediction range based on confidence
-        predicted_range = calculate_prediction_range(avg_prediction, confidence * 100)
+        # Use avg_last5 as the base finish position for range calculation
+        avg_finish = avg_last5 if avg_last5 > 0 else avg_prediction
+        
+        # Calculate simulation impact
+        impact = simulate_impact(rf_pred, avg_last5)
+        
+        # Calculate prediction range based on confidence, trend, and simulation impact
+        predicted_range = calculate_prediction_range(avg_finish, confidence * 100, trend, impact)
+        
+        # Calculate uncertainty factors
+        uncertainty_factors = calculate_uncertainty_factors(confidence * 100, trend, std_last5, impact)
         
         # Calculate probability distribution
         probability_distribution = calculate_probability_distribution(avg_prediction, confidence * 100)
         
-        impact = simulate_impact(rf_pred, avg_last5)
         insight = generate_insight(rf_pred, xgb_pred, avg_last5, std_last5)
         
         response = {
@@ -217,7 +292,8 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
             "top_features": xgb_result.get("top_features", []),
             "predicted_range": predicted_range,
             "probability_distribution": probability_distribution,
-            "trend": trend
+            "trend": trend,
+            "uncertainty_factors": uncertainty_factors
         }
         
         return response

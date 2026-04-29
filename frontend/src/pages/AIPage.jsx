@@ -46,10 +46,10 @@ const resultColorByPosition = (pos) => {
 };
 
 const confidenceLabel = (percent) => {
-  if (percent >= 75) return "High Confidence";
-  if (percent >= 50) return "Moderate Confidence";
-  if (percent >= 40) return "Low Confidence";
-  return "Very Low Confidence";
+  if (percent >= 60) return "High";
+  if (percent >= 30) return "Moderate";
+  if (percent >= 15) return "Low";
+  return "Very Low";
 };
 
 const verdictForPosition = (position) => {
@@ -311,6 +311,26 @@ const AIPage = () => {
                 )}
               </div>
             </Card>
+
+            {confidencePercent < 30 && result?.prediction?.uncertaintyFactors && result.prediction.uncertaintyFactors.length > 0 && (
+              <Card delay={0.14} className="border-accentRed/30 bg-accentRed/5">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <p className="text-lg">⚠️</p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="section-label mb-2 text-accentRed">Why Low Confidence?</p>
+                    <ul className="space-y-1">
+                      {result.prediction.uncertaintyFactors.map((factor, idx) => (
+                        <li key={idx} className="text-sm text-whiteMuted">
+                          • {factor}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Card delay={0.16}>

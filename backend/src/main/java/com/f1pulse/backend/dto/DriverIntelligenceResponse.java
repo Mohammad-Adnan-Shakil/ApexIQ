@@ -16,6 +16,7 @@ public class DriverIntelligenceResponse {
     private String predictedRange;
     private Map<String, Double> probabilityDistribution;
     private String trend;
+    private List<String> uncertaintyFactors;
 
     // GETTERS
 
@@ -63,6 +64,10 @@ public class DriverIntelligenceResponse {
         return trend;
     }
 
+    public List<String> getUncertaintyFactors() {
+        return uncertaintyFactors;
+    }
+
     // SETTERS
 
     public void setDriverId(Long driverId) {
@@ -107,5 +112,9 @@ public class DriverIntelligenceResponse {
 
     public void setTrend(String trend) {
         this.trend = trend;
+    }
+
+    public void setUncertaintyFactors(List<String> uncertaintyFactors) {
+        this.uncertaintyFactors = uncertaintyFactors;
     }
 }
