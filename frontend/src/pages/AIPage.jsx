@@ -129,9 +129,8 @@ const AIPage = () => {
     return <EmptyState title="No prediction inputs available" description="Driver or race data is empty." />;
   }
 
-  const roundedPredictedPosition = roundPosition(result?.prediction?.predictedPosition);
+  const predictedRange = result?.prediction?.predictedRange || "P5–P10";
   const confidencePercent = confidenceToPercent(result?.prediction?.confidence);
-  const predictedRange = result?.prediction?.predictedRange || `P${roundedPredictedPosition}`;
   const roundedAvgFinish = roundPosition(result?.insights?.averageFinish);
   const consistencyPercent = confidenceToPercent(result?.insights?.consistencyScore);
 
@@ -142,7 +141,7 @@ const AIPage = () => {
   const simOld = roundAverage(result?.simulation?.oldAverage);
   const simNew = roundAverage(result?.simulation?.newAverage);
   const simImpact = result?.simulation?.impact;
-  const verdict = verdictForPosition(Number(roundedPredictedPosition || 20));
+  const verdict = verdictForPosition(Number(roundedAvgFinish || 20));
 
   const sliderPercent = ((simulatedPosition - 1) / 19) * 100;
 
@@ -271,23 +270,23 @@ const AIPage = () => {
               <p className="text-sm text-whitePrimary leading-relaxed">
                 Based on {selectedDriverData?.name || "this driver's"} recent form and starting from{" "}
 <span className="font-mono font-semibold">P{simulatedPosition}</span>
-                {selectedRaceData?.raceName ? ` at ${selectedRaceData.raceName}` : ""}, our models predict a{" "}
-<span className="font-mono font-semibold">{predictedRange}</span> finish with{" "}
-                <span className="font-semibold">{confidencePercent}% confidence</span>.{" "}
-                {confidencePercent < 30
-                  ? "Prediction has low confidence due to limited data or inconsistent performance. Use as a rough guide only."
-                  : trendImproving
-                    ? "This driver is on an improving trend and looks set for a strong result."
-                    : trendDeclining
-                      ? "Recent trend is declining, so execution and strategy will be critical."
-                      : "Current trend is stable, with a result close to expected pace."}
+                {selectedRaceData?.raceName ? ` at ${selectedRaceData.raceName}` : ""}, our models estimate a likely finish in the{" "}
+<span className="font-mono font-semibold">{predictedRange}</span> range with{" "}
+<span className="font-semibold">{confidencePercent}% confidence</span>.{" "}
+{confidencePercent < 30
+  ? `Very low confidence due to ${trendDeclining ? "declining performance" : "limited data or inconsistent performance"}. Use as a rough guide only.`
+  : trendImproving
+    ? "This driver is on an improving trend and looks set for a strong result."
+    : trendDeclining
+      ? "Recent trend is declining, so execution and strategy will be critical."
+      : "Current trend is stable, with a result close to expected pace."}
               </p>
             </Card>
 
             <Card className="grid items-center gap-4 md:grid-cols-[1fr_auto]" delay={0.12}>
               <div>
                 <p className="section-label">Predicted Finish</p>
-                <p className={`font-mono mt-3 text-7xl font-bold tracking-tight ${resultColorByPosition(roundedPredictedPosition)}`}>
+                <p className={`font-mono mt-3 text-7xl font-bold tracking-tight ${resultColorByPosition(roundedAvgFinish)}`}>
                   {predictedRange}
                 </p>
                 {confidencePercent < 50 && (

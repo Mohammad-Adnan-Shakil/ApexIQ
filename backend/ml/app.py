@@ -109,69 +109,35 @@ def calculate_trend(avg_last5: float, avg_last10: float) -> str:
 
 def calculate_prediction_range(avg_finish: float, confidence: float, trend: str, simulation_impact: str) -> str:
     """Calculate prediction range based on confidence level, trend, and simulation impact"""
-    # Base range based on confidence
+    # Base range from confidence (strict ranges)
     if confidence < 15:
-        # Very low confidence - wide range starting from midfield
-        min_pos = max(5, int(avg_finish - 2))
-        max_pos = min(20, int(avg_finish + 5))
-        base_range = f"P{min_pos}-P{max_pos}"
+        range_min, range_max = 5, 10
     elif confidence < 30:
-        # Low confidence - moderate range
-        min_pos = max(3, int(avg_finish - 2))
-        max_pos = min(20, int(avg_finish + 3))
-        base_range = f"P{min_pos}-P{max_pos}"
+        range_min, range_max = 3, 6
     elif confidence < 60:
-        # Moderate confidence - narrow range
-        min_pos = max(2, int(avg_finish - 1))
-        max_pos = min(20, int(avg_finish + 2))
-        base_range = f"P{min_pos}-P{max_pos}"
+        range_min, range_max = 2, 4
     else:
-        # High confidence - narrow range near top
-        min_pos = max(1, int(avg_finish - 1))
-        max_pos = min(20, int(avg_finish + 1))
-        base_range = f"P{min_pos}-P{max_pos}"
+        range_min, range_max = 1, 2
     
-    # Adjust range based on trend
+    # Adjust using trend
     if trend == "DECLINING":
-        # Widen and worsen prediction range
-        parts = base_range.split("-")
-        if len(parts) == 2:
-            min_pos = int(parts[0].replace("P", "")) + 1
-            max_pos = int(parts[1].replace("P", "")) + 2
-            min_pos = min(20, max(1, min_pos))
-            max_pos = min(20, max(1, max_pos))
-            base_range = f"P{min_pos}-P{max_pos}"
-    elif trend == "IMPROVING":
-        # Improve prediction range slightly
-        parts = base_range.split("-")
-        if len(parts) == 2:
-            min_pos = int(parts[0].replace("P", "")) - 1
-            max_pos = int(parts[1].replace("P", "")) - 1
-            min_pos = min(20, max(1, min_pos))
-            max_pos = min(20, max(1, max_pos))
-            base_range = f"P{min_pos}-P{max_pos}"
+        range_min += 1
+        range_max += 2
     
-    # Adjust range based on simulation impact
+    # Adjust using simulation (negative impact means projectedAvg > avgFinish)
     if simulation_impact == "negative":
-        # Projected performance is worse
-        parts = base_range.split("-")
-        if len(parts) == 2:
-            min_pos = int(parts[0].replace("P", "")) + 1
-            max_pos = int(parts[1].replace("P", "")) + 1
-            min_pos = min(20, max(1, min_pos))
-            max_pos = min(20, max(1, max_pos))
-            base_range = f"P{min_pos}-P{max_pos}"
-    elif simulation_impact == "positive":
-        # Projected performance is better
-        parts = base_range.split("-")
-        if len(parts) == 2:
-            min_pos = int(parts[0].replace("P", "")) - 1
-            max_pos = int(parts[1].replace("P", "")) - 1
-            min_pos = min(20, max(1, min_pos))
-            max_pos = min(20, max(1, max_pos))
-            base_range = f"P{min_pos}-P{max_pos}"
+        range_min += 1
+        range_max += 1
     
-    return base_range
+    # Clamp to valid range
+    range_min = max(1, min(20, range_min))
+    range_max = max(1, min(20, range_max))
+    
+    # Ensure min <= max
+    if range_min > range_max:
+        range_min, range_max = range_max, range_min
+    
+    return f"P{range_min}–P{range_max}"
 
 def calculate_uncertainty_factors(confidence: float, trend: str, std_last5: float, simulation_impact: str) -> List[str]:
     """Calculate factors contributing to low confidence"""
@@ -272,6 +238,10 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         
         # Calculate prediction range based on confidence, trend, and simulation impact
         predicted_range = calculate_prediction_range(avg_finish, confidence * 100, trend, impact)
+        
+        # Validation guard: prevent invalid prediction states
+        if confidence * 100 < 30 and predicted_range.startswith("P1"):
+            raise ValueError("Invalid state: High outcome with low confidence")
         
         # Calculate uncertainty factors
         uncertainty_factors = calculate_uncertainty_factors(confidence * 100, trend, std_last5, impact)

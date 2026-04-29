@@ -55,8 +55,10 @@ public class AIController {
             SimulationResponseDTO simulation = simulationService.simulate(simulationRequest);
 
             Map<String, Object> prediction = new LinkedHashMap<>();
-            prediction.put("predictedPosition", round2(intelligence.getXgbPrediction()));
             prediction.put("confidence", round2(intelligence.getConfidence()));
+            prediction.put("predictedRange", intelligence.getPredictedRange());
+            prediction.put("trend", intelligence.getTrend());
+            prediction.put("uncertaintyFactors", intelligence.getUncertaintyFactors());
 
             Map<String, Object> insightPayload = new LinkedHashMap<>();
             insightPayload.put("averageFinish", round2(insights.getAvgPosition()));
