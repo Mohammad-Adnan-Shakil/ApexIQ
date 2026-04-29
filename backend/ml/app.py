@@ -48,20 +48,20 @@ def startup_event():
     load_models()
 
 class PredictionRequest(BaseModel):
-    driver_id: int
-    avg_last_5: float
-    std_last_5: float
-    avg_last_10: float
-    std_last_10: float
-    last_race_position: float
-    qualifying_position: int
-    constructor_id: str
-    track_id: str
-    season_year: int
-    recent_avg_position_last_5: float
-    recent_std_last_5: float
-    grid_position: int
-    is_home_race: int
+    driver_id: str
+    avg_last_5: Optional[float] = 0.0
+    std_last_5: Optional[float] = 0.0
+    avg_last_10: Optional[float] = 0.0
+    std_last_10: Optional[float] = 0.0
+    last_race_position: Optional[float] = 0.0
+    qualifying_position: Optional[int] = 0
+    constructor_id: Optional[str] = "unknown"
+    track_id: Optional[str] = "unknown"
+    season_year: Optional[int] = 2026
+    recent_avg_position_last_5: Optional[float] = 0.0
+    recent_std_last_5: Optional[float] = 0.0
+    grid_position: Optional[int] = 0
+    is_home_race: Optional[int] = 0
 
 class FeatureImportance(BaseModel):
     feature: str
