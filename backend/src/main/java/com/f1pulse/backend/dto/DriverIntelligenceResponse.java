@@ -18,6 +18,7 @@ public class DriverIntelligenceResponse {
     private String trend;
     private List<String> uncertaintyFactors;
     private Map<String, Double> performanceBreakdown;
+    private Map<String, Double> appliedWeights;
 
     // GETTERS
 
@@ -73,6 +74,10 @@ public class DriverIntelligenceResponse {
         return performanceBreakdown;
     }
 
+    public Map<String, Double> getAppliedWeights() {
+        return appliedWeights;
+    }
+
     // SETTERS
 
     public void setDriverId(Long driverId) {
@@ -125,5 +130,9 @@ public class DriverIntelligenceResponse {
 
     public void setPerformanceBreakdown(Map<String, Double> performanceBreakdown) {
         this.performanceBreakdown = performanceBreakdown;
+    }
+
+    public void setAppliedWeights(Map<String, Double> appliedWeights) {
+        this.appliedWeights = appliedWeights;
     }
 }

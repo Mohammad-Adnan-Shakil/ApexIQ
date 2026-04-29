@@ -374,7 +374,7 @@ const AIPage = () => {
             {result?.prediction?.performanceBreakdown && (
               <Card delay={0.26}>
                 <p className="section-label">Performance Breakdown</p>
-                <p className="text-xs text-whiteMuted mb-4">Prediction combines long-term skill, current season form, and recent race performance</p>
+                <p className="text-xs text-whiteMuted mb-4">Prediction dynamically adjusts weighting between long-term skill, current season form, and recent race performance based on driver trend and consistency</p>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                     <p className="text-xs text-whiteMuted">Career Form</p>
@@ -401,6 +401,31 @@ const AIPage = () => {
                     </p>
                   </div>
                 </div>
+                {result?.prediction?.appliedWeights && (
+                  <div className="mt-4 rounded-lg border border-white/10 bg-black/30 p-3">
+                    <p className="text-xs text-whiteMuted mb-2">Weights Applied:</p>
+                    <div className="flex flex-wrap gap-3">
+                      <span className="text-sm">
+                        <span className="text-whiteMuted">Career:</span>{" "}
+                        <span className="font-mono font-semibold text-accentGold">
+                          {(result.prediction.appliedWeights.career * 100).toFixed(0)}%
+                        </span>
+                      </span>
+                      <span className="text-sm">
+                        <span className="text-whiteMuted">Season:</span>{" "}
+                        <span className="font-mono font-semibold text-accentGold">
+                          {(result.prediction.appliedWeights.season * 100).toFixed(0)}%
+                        </span>
+                      </span>
+                      <span className="text-sm">
+                        <span className="text-whiteMuted">Recent:</span>{" "}
+                        <span className="font-mono font-semibold text-accentGold">
+                          {(result.prediction.appliedWeights.recent * 100).toFixed(0)}%
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                )}
               </Card>
             )}
 

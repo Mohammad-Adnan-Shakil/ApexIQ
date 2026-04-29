@@ -107,6 +107,16 @@ public class MLService {
             response.setPerformanceBreakdown(perfBreakdown);
         }
         
+        // Map applied weights
+        if (json.has("applied_weights") && json.get("applied_weights").isObject()) {
+            JsonNode weights = json.get("applied_weights");
+            Map<String, Double> appliedWeights = new LinkedHashMap<>();
+            weights.fields().forEachRemaining(entry -> {
+                appliedWeights.put(entry.getKey(), entry.getValue().asDouble());
+            });
+            response.setAppliedWeights(appliedWeights);
+        }
+        
         // Map top features
         if (json.has("top_features") && json.get("top_features").isArray()) {
             List<Map<String, Object>> topFeatures = new java.util.ArrayList<>();

@@ -86,6 +86,7 @@ class PredictionResponse(BaseModel):
     trend: Optional[str] = None
     uncertainty_factors: Optional[List[str]] = None
     performance_breakdown: Optional[Dict[str, float]] = None
+    applied_weights: Optional[Dict[str, float]] = None
 
 def simulate_impact(predicted: float, avg_last5: float) -> str:
     if predicted < avg_last5:
@@ -112,13 +113,26 @@ def calculate_trend(recent_avg_finish: float, season_avg_finish: float) -> str:
     else:
         return "STABLE"
 
-def compute_weighted_finish(career_avg: float, season_avg: float, recent_avg: float) -> float:
-    """Compute weighted average finish using multi-timescale model"""
-    weights = {
-        "career": 0.25,
-        "season": 0.45,
-        "recent": 0.30
-    }
+def get_dynamic_weights(trend: str, consistency: float) -> Dict[str, float]:
+    """Calculate dynamic weights based on trend and consistency"""
+    # High consistency + stable trend → trust career more
+    if consistency > 90 and trend == "STABLE":
+        return {"career": 0.30, "season": 0.45, "recent": 0.25}
+    
+    # Declining performance → recent matters more
+    if trend == "DECLINING":
+        return {"career": 0.15, "season": 0.40, "recent": 0.45}
+    
+    # Improving trend → lean into recent performance
+    if trend == "IMPROVING":
+        return {"career": 0.15, "season": 0.35, "recent": 0.50}
+    
+    # Default balanced case
+    return {"career": 0.20, "season": 0.50, "recent": 0.30}
+
+def compute_weighted_finish(career_avg: float, season_avg: float, recent_avg: float, trend: str, consistency: float) -> float:
+    """Compute weighted average finish using dynamic multi-timescale model"""
+    weights = get_dynamic_weights(trend, consistency)
     
     return (
         weights["career"] * career_avg +
@@ -126,8 +140,18 @@ def compute_weighted_finish(career_avg: float, season_avg: float, recent_avg: fl
         weights["recent"] * recent_avg
     )
 
+def adjust_confidence_divergence(confidence: float, career_avg: float, recent_avg: float) -> float:
+    """Adjust confidence based on divergence between career and recent performance"""
+    diff = abs(career_avg - recent_avg)
+    
+    if diff > 2:
+        confidence *= 0.75  # significant disagreement
+    elif diff > 1:
+        confidence *= 0.85
+    
+    return max(confidence, 0.05)  # clamp minimum 5%
+
 def calculate_prediction_range(avg_finish: float, confidence: float, trend: str, simulation_impact: str) -> str:
-    """Calculate prediction range based on confidence level, trend, and simulation impact"""
     # Base range from confidence (strict ranges)
     if confidence < 15:
         range_min, range_max = 5, 10
@@ -234,6 +258,10 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         # Calculate trend using recent vs season performance
         trend = calculate_trend(recent_avg, season_avg)
         
+        # Calculate consistency (inverse of std - higher std = lower consistency)
+        # Convert std to a consistency score (0-100)
+        consistency = max(0, 100 - (std_last5 * 10)) if std_last5 > 0 else 50
+        
         # Get confidence and clamp to minimum 5%
         confidence = xgb_result["confidence"]
         confidence = max(0.05, confidence)  # Clamp to minimum 5%
@@ -243,11 +271,8 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
             confidence *= 0.7  # Reduce confidence for declining trend
             confidence = max(0.05, confidence)  # Still clamp to minimum 5%
         
-        # Adjust confidence based on performance divergence
-        divergence = abs(season_avg - recent_avg)
-        if divergence > 2.0:
-            confidence *= 0.8  # Reduce confidence when season and recent diverge significantly
-            confidence = max(0.05, confidence)
+        # Apply divergence-based confidence adjustment
+        confidence = adjust_confidence_divergence(confidence, career_avg, recent_avg)
         
         # Update confidence label based on adjusted confidence
         if confidence > 0.75:
@@ -260,8 +285,11 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         # Calculate average prediction
         avg_prediction = (rf_pred + xgb_pred) / 2
         
+        # Get dynamic weights based on trend and consistency
+        weights = get_dynamic_weights(trend, consistency)
+        
         # Use weighted multi-timescale model for base finish position
-        avg_finish = compute_weighted_finish(career_avg, season_avg, recent_avg)
+        avg_finish = compute_weighted_finish(career_avg, season_avg, recent_avg, trend, consistency)
         
         # Calculate simulation impact
         impact = simulate_impact(rf_pred, avg_finish)
@@ -279,13 +307,19 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         # Calculate probability distribution
         probability_distribution = calculate_probability_distribution(avg_finish, confidence * 100)
         
-        # Generate insight with recent vs season comparison
+        # Generate insight with recent vs season comparison and weight-based messaging
         if recent_avg > season_avg + 1:
             insight = "Recent performance is declining compared to season average"
         elif recent_avg < season_avg - 1:
             insight = "Recent performance is improving compared to season average"
         else:
             insight = generate_insight(rf_pred, xgb_pred, avg_finish, std_last5)
+        
+        # Add weight-based insight
+        if weights["recent"] > weights["career"]:
+            insight += ". Recent performance is heavily influencing prediction"
+        elif weights["career"] > weights["recent"]:
+            insight += ". Long-term consistency is driving prediction"
         
         # Build performance breakdown
         performance_breakdown = {
@@ -294,6 +328,9 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
             "recent": recent_avg,
             "weighted": avg_finish
         }
+        
+        # Include applied weights in response
+        applied_weights = weights
         
         response = {
             "driver_id": input_data["driver_id"],
@@ -308,7 +345,8 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
             "probability_distribution": probability_distribution,
             "trend": trend,
             "uncertainty_factors": uncertainty_factors,
-            "performance_breakdown": performance_breakdown
+            "performance_breakdown": performance_breakdown,
+            "applied_weights": applied_weights
         }
         
         return response
