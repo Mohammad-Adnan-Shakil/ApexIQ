@@ -126,6 +126,25 @@ public class MLService {
             response.setInsights(insights);
         }
         
+        // Map divergence
+        if (json.has("divergence") && json.get("divergence").isObject()) {
+            JsonNode divergence = json.get("divergence");
+            Map<String, Object> divergenceMap = new LinkedHashMap<>();
+            divergence.fields().forEachRemaining(entry -> {
+                if (entry.getValue().isDouble() || entry.getValue().isInt()) {
+                    divergenceMap.put(entry.getKey(), entry.getValue().asDouble());
+                } else {
+                    divergenceMap.put(entry.getKey(), entry.getValue().asText());
+                }
+            });
+            response.setDivergence(divergenceMap);
+        }
+        
+        // Map confidence reason
+        if (json.has("confidence_reason") && json.get("confidence_reason").isTextual()) {
+            response.setConfidenceReason(json.get("confidence_reason").asText());
+        }
+        
         // Map top features
         if (json.has("top_features") && json.get("top_features").isArray()) {
             List<Map<String, Object>> topFeatures = new java.util.ArrayList<>();

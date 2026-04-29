@@ -88,6 +88,8 @@ class PredictionResponse(BaseModel):
     performance_breakdown: Optional[Dict[str, float]] = None
     applied_weights: Optional[Dict[str, float]] = None
     insights: Optional[List[str]] = None
+    divergence: Optional[Dict[str, Any]] = None
+    confidence_reason: Optional[str] = None
 
 def simulate_impact(predicted: float, avg_last5: float) -> str:
     if predicted < avg_last5:
@@ -152,25 +154,32 @@ def adjust_confidence_divergence(confidence: float, career_avg: float, recent_av
     
     return max(confidence, 0.05)  # clamp minimum 5%
 
-def generate_weight_insight(weights: Dict[str, float], trend: str) -> str:
-    """Generate insight based on dominant weight and trend"""
+def generate_advanced_insight(weights: Dict[str, float], trend: str, career_avg: float, season_avg: float, recent_avg: float) -> str:
+    """Generate advanced insight with contextual reasoning"""
+    parts = []
+    
     max_weight = max(weights["career"], weights["season"], weights["recent"])
     
-    # Primary driver
-    if max_weight == weights["recent"]:
-        if trend == "DECLINING":
-            return "Recent performance decline is significantly impacting the prediction."
-        if trend == "IMPROVING":
-            return "Recent improvement in performance is boosting the prediction."
-        return "Recent performance is the primary factor influencing this prediction."
-    
+    # Dominant factor
     if max_weight == weights["season"]:
-        return "Current season form is the dominant factor in this prediction."
+        parts.append("Current season performance is the primary driver of this prediction")
+    elif max_weight == weights["recent"]:
+        if trend == "DECLINING":
+            parts.append("Recent performance decline is heavily influencing the prediction")
+        elif trend == "IMPROVING":
+            parts.append("Recent improvement is boosting expected performance")
+        else:
+            parts.append("Recent performance trends are shaping the prediction")
+    else:
+        parts.append("Strong long-term consistency is stabilizing the prediction")
     
-    if max_weight == weights["career"]:
-        return "Strong long-term consistency is driving this prediction."
+    # Add supporting context
+    if abs(career_avg - recent_avg) < 1:
+        parts.append("performance across timeframes is well aligned")
+    else:
+        parts.append("there is variation between long-term and recent performance")
     
-    return "Prediction is based on a balanced combination of performance factors."
+    return ", ".join(parts) + "."
 
 def generate_divergence_insight(career_avg: float, recent_avg: float) -> Optional[str]:
     """Generate insight based on divergence between career and recent performance"""
@@ -184,9 +193,36 @@ def generate_divergence_insight(career_avg: float, recent_avg: float) -> Optiona
     
     return None
 
-def get_final_insights(weights: Dict[str, float], trend: str, career_avg: float, recent_avg: float) -> List[str]:
+def generate_confidence_reason(career_avg: float, season_avg: float, recent_avg: float, confidence: float) -> str:
+    """Generate dynamic confidence reason based on data differences"""
+    reasons = []
+    
+    diff_cr = abs(career_avg - recent_avg)
+    diff_sr = abs(season_avg - recent_avg)
+    
+    if diff_cr > 2:
+        reasons.append("high variance between long-term and recent performance")
+    
+    if diff_sr > 1.5:
+        reasons.append("recent form deviates from current season trends")
+    
+    if confidence < 15:
+        reasons.append("overall prediction uncertainty is extremely high")
+    
+    return ", ".join(reasons) if reasons else "prediction uncertainty due to performance variability"
+
+def get_divergence(career_avg: float, recent_avg: float) -> Dict[str, Any]:
+    """Calculate divergence between career and recent performance"""
+    diff = abs(career_avg - recent_avg)
+    
+    return {
+        "diff": diff,
+        "message": "High divergence detected" if diff > 2 else "Performance is relatively stable"
+    }
+
+def get_final_insights(weights: Dict[str, float], trend: str, career_avg: float, season_avg: float, recent_avg: float) -> List[str]:
     """Combine all insights into a list"""
-    main_insight = generate_weight_insight(weights, trend)
+    main_insight = generate_advanced_insight(weights, trend, career_avg, season_avg, recent_avg)
     divergence_insight = generate_divergence_insight(career_avg, recent_avg)
     
     insights = [main_insight]
@@ -400,10 +436,16 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
         probability_distribution = calculate_probability_distribution(avg_finish, confidence * 100)
         
         # Generate insights using the new insight engine
-        insights = get_final_insights(weights, trend, career_avg, recent_avg)
+        insights = get_final_insights(weights, trend, career_avg, season_avg, recent_avg)
         
         # Keep a single final_insight for backward compatibility
         final_insight = insights[0] if insights else generate_insight(rf_pred, xgb_pred, avg_finish, std_last5)
+        
+        # Generate confidence reason
+        confidence_reason = generate_confidence_reason(career_avg, season_avg, recent_avg, confidence * 100)
+        
+        # Calculate divergence
+        divergence = get_divergence(career_avg, recent_avg)
         
         # Build performance breakdown
         performance_breakdown = {
@@ -431,7 +473,9 @@ def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
             "uncertainty_factors": uncertainty_factors,
             "performance_breakdown": performance_breakdown,
             "applied_weights": applied_weights,
-            "insights": insights
+            "insights": insights,
+            "divergence": divergence,
+            "confidence_reason": confidence_reason
         }
         
         return response

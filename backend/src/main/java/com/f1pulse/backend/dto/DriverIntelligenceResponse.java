@@ -20,6 +20,8 @@ public class DriverIntelligenceResponse {
     private Map<String, Double> performanceBreakdown;
     private Map<String, Double> appliedWeights;
     private List<String> insights;
+    private Map<String, Object> divergence;
+    private String confidenceReason;
 
     // GETTERS
 
@@ -83,6 +85,14 @@ public class DriverIntelligenceResponse {
         return insights;
     }
 
+    public Map<String, Object> getDivergence() {
+        return divergence;
+    }
+
+    public String getConfidenceReason() {
+        return confidenceReason;
+    }
+
     // SETTERS
 
     public void setDriverId(Long driverId) {
@@ -143,5 +153,13 @@ public class DriverIntelligenceResponse {
 
     public void setInsights(List<String> insights) {
         this.insights = insights;
+    }
+
+    public void setDivergence(Map<String, Object> divergence) {
+        this.divergence = divergence;
+    }
+
+    public void setConfidenceReason(String confidenceReason) {
+        this.confidenceReason = confidenceReason;
     }
 }

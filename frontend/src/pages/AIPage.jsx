@@ -146,6 +146,33 @@ const AIPage = () => {
 
   const sliderPercent = ((simulatedPosition - 1) / 19) * 100;
 
+  // Calculate safe most-likely position from range and confidence
+  const getSafeMostLikely = () => {
+    const distribution = result?.prediction?.probabilityDistribution;
+    if (!distribution || distribution.length === 0) {
+      // Fallback to midpoint of range
+      const [min, max] = predictedRange.replace("P", "").split("–").map(Number);
+      return Math.round((min + max) / 2);
+    }
+
+    // Get peak from distribution
+    const peak = distribution.reduce((max, item) => 
+      item.probability > max.probability ? item : max, distribution[0]).position;
+
+    // Extract range bounds
+    const [min, max] = predictedRange.replace("P", "").split("–").map(Number);
+
+    // If low confidence, force midpoint
+    if (confidencePercent < 30) {
+      return Math.round((min + max) / 2);
+    }
+
+    // Clamp peak inside range
+    return Math.min(Math.max(peak, min), max);
+  };
+
+  const mostLikely = getSafeMostLikely();
+
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[360px_1fr]">
       <Card className="h-fit" delay={0.05}>
@@ -324,13 +351,9 @@ const AIPage = () => {
                   </div>
                   <div className="flex-1">
                     <p className="section-label mb-2 text-accentRed">Why Low Confidence?</p>
-                    <ul className="space-y-1">
-                      {result.prediction.uncertaintyFactors.map((factor, idx) => (
-                        <li key={idx} className="text-sm text-whiteMuted">
-                          • {factor}
-                        </li>
-                      ))}
-                    </ul>
+                    <p className="text-sm text-whiteMuted">
+                      {result?.prediction?.confidenceReason || "prediction uncertainty due to performance variability"}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -444,6 +467,25 @@ const AIPage = () => {
                         </li>
                       ))}
                     </ul>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {result?.prediction?.divergence && result.prediction.divergence.diff > 2 && (
+              <Card delay={0.275} className="border-accentRed/30 bg-accentRed/5">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <p className="text-lg">⚠️</p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="section-label mb-2 text-accentRed">Performance Divergence</p>
+                    <p className="text-sm text-whiteMuted">
+                      Career: P{result.prediction.performanceBreakdown?.career?.toFixed(1) || "N/A"} vs Recent: P{result.prediction.performanceBreakdown?.recent?.toFixed(1) || "N/A"}
+                    </p>
+                    <p className="mt-1 text-xs text-accentRed">
+                      {result.prediction.divergence.message}
+                    </p>
                   </div>
                 </div>
               </Card>
