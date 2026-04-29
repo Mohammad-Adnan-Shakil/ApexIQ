@@ -172,19 +172,16 @@ const Login = () => {
             {/* DeltaBox Logo */}
             <div style={{ display: "flex", alignItems: "baseline", gap: 0, letterSpacing: "-3px" }}>
               <h1 className="logo-text" style={{ fontSize: "80px", fontWeight: 900, color: "#e8002d", margin: 0, textShadow: "0 0 40px rgba(232, 0, 45, 0.5)" }}>
-                F1
+                Delta
               </h1>
               <h1 className="logo-text" style={{ fontSize: "80px", fontWeight: 900, color: "white", margin: 0, textShadow: "0 0 40px rgba(255, 255, 255, 0.3)" }}>
-                PULSE
+                Box
               </h1>
             </div>
 
             {/* Tagline */}
             <div style={{ marginTop: "24px" }}>
-              <p style={{ fontSize: "20px", fontWeight: 500, color: "white", margin: 0 }}>AI-Powered Formula 1</p>
-              <p style={{ fontSize: "20px", fontWeight: 400, color: "rgba(255,255,255,0.5)", margin: "4px 0 0 0" }}>
-                Intelligence Platform
-              </p>
+              <p style={{ fontSize: "20px", fontWeight: 500, color: "white", margin: 0 }}>AI-Powered F1 Intelligence</p>
             </div>
 
             {/* Feature Pills */}
@@ -211,7 +208,7 @@ const Login = () => {
 
             {/* Tagline below feature pills */}
             <p style={{ marginTop: "32px", fontSize: "14px", color: "rgba(255,255,255,0.5)", letterSpacing: "1px" }}>
-              Your Competitive Advantage in Formula 1 Analytics
+              Your Edge in Formula 1 Analytics
             </p>
 
             {/* Bottom Footer Text */}
@@ -225,7 +222,7 @@ const Login = () => {
                 margin: 0,
               }}
             >
-              2026 Season · Live Data · PostgreSQL
+              DeltaBox · 2026 Season
             </p>
           </div>
         </div>
