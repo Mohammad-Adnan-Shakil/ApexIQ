@@ -96,7 +96,7 @@ const Login = () => {
   const inputBaseStyle = {
     width: "100%",
     boxSizing: "border-box",
-    padding: "12px 16px",
+    padding: "14px 16px",
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     border: "1px solid rgba(255, 255, 255, 0.1)",
     borderRadius: "10px",
@@ -105,6 +105,7 @@ const Login = () => {
     fontFamily: "inherit",
     transition: "all 0.2s",
     outline: "none",
+    minHeight: "44px",
   };
 
   const inputFocusStyle = {
@@ -118,24 +119,24 @@ const Login = () => {
       <style>{`
         @media (max-width: 767px) {
           .login-container { flex-direction: column; }
-          .login-left { width: 100%; height: auto; padding: 40px 24px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
-          .login-left-content .logo-text { font-size: 42px; line-height: 1; }
-          .login-left .feature-pills { display: none; }
-          .login-left .metadata-footer { display: none; }
-          .login-right { width: 100%; padding: 32px 24px; }
+          .login-left { display: none; }
+          .login-right { width: 100%; padding: 24px; }
+          .login-right > div { maxWidth: 100%; padding: 24px; }
+          .mobile-logo { display: flex !important; }
         }
 
         @media (min-width: 768px) and (max-width: 1023px) {
           .login-container { flex-direction: row; }
-          .login-left { width: 50%; }
-          .login-left .feature-pills { display: none; }
-          .login-right { width: 50%; padding: 32px; }
+          .login-left { display: none; }
+          .login-right { width: 100%; padding: 32px; }
+          .mobile-logo { display: flex !important; }
         }
 
         @media (min-width: 1024px) {
           .login-container { flex-direction: row; }
-          .login-left { width: 55%; }
-          .login-right { width: 45%; padding: 48px; }
+          .login-left { width: 50%; }
+          .login-right { width: 50%; padding: 48px; }
+          .mobile-logo { display: none; }
         }
 
         html, body, #root {
@@ -151,7 +152,7 @@ const Login = () => {
           className="login-left"
           style={{
             display: "flex",
-            width: "55%",
+            width: "50%",
             backgroundColor: "#0f0f1a",
             borderRight: "2px solid rgba(232, 0, 45, 0.3)",
             alignItems: "center",
@@ -231,7 +232,7 @@ const Login = () => {
         <div
           className="login-right"
           style={{
-            width: "45%",
+            width: "50%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -240,6 +241,16 @@ const Login = () => {
           }}
         >
           <div style={{ width: "100%", maxWidth: "400px", padding: "40px", backgroundColor: "rgba(15, 15, 26, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "20px", backdropFilter: "blur(10px)" }}>
+            {/* Mobile Logo - Only shows on mobile/tablet */}
+            <div className="mobile-logo" style={{ display: "none", alignItems: "baseline", gap: 0, letterSpacing: "-3px", justifyContent: "center", marginBottom: "24px" }}>
+              <h1 style={{ fontSize: "48px", fontWeight: 900, color: "#e8002d", margin: 0, textShadow: "0 0 40px rgba(232, 0, 45, 0.5)" }}>
+                Delta
+              </h1>
+              <h1 style={{ fontSize: "48px", fontWeight: 900, color: "white", margin: 0, textShadow: "0 0 40px rgba(255, 255, 255, 0.3)" }}>
+                Box
+              </h1>
+            </div>
+
             {/* Header */}
             <p style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "3px", color: "rgba(255,255,255,0.4)", fontWeight: 600, margin: 0 }}>
               {isLogin ? "Member Access" : "New Member"}
