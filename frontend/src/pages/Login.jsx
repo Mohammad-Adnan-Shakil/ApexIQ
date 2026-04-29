@@ -115,34 +115,75 @@ const Login = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#0a0a0f", backgroundImage: "radial-gradient(ellipse at top left, rgba(232, 0, 45, 0.08), transparent 50%), radial-gradient(ellipse at bottom right, rgba(255, 255, 255, 0.03), transparent 50%)" }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#0a0a0f", backgroundImage: "radial-gradient(ellipse at top left, rgba(232, 0, 45, 0.08), transparent 50%), radial-gradient(ellipse at bottom right, rgba(255, 255, 255, 0.03), transparent 50%)", overflowX: "hidden" }}>
       <style>{`
-        @media (max-width: 767px) {
-          .login-container { flex-direction: column; }
-          .login-left { display: none; }
-          .login-right { width: 100%; padding: 24px; }
-          .login-right > div { maxWidth: 100%; padding: 24px; }
-          .mobile-logo { display: flex !important; }
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .login-container { flex-direction: row; }
-          .login-left { display: none; }
-          .login-right { width: 100%; padding: 32px; }
-          .mobile-logo { display: flex !important; }
-        }
-
-        @media (min-width: 1024px) {
-          .login-container { flex-direction: row; }
-          .login-left { width: 50%; }
-          .login-right { width: 50%; padding: 48px; }
-          .mobile-logo { display: none; }
-        }
-
         html, body, #root {
           height: 100%;
           margin: 0;
           padding: 0;
+          overflow-x: hidden;
+        }
+
+        @media (max-width: 767px) {
+          .login-container { 
+            flex-direction: column; 
+            width: 100%;
+            overflow-x: hidden;
+          }
+          .login-left { 
+            display: none !important; 
+            width: 0 !important;
+          }
+          .login-right { 
+            width: 100% !important; 
+            padding: 24px;
+            min-height: 100vh;
+          }
+          .login-right > div { 
+            maxWidth: 100%; 
+            padding: 24px;
+            width: 100%;
+          }
+          .mobile-logo { 
+            display: flex !important; 
+          }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .login-container { 
+            flex-direction: row; 
+            width: 100%;
+            overflow-x: hidden;
+          }
+          .login-left { 
+            display: none !important; 
+            width: 0 !important;
+          }
+          .login-right { 
+            width: 100% !important; 
+            padding: 32px;
+          }
+          .mobile-logo { 
+            display: flex !important; 
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .login-container { 
+            flex-direction: row; 
+            width: 100%;
+          }
+          .login-left { 
+            width: 50%; 
+            display: flex !important;
+          }
+          .login-right { 
+            width: 50%; 
+            padding: 48px;
+          }
+          .mobile-logo { 
+            display: none; 
+          }
         }
       `}</style>
 
