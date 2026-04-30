@@ -67,6 +67,7 @@ const Teams = () => {
               <Shield className="h-5 w-5 text-accentRed md:h-6 md:w-6" />
               <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">CONSTRUCTOR STANDINGS</h1>
             </div>
+            <div className="mt-1 h-[2px] w-16 bg-red-600"></div>
           </div>
 
           <input
@@ -87,18 +88,16 @@ const Teams = () => {
             <Card
               key={team.id || team.name}
               delay={index * 0.05}
-              className="relative overflow-hidden"
-              style={{ borderColor: isLeader ? "rgba(255,215,0,0.5)" : "rgba(255,255,255,0.06)" }}
+              className={`relative overflow-hidden border-l-4 hover:bg-gray-800/80 hover:scale-[1.01] transition-all duration-200 cursor-pointer`}
+              style={{ borderLeftColor: accent }}
             >
-              <div className="absolute inset-y-4 left-0 w-1 rounded-r" style={{ backgroundColor: accent }} />
-
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="section-label">P{index + 1}</span>
+                  <span className="bg-red-600 text-white text-xs font-black px-2 py-1 rounded-full">P{index + 1}</span>
                   <h2 className="mt-2 text-2xl font-bold text-whitePrimary">{team.name}</h2>
                   <p className="mt-1 text-sm text-whiteMuted">{team.nationality}</p>
                 </div>
-                <p className="text-4xl font-bold text-accentRed">{Math.round(team.points)}</p>
+                <p className="font-mono text-3xl font-black text-red-500">{Math.round(team.points)}</p>
               </div>
 
               <div className="mt-5 border-t border-borderSoft pt-4">
@@ -108,7 +107,7 @@ const Teams = () => {
                     {team.lineup.map((driver) => (
                       <div key={driver.driverId} className="flex items-center justify-between text-sm">
                         <span className="text-whitePrimary">{driver.name}</span>
-                        <span className="text-whiteMuted">{Math.round(driver.points || 0)} pts</span>
+                        <span className="font-mono text-red-500 font-bold">{Math.round(driver.points || 0)}</span>
                       </div>
                     ))}
                   </div>
