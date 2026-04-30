@@ -1,8 +1,7 @@
-package com.deltabox.backend.controller;
+package com.f1pulse.backend.controller;
 
-import com.deltabox.backend.service.HistoricalDataIngestionService;
+import com.f1pulse.backend.service.HistoricalDataIngestionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -17,13 +16,14 @@ import java.util.UUID;
  * Admin endpoints for managing F1 historical data ingestion
  * All endpoints require ADMIN role
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
 @EnableAsync
 @Tag(name = "Administration", description = "Admin endpoints for system management")
 public class AdminIngestionController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AdminIngestionController.class);
 
     @Autowired
     private HistoricalDataIngestionService ingestionService;

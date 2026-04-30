@@ -1,4 +1,4 @@
-package com.deltabox.backend.ai.dto;
+package com.f1pulse.backend.ai.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,7 @@
-package com.deltabox.backend.ai.service;
+package com.f1pulse.backend.ai.service;
 
-import com.deltabox.backend.ai.dto.PredictionRequestDTO;
-import com.deltabox.backend.ai.dto.PredictionResponseDTO;
+import com.f1pulse.backend.ai.dto.PredictionRequestDTO;
+import com.f1pulse.backend.ai.dto.PredictionResponseDTO;
 
 public interface PredictionService {
 

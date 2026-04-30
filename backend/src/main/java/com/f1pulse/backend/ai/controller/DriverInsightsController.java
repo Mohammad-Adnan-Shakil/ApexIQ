@@ -1,8 +1,8 @@
-package com.deltabox.backend.ai.controller;
+package com.f1pulse.backend.ai.controller;
 
-import com.deltabox.backend.ai.dto.DriverInsightsResponseDTO;
-import com.deltabox.backend.ai.service.DriverInsightsService;
-import com.deltabox.backend.dto.ApiResponse;
+import com.f1pulse.backend.ai.dto.DriverInsightsResponseDTO;
+import com.f1pulse.backend.ai.service.DriverInsightsService;
+import com.f1pulse.backend.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 

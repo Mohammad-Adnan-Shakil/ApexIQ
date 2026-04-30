@@ -1,9 +1,9 @@
-package com.deltabox.backend.config;
+package com.f1pulse.backend.config;
 
-import com.deltabox.backend.repository.DriverRepository;
-import com.deltabox.backend.repository.RaceRepository;
-import com.deltabox.backend.repository.TeamRepository;
-import com.deltabox.backend.service.SyncService;
+import com.f1pulse.backend.repository.DriverRepository;
+import com.f1pulse.backend.repository.RaceRepository;
+import com.f1pulse.backend.repository.TeamRepository;
+import com.f1pulse.backend.service.SyncService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;

@@ -1,4 +1,4 @@
-package com.deltabox.backend.dto;
+package com.f1pulse.backend.dto;
 
 public class UserResponse {
 

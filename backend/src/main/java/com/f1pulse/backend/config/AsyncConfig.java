@@ -1,4 +1,4 @@
-package com.deltabox.backend.config;
+package com.f1pulse.backend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;

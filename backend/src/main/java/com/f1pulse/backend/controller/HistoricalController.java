@@ -1,8 +1,8 @@
-package com.deltabox.backend.controller;
+package com.f1pulse.backend.controller;
 
-import com.deltabox.backend.model.*;
-import com.deltabox.backend.repository.*;
-import com.deltabox.backend.service.ErgastService;
+import com.f1pulse.backend.model.*;
+import com.f1pulse.backend.repository.*;
+import com.f1pulse.backend.service.ErgastService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;

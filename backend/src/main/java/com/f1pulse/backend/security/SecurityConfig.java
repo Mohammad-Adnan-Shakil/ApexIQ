@@ -1,4 +1,4 @@
-package com.deltabox.backend.security;
+package com.f1pulse.backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

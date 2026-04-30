@@ -1,7 +1,7 @@
-package com.deltabox.backend.controller;
+package com.f1pulse.backend.controller;
 
-import com.deltabox.backend.model.Team;
-import com.deltabox.backend.repository.TeamRepository;
+import com.f1pulse.backend.model.Team;
+import com.f1pulse.backend.repository.TeamRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

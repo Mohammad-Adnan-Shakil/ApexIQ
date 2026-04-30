@@ -1,10 +1,9 @@
-package com.deltabox.backend.ai.service;
+package com.f1pulse.backend.ai.service;
 
-import com.deltabox.backend.ai.dto.RaceContextRequest;
-import com.deltabox.backend.exception.PythonExecutionException;
+import com.f1pulse.backend.ai.dto.RaceContextRequest;
+import com.f1pulse.backend.exception.PythonExecutionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -19,9 +18,10 @@ import java.util.concurrent.TimeUnit;
  * AI-powered Race Engineer service using Groq API for strategic decision making.
  * Provides pit wall radio-style tactical recommendations based on race telemetry.
  */
-@Slf4j
 @Service
 public class RaceEngineerService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RaceEngineerService.class);
 
     @Value("${groq.api.key}")
     private String apiKey;

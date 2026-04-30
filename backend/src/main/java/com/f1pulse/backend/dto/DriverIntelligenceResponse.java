@@ -1,4 +1,4 @@
-package com.deltabox.backend.dto;
+package com.f1pulse.backend.dto;
 
 import java.util.List;
 import java.util.Map;

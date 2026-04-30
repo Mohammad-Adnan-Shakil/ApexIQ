@@ -1,6 +1,6 @@
-package com.deltabox.backend.util;
+package com.f1pulse.backend.util;
 
-import com.deltabox.backend.model.Race;
+import com.f1pulse.backend.model.Race;
 
 import java.util.List;
 

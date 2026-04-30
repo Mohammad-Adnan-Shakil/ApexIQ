@@ -1,12 +1,12 @@
-package com.deltabox.backend.service.impl;
+package com.f1pulse.backend.service.impl;
 
-import com.deltabox.backend.dto.AuthRequest;
-import com.deltabox.backend.dto.AuthResponse;
-import com.deltabox.backend.exception.UserAlreadyExistsException;
-import com.deltabox.backend.model.User;
-import com.deltabox.backend.repository.UserRepository;
-import com.deltabox.backend.security.JwtService;
-import com.deltabox.backend.service.AuthService;
+import com.f1pulse.backend.dto.AuthRequest;
+import com.f1pulse.backend.dto.AuthResponse;
+import com.f1pulse.backend.exception.UserAlreadyExistsException;
+import com.f1pulse.backend.model.User;
+import com.f1pulse.backend.repository.UserRepository;
+import com.f1pulse.backend.security.JwtService;
+import com.f1pulse.backend.service.AuthService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

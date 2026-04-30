@@ -1,6 +1,6 @@
-package com.deltabox.backend;
+package com.f1pulse.backend;
 
-import com.deltabox.backend.repository.UserRepository;
+import com.f1pulse.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

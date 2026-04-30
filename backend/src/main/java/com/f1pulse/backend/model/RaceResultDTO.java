@@ -1,4 +1,4 @@
-package com.deltabox.backend.model;
+package com.f1pulse.backend.model;
 
 public class RaceResultDTO {
 

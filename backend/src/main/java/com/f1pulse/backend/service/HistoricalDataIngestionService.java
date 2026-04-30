@@ -1,8 +1,7 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
-import com.deltabox.backend.model.*;
-import com.deltabox.backend.repository.*;
-import lombok.extern.slf4j.Slf4j;
+import com.f1pulse.backend.model.*;
+import com.f1pulse.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -20,9 +19,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Service to ingest historical F1 data from Ergast API
  * Fetches data for seasons 1950-2026 and stores in database
  */
-@Slf4j
 @Service
 public class HistoricalDataIngestionService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HistoricalDataIngestionService.class);
 
     private static final String ERGAST_BASE_URL = "https://ergast.com/api/f1";
     private static final int RATE_LIMIT_DELAY_MS = 500;
@@ -51,13 +51,13 @@ public class HistoricalDataIngestionService {
 
     // Additional repositories for qualifying and standings
     @Autowired(required = false)
-    private com.deltabox.backend.repository.HistoricalQualifyingRepository qualifyingRepository;
+    private com.f1pulse.backend.repository.HistoricalQualifyingRepository qualifyingRepository;
 
     @Autowired(required = false)
-    private com.deltabox.backend.repository.HistoricalDriverStandingsRepository driverStandingsRepository;
+    private com.f1pulse.backend.repository.HistoricalDriverStandingsRepository driverStandingsRepository;
 
     @Autowired(required = false)
-    private com.deltabox.backend.repository.HistoricalConstructorStandingsRepository constructorStandingsRepository;
+    private com.f1pulse.backend.repository.HistoricalConstructorStandingsRepository constructorStandingsRepository;
 
     /**
      * Ingests all F1 historical data from 1950 to current year (async)
@@ -647,9 +647,9 @@ public class HistoricalDataIngestionService {
             }
 
             // Create or update qualifying result
-            com.deltabox.backend.model.HistoricalQualifying qualifying = 
+            com.f1pulse.backend.model.HistoricalQualifying qualifying = 
                     qualifyingRepository.findByRaceIdAndDriverId(race.getId(), historicalDriver.getId())
-                    .orElse(new com.deltabox.backend.model.HistoricalQualifying());
+                    .orElse(new com.f1pulse.backend.model.HistoricalQualifying());
 
             qualifying.setRaceId(race.getId());
             qualifying.setDriverId(historicalDriver.getId());
@@ -700,9 +700,9 @@ public class HistoricalDataIngestionService {
             if (historicalDriver == null) return;
 
             // Create or update standing
-            com.deltabox.backend.model.HistoricalDriverStandings standing = 
+            com.f1pulse.backend.model.HistoricalDriverStandings standing = 
                     driverStandingsRepository.findByYearAndDriverId(year, historicalDriver.getId())
-                    .orElse(new com.deltabox.backend.model.HistoricalDriverStandings());
+                    .orElse(new com.f1pulse.backend.model.HistoricalDriverStandings());
 
             standing.setYear(year);
             standing.setDriverId(historicalDriver.getId());
@@ -765,9 +765,9 @@ public class HistoricalDataIngestionService {
             if (historicalConstructor == null) return;
 
             // Create or update standing
-            com.deltabox.backend.model.HistoricalConstructorStandings standing = 
+            com.f1pulse.backend.model.HistoricalConstructorStandings standing = 
                     constructorStandingsRepository.findByYearAndConstructorId(year, historicalConstructor.getId())
-                    .orElse(new com.deltabox.backend.model.HistoricalConstructorStandings());
+                    .orElse(new com.f1pulse.backend.model.HistoricalConstructorStandings());
 
             standing.setYear(year);
             standing.setConstructorId(historicalConstructor.getId());

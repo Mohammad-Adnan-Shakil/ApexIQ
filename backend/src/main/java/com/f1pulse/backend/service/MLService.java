@@ -1,6 +1,6 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
-import com.deltabox.backend.dto.DriverIntelligenceResponse;
+import com.f1pulse.backend.dto.DriverIntelligenceResponse;
 import com.f1pulse.backend.dto.DriverComparisonResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

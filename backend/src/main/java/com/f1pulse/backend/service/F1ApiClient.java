@@ -1,11 +1,11 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.deltabox.backend.model.DriverDTO;
-import com.deltabox.backend.model.RaceDTO;
-import com.deltabox.backend.model.RaceResultDTO;
-import com.deltabox.backend.model.TeamDTO;
+import com.f1pulse.backend.model.DriverDTO;
+import com.f1pulse.backend.model.RaceDTO;
+import com.f1pulse.backend.model.RaceResultDTO;
+import com.f1pulse.backend.model.TeamDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 

@@ -1,13 +1,13 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
-import com.deltabox.backend.dto.DriverIntelligenceResponse;
-import com.deltabox.backend.model.Driver;
-import com.deltabox.backend.model.Race;
-import com.deltabox.backend.model.Team;
-import com.deltabox.backend.repository.DriverRepository;
-import com.deltabox.backend.repository.RaceRepository;
-import com.deltabox.backend.repository.TeamRepository;
-import com.deltabox.backend.util.StatsUtil;
+import com.f1pulse.backend.dto.DriverIntelligenceResponse;
+import com.f1pulse.backend.model.Driver;
+import com.f1pulse.backend.model.Race;
+import com.f1pulse.backend.model.Team;
+import com.f1pulse.backend.repository.DriverRepository;
+import com.f1pulse.backend.repository.RaceRepository;
+import com.f1pulse.backend.repository.TeamRepository;
+import com.f1pulse.backend.util.StatsUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;

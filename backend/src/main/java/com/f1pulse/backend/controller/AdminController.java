@@ -1,8 +1,8 @@
-package com.deltabox.backend.controller;
+package com.f1pulse.backend.controller;
 
-import com.deltabox.backend.dto.ApiResponse;
-import com.deltabox.backend.dto.UserSummaryResponse;
-import com.deltabox.backend.service.UserService;
+import com.f1pulse.backend.dto.ApiResponse;
+import com.f1pulse.backend.dto.UserSummaryResponse;
+import com.f1pulse.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.deltabox.backend.controller;
+package com.f1pulse.backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

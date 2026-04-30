@@ -1,11 +1,11 @@
-package com.deltabox.backend.service.impl;
+package com.f1pulse.backend.service.impl;
 
-import com.deltabox.backend.dto.UserResponse;
-import com.deltabox.backend.dto.UserSummaryResponse;
-import com.deltabox.backend.exception.UserNotFoundException;
-import com.deltabox.backend.model.User;
-import com.deltabox.backend.repository.UserRepository;
-import com.deltabox.backend.service.UserService;
+import com.f1pulse.backend.dto.UserResponse;
+import com.f1pulse.backend.dto.UserSummaryResponse;
+import com.f1pulse.backend.exception.UserNotFoundException;
+import com.f1pulse.backend.model.User;
+import com.f1pulse.backend.repository.UserRepository;
+import com.f1pulse.backend.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

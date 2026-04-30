@@ -1,14 +1,13 @@
-package com.deltabox.backend.ai.controller;
+package com.f1pulse.backend.ai.controller;
 
-import com.deltabox.backend.ai.dto.RaceContextRequest;
-import com.deltabox.backend.ai.service.RaceEngineerService;
-import com.deltabox.backend.exception.PythonExecutionException;
+import com.f1pulse.backend.ai.dto.RaceContextRequest;
+import com.f1pulse.backend.ai.service.RaceEngineerService;
+import com.f1pulse.backend.exception.PythonExecutionException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,11 +22,12 @@ import java.util.Map;
  * REST controller for AI-powered race engineering advice.
  * Uses DeepSeek R1 for strategic decision making during F1 races.
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/race-engineer")
 @Tag(name = "Race Engineer", description = "AI-powered pit wall strategy and tactical advice using DeepSeek R1")
 public class RaceEngineerController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RaceEngineerController.class);
 
     private final RaceEngineerService raceEngineerService;
 

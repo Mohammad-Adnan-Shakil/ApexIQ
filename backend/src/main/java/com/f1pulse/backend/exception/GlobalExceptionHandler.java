@@ -1,6 +1,6 @@
-package com.deltabox.backend.exception;
+package com.f1pulse.backend.exception;
 
-import com.deltabox.backend.dto.ApiResponse;
+import com.f1pulse.backend.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

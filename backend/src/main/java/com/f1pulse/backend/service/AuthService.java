@@ -1,7 +1,7 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
-import com.deltabox.backend.dto.AuthRequest;
-import com.deltabox.backend.dto.AuthResponse;
+import com.f1pulse.backend.dto.AuthRequest;
+import com.f1pulse.backend.dto.AuthResponse;
 
 public interface AuthService {
 

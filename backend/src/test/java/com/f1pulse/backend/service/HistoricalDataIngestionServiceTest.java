@@ -1,6 +1,6 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
-import com.deltabox.backend.repository.*;
+import com.f1pulse.backend.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

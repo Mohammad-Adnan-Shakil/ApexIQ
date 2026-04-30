@@ -1,7 +1,7 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
-import com.deltabox.backend.model.*;
-import com.deltabox.backend.repository.*;
+import com.f1pulse.backend.model.*;
+import com.f1pulse.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

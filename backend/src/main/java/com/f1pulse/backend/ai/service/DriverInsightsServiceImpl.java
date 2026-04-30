@@ -1,8 +1,8 @@
-package com.deltabox.backend.ai.service;
+package com.f1pulse.backend.ai.service;
 
-import com.deltabox.backend.ai.dto.DriverInsightsResponseDTO;
-import com.deltabox.backend.model.Race;
-import com.deltabox.backend.repository.RaceRepository;
+import com.f1pulse.backend.ai.dto.DriverInsightsResponseDTO;
+import com.f1pulse.backend.model.Race;
+import com.f1pulse.backend.repository.RaceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,5 +1,5 @@
 HELP.md
-target/
+# target/  # Commented out to allow pre-built JAR deployment
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

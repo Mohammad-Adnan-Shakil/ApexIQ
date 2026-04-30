@@ -1,7 +1,7 @@
-package com.deltabox.backend.controller;
+package com.f1pulse.backend.controller;
 
-import com.deltabox.backend.model.Team;
-import com.deltabox.backend.service.F1Service;
+import com.f1pulse.backend.model.Team;
+import com.f1pulse.backend.service.F1Service;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

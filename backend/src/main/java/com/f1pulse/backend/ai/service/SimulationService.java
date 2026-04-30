@@ -1,9 +1,9 @@
-package com.deltabox.backend.ai.service;
+package com.f1pulse.backend.ai.service;
 
-import com.deltabox.backend.ai.dto.MultiSimulationRequestDTO;
-import com.deltabox.backend.ai.dto.MultiSimulationResponseDTO;
-import com.deltabox.backend.ai.dto.SimulationRequestDTO;
-import com.deltabox.backend.ai.dto.SimulationResponseDTO;
+import com.f1pulse.backend.ai.dto.MultiSimulationRequestDTO;
+import com.f1pulse.backend.ai.dto.MultiSimulationResponseDTO;
+import com.f1pulse.backend.ai.dto.SimulationRequestDTO;
+import com.f1pulse.backend.ai.dto.SimulationResponseDTO;
 
 public interface SimulationService {
 

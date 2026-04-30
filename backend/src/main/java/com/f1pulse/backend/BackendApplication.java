@@ -1,4 +1,4 @@
-package com.deltabox.backend;
+package com.f1pulse.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

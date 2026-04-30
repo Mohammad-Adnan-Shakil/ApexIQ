@@ -1,7 +1,7 @@
-package com.deltabox.backend.service;
+package com.f1pulse.backend.service;
 
-import com.deltabox.backend.dto.UserResponse;
-import com.deltabox.backend.dto.UserSummaryResponse;
+import com.f1pulse.backend.dto.UserResponse;
+import com.f1pulse.backend.dto.UserSummaryResponse;
 
 import java.util.List;
 

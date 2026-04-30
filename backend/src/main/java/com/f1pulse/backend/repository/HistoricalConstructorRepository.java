@@ -1,6 +1,6 @@
-package com.deltabox.backend.repository;
+package com.f1pulse.backend.repository;
 
-import com.deltabox.backend.model.HistoricalConstructor;
+import com.f1pulse.backend.model.HistoricalConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

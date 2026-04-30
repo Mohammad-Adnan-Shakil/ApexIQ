@@ -1,4 +1,4 @@
-package com.deltabox.backend.model;
+package com.f1pulse.backend.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
