@@ -57,9 +57,16 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
         <div className="flex h-full flex-col justify-between">
           <div>
             <div className="border-b border-borderSoft px-5 py-6 lg:px-4 xl:px-5">
-              <h1 className="text-xl font-bold tracking-tight lg:text-center xl:text-left">
-                <span className="text-accentRed">Delta</span><span className="text-whitePrimary">Box</span>
-              </h1>
+              <div className="flex items-center gap-2 justify-center lg:justify-center xl:justify-start">
+                <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+                  <polygon points="14,2 26,26 2,26" fill="none" 
+                    stroke="#EF4444" strokeWidth="2.5" strokeLinejoin="round"/>
+                  <line x1="14" y1="10" x2="14" y2="20" 
+                    stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                <span className="text-red-500 font-black tracking-widest text-xl">DELTA</span>
+                <span className="text-white font-black tracking-widest text-xl">BOX</span>
+              </div>
             </div>
 
             <nav className="px-3 py-4">

@@ -20,9 +20,16 @@ const MainLayout = ({ children }) => {
         >
           <Menu className="h-4 w-4" />
         </button>
-        <p className="text-sm font-semibold tracking-wide">
-          <span className="text-accentRed">APEX</span> IQ
-        </p>
+        <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <polygon points="14,2 26,26 2,26" fill="none" 
+              stroke="#EF4444" strokeWidth="2.5" strokeLinejoin="round"/>
+            <line x1="14" y1="10" x2="14" y2="20" 
+              stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          <span className="text-red-500 font-black tracking-widest text-xl">DELTA</span>
+          <span className="text-white font-black tracking-widest text-xl">BOX</span>
+        </div>
         <p className="text-xs text-whiteMuted">{user?.username || "User"}</p>
       </div>
 
