@@ -140,68 +140,68 @@ const RaceEngineerPage = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:col-span-1"
           >
-            <div className="bg-bgSecondary border border-red-900/30 rounded-lg p-6 sticky top-6">
+            <div className="bg-gray-900 border border-red-900/40 border-t-2 border-t-red-600 rounded-xl p-6 sticky top-6">
               <h2 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Race Status</h2>
               
               <div className="space-y-4">
                 {/* Lap */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Lap</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Lap</label>
                     <input
                       type="number"
                       name="lap"
                       value={raceContext.lap}
                       onChange={handleContextChange}
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white font-mono rounded-lg px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all"
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Total</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Total</label>
                     <input
                       type="number"
                       name="totalLaps"
                       value={raceContext.totalLaps}
                       onChange={handleContextChange}
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white font-mono rounded-lg px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Position & Gap */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Position</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Position</label>
                     <input
                       type="number"
                       name="position"
                       value={raceContext.position}
                       onChange={handleContextChange}
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white font-mono rounded-lg px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all"
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Gap to Leader</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Gap to Leader</label>
                     <input
                       type="text"
                       name="gapToLeader"
                       value={raceContext.gapToLeader}
                       onChange={handleContextChange}
                       placeholder="+12.4s"
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white font-mono rounded-lg px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Tyre */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Compound</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Compound</label>
                     <select
                       name="tyreCompound"
                       value={raceContext.tyreCompound}
                       onChange={handleContextChange}
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 focus:border-red-500 outline-none font-medium"
                     >
                       <option>SOFT</option>
                       <option>MEDIUM</option>
@@ -211,37 +211,37 @@ const RaceEngineerPage = () => {
                     </select>
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Age (laps)</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Age (laps)</label>
                     <input
                       type="number"
                       name="tyreAge"
                       value={raceContext.tyreAge}
                       onChange={handleContextChange}
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white font-mono rounded-lg px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Fuel & Weather */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Fuel (kg)</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Fuel (kg)</label>
                     <input
                       type="number"
                       name="fuelLoad"
                       value={raceContext.fuelLoad}
                       onChange={handleContextChange}
                       step="0.1"
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white font-mono rounded-lg px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all"
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-whiteMuted mb-1">Weather</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Weather</label>
                     <select
                       name="weather"
                       value={raceContext.weather}
                       onChange={handleContextChange}
-                      className="font-mono bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
+                      className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 focus:border-red-500 outline-none font-medium"
                     >
                       <option>Dry</option>
                       <option>Damp</option>
@@ -252,15 +252,23 @@ const RaceEngineerPage = () => {
 
                 {/* Last Lap Time */}
                 <div className="flex flex-col">
-                  <label className="text-xs text-whiteMuted mb-1">Last Lap Time</label>
-                  <input
-                    type="text"
-                    name="lastLapTime"
-                    value={raceContext.lastLapTime}
-                    onChange={handleContextChange}
-                    placeholder="1:22.847"
-                    className="bg-bgPrimary border border-red-600/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600"
-                  />
+                  <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">Last Lap Time</label>
+                  <div className="flex items-center gap-2">
+                    <div className="text-green-400">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      name="lastLapTime"
+                      value={raceContext.lastLapTime}
+                      onChange={handleContextChange}
+                      placeholder="1:22.847"
+                      className="flex-1 bg-gray-800 border border-gray-700 text-white text-2xl font-mono text-green-400 rounded-lg px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -273,8 +281,14 @@ const RaceEngineerPage = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:col-span-2"
           >
-            <div className="bg-bgSecondary border border-red-900/30 rounded-lg p-6 flex flex-col h-[600px] lg:h-auto lg:min-h-[600px]">
-              <h2 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Engineer Radio</h2>
+            <div className="bg-black border border-red-900/40 rounded-xl p-6 flex flex-col h-[600px] lg:h-auto lg:min-h-[600px]">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display font-semibold text-xl uppercase tracking-wider text-whitePrimary">Engineer Radio</h2>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="text-xs text-green-400 font-mono">ONLINE</span>
+                </div>
+              </div>
 
               {/* Conversation Area */}
               <div className="flex-1 overflow-y-auto mb-4 space-y-3 pr-2 pb-2">
@@ -297,18 +311,18 @@ const RaceEngineerPage = () => {
                             ? "bg-red-900/20 text-whitePrimary border border-red-600/30"
                             : msg.isError
                             ? "bg-red-900/20 text-red-200 border border-red-600"
-                            : "bg-gray-900/50 text-whitePrimary border border-gray-600/30"
-                        } ${msg.role === "engineer" && !msg.isError ? "font-mono" : ""}`}
+                            : "bg-transparent text-green-400 font-mono text-sm border-none outline-none"
+                        }`}
                       >
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex-1">
                             {msg.role === "engineer" && !msg.isError && (
-                              <p className="text-xs text-whiteMuted mb-1">🎙️ Engineer</p>
+                              <p className="text-xs text-green-500 mb-1">🎙️ ENGINEER</p>
                             )}
                             {msg.message}
                           </div>
                           {msg.timestamp && (
-                            <span className="text-xs text-whiteMuted/50 whitespace-nowrap">{msg.timestamp}</span>
+                            <span className="text-xs text-green-500/50 whitespace-nowrap">{msg.timestamp}</span>
                           )}
                         </div>
                       </div>
@@ -323,9 +337,9 @@ const RaceEngineerPage = () => {
                     animate={{ opacity: 1 }}
                     className="flex gap-1"
                   >
-                    <div className="w-2 h-2 bg-whiteMuted rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-whiteMuted rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-                    <div className="w-2 h-2 bg-whiteMuted rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
                   </motion.div>
                 )}
 
@@ -351,12 +365,12 @@ const RaceEngineerPage = () => {
                   onChange={(e) => setDriverMessage(e.target.value)}
                   placeholder="Driver message..."
                   disabled={loading}
-                  className="flex-1 bg-bgPrimary border border-red-600/30 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-red-600 disabled:opacity-50"
+                  className="flex-1 bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500/30 outline-none transition-all disabled:opacity-50"
                 />
                 <button
                   type="submit"
                   disabled={loading || !driverMessage.trim()}
-                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-900 text-white px-4 py-2 rounded font-semibold flex items-center justify-center gap-2 transition-colors w-full sm:w-auto"
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-900 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors w-full sm:w-auto"
                 >
                   <Send className="w-4 h-4" />
                   Transmit
