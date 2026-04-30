@@ -42,7 +42,8 @@ const Races = () => {
               <CalendarClock className="h-5 w-5 text-accentRed md:h-6 md:w-6" />
               <h1 className="font-display font-bold text-2xl uppercase tracking-widest sm:text-3xl md:text-4xl">2026 RACE CALENDAR</h1>
             </div>
-            <p className="mt-2 text-xs text-whiteMuted sm:text-sm">{completed.length} completed · {scheduled.length} scheduled</p>
+            <div className="mt-1 h-[2px] w-16 bg-red-600"></div>
+            <p className="mt-2 text-xs text-gray-500 tracking-widest uppercase sm:text-sm">{completed.length} completed · {scheduled.length} scheduled</p>
           </div>
 
           <input
@@ -65,17 +66,16 @@ const Races = () => {
             return (
               <Card
                 key={race.raceId || `${race.round}-${index}`}
-                className={`relative ${isNext ? "border-accentRed/40 bg-accentRed/5" : ""}`}
+                className={`relative border-l-4 hover:bg-gray-800/80 hover:scale-[1.01] transition-all duration-200 cursor-pointer ${isNext ? "border-accentRed/40 bg-accentRed/5" : ""}`}
+                style={{ borderLeftColor: isCompleted ? "#10b981" : isNext ? "#ef4444" : "#6b7280" }}
                 delay={index * 0.05}
               >
-                {isNext ? <div className="absolute inset-y-3 left-0 w-1 rounded-r bg-accentRed" /> : null}
-
                 <div className="grid grid-cols-[64px_1fr] items-center gap-4 sm:grid-cols-[64px_1fr_auto]">
                   <div
-                    className={`font-display font-bold uppercase tracking-wide flex h-12 w-12 items-center justify-center rounded-full border text-sm font-semibold ${
+                    className={`font-display font-bold uppercase tracking-wide flex h-12 w-12 items-center justify-center rounded-full border text-sm font-semibold ring-2 ring-red-500/30 ${
                       isCompleted
-                        ? "border-accentRed bg-accentRed text-white"
-                        : "border-borderSoft bg-bgElevated text-whiteMuted"
+                        ? "border-emerald-500 bg-emerald-900/50 text-emerald-400"
+                        : "border-gray-600 bg-gray-800 text-gray-400"
                     }`}
                   >
                     {race.round}
@@ -97,11 +97,11 @@ const Races = () => {
                           <span className="h-2 w-2 animate-pulse rounded-full bg-accentRed" /> NEXT
                         </span>
                       ) : isCompleted ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-successGreen/20 px-2 py-1 text-successGreen">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-900/50 border border-emerald-700 px-2 py-1 text-emerald-400">
                           <CheckCircle2 className="h-3.5 w-3.5" /> COMPLETED
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-whiteMuted">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-gray-800 border border-gray-600 px-2 py-1 text-gray-400">
                           <Clock3 className="h-3.5 w-3.5" /> UPCOMING
                         </span>
                       )}
