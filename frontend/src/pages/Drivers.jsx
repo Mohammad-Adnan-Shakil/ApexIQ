@@ -7,10 +7,10 @@ import usePageTitle from "../hooks/usePageTitle";
 import { nationalityFlag, teamColor } from "../utils/formatters";
 
 const positionBadgeClass = (position) => {
-  if (position === 1) return "bg-accentGold text-black";
-  if (position === 2) return "bg-zinc-300 text-black";
-  if (position === 3) return "bg-amber-700 text-white";
-  return "bg-bgElevated text-whiteMuted border border-borderSoft";
+  if (position === 1) return "bg-red-600 text-white text-xs font-black px-2 py-1 rounded-full";
+  if (position === 2) return "bg-gray-400 text-black text-xs font-black px-2 py-1 rounded-full";
+  if (position === 3) return "bg-amber-700 text-white text-xs font-black px-2 py-1 rounded-full";
+  return "bg-gray-700 text-white text-xs font-black px-2 py-1 rounded-full";
 };
 
 const Drivers = () => {
@@ -60,7 +60,8 @@ const Drivers = () => {
               </svg>
               <h1 className="font-display font-bold text-2xl uppercase tracking-widest sm:text-3xl md:text-4xl">DRIVER STANDINGS</h1>
             </div>
-            <p className="mt-2 text-xs text-whiteMuted sm:text-sm">{drivers.length} drivers · 2026 season</p>
+            <div className="mt-1 h-[2px] w-16 bg-red-600"></div>
+            <p className="mt-2 text-xs text-gray-500 tracking-widest uppercase sm:text-sm">{drivers.length} drivers · 2026 season</p>
           </div>
 
           <div className="grid w-full grid-cols-1 gap-3 md:w-auto md:grid-cols-[280px_170px]">
@@ -101,18 +102,18 @@ const Drivers = () => {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.01 }}
               >
-                <Card className="group relative overflow-hidden border border-borderSoft">
+                <Card className={`group relative overflow-hidden border-l-4 border-red-500 hover:bg-gray-800/80 hover:border-l-red-400 hover:scale-[1.01] transition-all duration-200 cursor-pointer`}>
                   <div className="flex items-start justify-between">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${positionBadgeClass(pos)}`}>#{pos}</span>
-                    <p className={`font-mono text-4xl font-bold tracking-tight ${highlightPointColor}`}>{points}</p>
+                    <span className={positionBadgeClass(pos)}>P{pos}</span>
+                    <p className="font-mono text-3xl font-black text-red-500">{points}</p>
                   </div>
 
                   <div className="mt-4">
                     <h2 className="text-2xl font-bold text-whitePrimary">{driver.name}</h2>
-                    <span className="mt-2 inline-flex rounded-md bg-accentRed/20 px-2 py-1 text-xs font-semibold text-accentRed">
-                      <span className="font-display font-bold uppercase tracking-wide">{driver.code || "DRV"}</span>
+                    <span className="mt-2 inline-flex bg-red-900/40 text-red-400 text-xs font-mono px-2 py-0.5 rounded">
+                      {driver.code || "DRV"}
                     </span>
                   </div>
 
