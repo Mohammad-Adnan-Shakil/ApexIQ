@@ -174,8 +174,9 @@ const AIPage = () => {
   const mostLikely = getSafeMostLikely();
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[360px_1fr]">
-      <Card className="sticky top-4 h-fit" delay={0.05}>
+    <div className="flex flex-col lg:flex-row gap-6">
+      <div className="w-full lg:w-1/3 lg:sticky lg:top-4 lg:self-start">
+        <Card className="h-fit" delay={0.05}>
         <div className="mb-6 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accentRed/20 text-accentRed">
             <Brain className="h-5 w-5" />
@@ -274,8 +275,9 @@ const AIPage = () => {
           </Button>
         </div>
       </Card>
+      </div>
 
-      <div className="space-y-4">
+      <div className="w-full lg:w-2/3 space-y-4">
         {!result && !predictionLoading ? (
           <Card delay={0.1} className="flex min-h-[460px] flex-col items-center justify-center text-center">
             <svg width="96" height="96" viewBox="0 0 96 96" fill="none" className="mb-4 opacity-70">
