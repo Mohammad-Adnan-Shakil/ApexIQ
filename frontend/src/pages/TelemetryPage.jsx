@@ -133,19 +133,19 @@ const TelemetryPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-bgSecondary border border-red-900/30 rounded-lg p-4 md:p-6 mb-8"
+          className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-8"
         >
-          <h2 className="font-display font-semibold text-xl uppercase tracking-wider mb-4 text-whitePrimary">Session Parameters</h2>
+          <h2 className="text-red-500 font-black tracking-widest text-lg mb-6 uppercase">Session Parameters</h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             {/* Year */}
             <div className="flex flex-col">
-              <label className="text-sm text-whiteMuted mb-2">Year</label>
+              <label className="text-gray-400 text-xs uppercase tracking-widest mb-2">Year</label>
               <select
                 name="year"
                 value={formData.year}
                 onChange={handleInputChange}
-                className="bg-bgPrimary border border-red-600/30 rounded px-3 py-2 text-white focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/50"
+                className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full appearance-none focus:border-red-500 outline-none font-medium"
               >
                 {availableYears.map(year => (
                   <option key={year} value={year}>{year}</option>
@@ -155,12 +155,12 @@ const TelemetryPage = () => {
 
             {/* Grand Prix */}
             <div className="flex flex-col">
-              <label className="text-sm text-whiteMuted mb-2">Grand Prix</label>
+              <label className="text-gray-400 text-xs uppercase tracking-widest mb-2">Grand Prix</label>
               <select
                 name="grandPrix"
                 value={formData.grandPrix}
                 onChange={handleInputChange}
-                className="bg-bgPrimary border border-red-600/30 rounded px-3 py-2 text-white focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/50"
+                className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full appearance-none focus:border-red-500 outline-none font-medium"
               >
                 {availableGrandPrix.map(gp => (
                   <option key={gp} value={gp}>{gp}</option>
@@ -170,12 +170,12 @@ const TelemetryPage = () => {
 
             {/* Session Type */}
             <div className="flex flex-col">
-              <label className="text-sm text-whiteMuted mb-2">Session</label>
+              <label className="text-gray-400 text-xs uppercase tracking-widest mb-2">Session</label>
               <select
                 name="sessionType"
                 value={formData.sessionType}
                 onChange={handleInputChange}
-                className="bg-bgPrimary border border-red-600/30 rounded px-3 py-2 text-white focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/50"
+                className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full appearance-none focus:border-red-500 outline-none font-medium"
               >
                 <option value="Q">Qualifying</option>
                 <option value="R">Race</option>
@@ -187,12 +187,12 @@ const TelemetryPage = () => {
 
             {/* Driver 1 */}
             <div className="flex flex-col">
-              <label className="text-sm text-whiteMuted mb-2">Driver 1</label>
+              <label className="text-gray-400 text-xs uppercase tracking-widest mb-2">Driver 1</label>
               <select
                 name="driver1"
                 value={formData.driver1}
                 onChange={handleInputChange}
-                className="bg-bgPrimary border border-red-600/30 rounded px-3 py-2 text-white focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/50"
+                className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full appearance-none focus:border-red-500 outline-none font-medium"
               >
                 {availableDrivers.map(driver => (
                   <option key={driver.driverId} value={driver.code}>{driver.code} - {driver.name}</option>
@@ -202,12 +202,12 @@ const TelemetryPage = () => {
 
             {/* Driver 2 */}
             <div className="flex flex-col">
-              <label className="text-sm text-whiteMuted mb-2">Driver 2</label>
+              <label className="text-gray-400 text-xs uppercase tracking-widest mb-2">Driver 2</label>
               <select
                 name="driver2"
                 value={formData.driver2}
                 onChange={handleInputChange}
-                className="bg-bgPrimary border border-red-600/30 rounded px-3 py-2 text-white focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/50"
+                className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full appearance-none focus:border-red-500 outline-none font-medium"
               >
                 {availableDrivers.map(driver => (
                   <option key={driver.driverId} value={driver.code}>{driver.code} - {driver.name}</option>
@@ -220,14 +220,22 @@ const TelemetryPage = () => {
           <button
             onClick={handleAnalyze}
             disabled={loading}
-            className="w-full lg:w-auto bg-red-600 hover:bg-red-700 disabled:bg-red-900 text-white font-semibold py-2 px-6 rounded transition-colors duration-200"
+            className="w-full lg:w-auto bg-red-600 hover:bg-red-500 active:scale-95 py-4 rounded-xl font-black tracking-widest text-lg shadow-lg shadow-red-900/30 transition-all duration-150 flex items-center justify-center gap-2"
           >
-            {loading ? "Analyzing..." : "Analyze"}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            {loading ? "Analyzing..." : "ANALYZE"}
           </button>
 
-          <p className="text-xs text-whiteMuted mt-3">
-            ℹ️ First load may take 20–30 seconds while session data downloads
-          </p>
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-gray-500 text-xs flex items-center gap-2 mt-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4"/>
+              <path d="M12 8h.01"/>
+            </svg>
+            First load may take 20-30 seconds
+          </div>
         </motion.div>
 
         {/* Loading State */}
