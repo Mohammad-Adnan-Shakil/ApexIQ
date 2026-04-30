@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/telemetry")
 @Tag(name = "Telemetry Analysis", description = "FastF1 lap telemetry extraction and comparison")
 public class TelemetryController {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TelemetryController.class);
     private final RestTemplate restTemplate;
     private final String mlServiceUrl;
 

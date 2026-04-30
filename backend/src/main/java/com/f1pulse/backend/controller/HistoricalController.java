@@ -4,7 +4,6 @@ import com.deltabox.backend.model.*;
 import com.deltabox.backend.repository.*;
 import com.deltabox.backend.service.ErgastService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +20,12 @@ import java.util.stream.Collectors;
  * 1. Ergast API (https://api.jolpi.ca/ergast/) - primary source with caching
  * 2. Local PostgreSQL database - fallback for data consistency
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/historical")
 @Tag(name = "F1 History", description = "Historical F1 seasons, races, and champions (1950-2026)")
 public class HistoricalController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HistoricalController.class);
 
     @Autowired
     private ErgastService ergastService;
