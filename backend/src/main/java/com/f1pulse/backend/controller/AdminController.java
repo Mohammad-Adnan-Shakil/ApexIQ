@@ -2,6 +2,7 @@ package com.f1pulse.backend.controller;
 
 import com.f1pulse.backend.dto.ApiResponse;
 import com.f1pulse.backend.dto.UserSummaryResponse;
+import com.f1pulse.backend.repository.DriverRepository;
 import com.f1pulse.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -17,9 +18,11 @@ import java.util.List;
 public class AdminController {
 
     private final UserService userService;
+    private final DriverRepository driverRepository;
 
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, DriverRepository driverRepository) {
         this.userService = userService;
+        this.driverRepository = driverRepository;
     }
 
     // ✅ Only ADMIN can access
@@ -38,4 +41,24 @@ public ResponseEntity<ApiResponse<List<UserSummaryResponse>>> getAllUsers(
             )
     );
 }
+
+    // ✅ Only ADMIN can access
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/cleanup-duplicates")
+    public ResponseEntity<?> cleanupDuplicates() {
+        try {
+            long beforeCount = driverRepository.count();
+            driverRepository.deleteDuplicates();
+            long afterCount = driverRepository.count();
+            
+            long removed = beforeCount - afterCount;
+            
+            return ResponseEntity.ok(String.format(
+                "Cleanup completed. Removed %d duplicate drivers. %d drivers remain.", 
+                removed, afterCount
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to cleanup duplicates: " + e.getMessage());
+        }
+    }
 }

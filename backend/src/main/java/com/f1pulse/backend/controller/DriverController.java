@@ -24,7 +24,8 @@ public class DriverController {
     @GetMapping
     public ResponseEntity<?> getAllDrivers() {
         try {
-            List<Driver> drivers = driverRepository.findBySeasonOrderByPointsDesc(2026);
+            // Use distinct query to prevent duplicates
+            List<Driver> drivers = driverRepository.findDistinctBySeasonOrderByPointsDesc(2026);
             return ResponseEntity.ok(drivers);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to load drivers");

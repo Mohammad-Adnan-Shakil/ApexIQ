@@ -38,6 +38,13 @@ public class DataInitializationService implements ApplicationRunner {
             
             log.info("Database check - Drivers: {}, Teams: {}, Races: {}", driverCount, teamCount, raceCount);
             
+            // Clean up duplicate drivers first (if any)
+            if (driverCount > 0) {
+                log.info("🧹 Cleaning up duplicate drivers...");
+                driverRepository.deleteDuplicates();
+                log.info("✅ Duplicate drivers cleaned up");
+            }
+            
             // Only seed if database is empty
             if (driverCount > 0 || teamCount > 0 || raceCount > 0) {
                 log.info("✅ Database already contains data. Skipping initial sync.");
