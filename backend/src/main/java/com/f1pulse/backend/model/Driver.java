@@ -9,7 +9,9 @@ import jakarta.persistence.UniqueConstraint;
 
 
 @Entity
-@Table(name = "driver")
+@Table(name = "driver", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"code", "season"})
+})
 public class Driver {
 
     @Id

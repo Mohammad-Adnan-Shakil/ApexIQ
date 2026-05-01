@@ -72,38 +72,47 @@ public class SyncService {
 
             log.info("Syncing fresh drivers data");
             List<DriverDTO> dtos = f1ApiClient.fetchDrivers();
-            Map<String, Team> teamsByName = teamRepository.findAll().stream()
-                    .collect(Collectors.toMap(Team::getName, t -> t, (a, b) -> a));
-
             List<Driver> drivers = new ArrayList<>();
+
+            Map<String, Team> teamsByName = teamRepository.findAll().stream()
+                    .collect(Collectors.toMap(Team::getName, Function.identity()));
+
+            // Get existing drivers for the current season
+            List<Driver> existingDrivers = driverRepository.findBySeasonOrderByPointsDesc(CURRENT_SEASON);
+            Map<String, Driver> existingByCode = existingDrivers.stream()
+                    .collect(Collectors.toMap(Driver::getCode, Function.identity()));
+
             for (DriverDTO dto : dtos) {
-                Driver driver = driverRepository.findByCode(dto.getCode());
-                if (driver == null) {
-                    driver = new Driver(dto.getCode(), dto.getName(), dto.getNationality());
+                // Check if driver already exists for this season
+                Driver existingDriver = existingByCode.get(dto.getCode());
+
+                if (existingDriver == null) {
+                    // Create new driver only if doesn't exist
+                    Driver driver = new Driver(dto.getCode(), dto.getName(), dto.getNationality());
+                    driver.setSeason(CURRENT_SEASON);
+
+                    Team mappedTeam = teamsByName.get(dto.getTeam());
+                    if (mappedTeam != null) {
+                        driver.setTeamId(mappedTeam.getId());
+                    }
+
+                    drivers.add(driver);
+                } else {
+                    // Update existing driver if needed
+                    existingDriver.setName(dto.getName());
+                    existingDriver.setNationality(dto.getNationality());
+
+                    Team mappedTeam = teamsByName.get(dto.getTeam());
+                    if (mappedTeam != null) {
+                        existingDriver.setTeamId(mappedTeam.getId());
+                    }
+
+                    drivers.add(existingDriver);
                 }
-
-                driver.setName(dto.getName());
-                driver.setNationality(dto.getNationality());
-                driver.setTeam(dto.getTeam());
-                driver.setPoints(dto.getPoints() == null ? 0.0 : dto.getPoints());
-                driver.setSeason(CURRENT_SEASON);
-
-                Team mappedTeam = teamsByName.get(dto.getTeam());
-                if (mappedTeam != null) {
-                    driver.setTeamId(mappedTeam.getId());
-                }
-
-                drivers.add(driver);
             }
 
-            // Only save if database is empty to prevent duplicates
-            if (driverRepository.count() == 0) {
-                updateSyncTime(key);
-                return driverRepository.saveAll(drivers);
-            } else {
-                log.info("Drivers already exist, skipping sync");
-                return driverRepository.findAll();
-            }
+            updateSyncTime(key);
+            return driverRepository.saveAll(drivers);
 
         } catch (Exception e) {
             log.error("Error syncing drivers", e);
@@ -133,14 +142,8 @@ public class SyncService {
                 teams.add(team);
             }
 
-            // Only save if database is empty to prevent duplicates
-            if (teamRepository.count() == 0) {
-                updateSyncTime(key);
-                return teamRepository.saveAll(teams);
-            } else {
-                log.info("Teams already exist, skipping sync");
-                return teamRepository.findAll();
-            }
+            updateSyncTime(key);
+            return teamRepository.saveAll(teams);
 
         } catch (Exception e) {
             log.error("Error syncing teams", e);
@@ -217,17 +220,11 @@ public class SyncService {
                 }
             }
 
-            // Only save if database is empty to prevent duplicates
-            List<Race> saved;
-            if (raceRepository.count() == 0) {
-                raceRepository.deleteAllInBatch();
-                saved = raceRepository.saveAll(rowsToPersist);
-                deduplicateScheduleRows(CURRENT_SEASON);
-                updateSyncTime(key);
-            } else {
-                log.info("Races already exist, skipping sync");
-                saved = raceRepository.findBySeasonAndDriverIdIsNullOrderByDateAsc(CURRENT_SEASON);
-            }
+            // Always save race data to ensure we have the latest schedule
+            raceRepository.deleteAllInBatch();
+            List<Race> saved = raceRepository.saveAll(rowsToPersist);
+            deduplicateScheduleRows(CURRENT_SEASON);
+            updateSyncTime(key);
             return saved.stream()
                     .filter(r -> r.getDriverId() == null)
                     .sorted(Comparator.comparing(r -> Objects.requireNonNullElse(r.getRound(), Integer.MAX_VALUE)))
