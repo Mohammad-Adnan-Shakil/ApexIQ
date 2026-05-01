@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,6 +15,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * ML Service client for communicating with the Python Flask ML microservice.
+ * Replaces ProcessBuilder subprocess calls with HTTP REST API calls.
+ */
 @Service
 public class MLService {
 
@@ -24,10 +28,12 @@ public class MLService {
     private final ObjectMapper objectMapper;
     private final String mlServiceUrl;
 
-    public MLService(RestTemplate restTemplate, ObjectMapper objectMapper, Environment environment) {
+    public MLService(RestTemplate restTemplate, ObjectMapper objectMapper,
+                     @Value("${ml.service.url}") String mlServiceUrl) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
-        this.mlServiceUrl = environment.getProperty("ML_SERVICE_URL", "http://localhost:8000");
+        this.mlServiceUrl = mlServiceUrl;
+        log.info("ML Service configured at: {}", mlServiceUrl);
     }
 
     public DriverIntelligenceResponse predict(Map<String, Object> payload) {

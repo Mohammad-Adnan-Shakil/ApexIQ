@@ -1,0 +1,93 @@
+# DeltaBox Render Deployment Configuration
+# This file configures both the Spring Boot backend and Flask ML service for deployment on Render
+
+services:
+  # 🚀 Spring Boot Backend Service
+  - type: web
+    name: deltabox-backend
+    runtime: java
+    plan: standard
+    buildCommand: |
+      cd backend
+      chmod +x ./mvnw
+      ./mvnw clean package -DskipTests -Dspring.profiles.active=production
+    startCommand: java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: deltabox-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: deltabox-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: deltabox-db
+          property: password
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: deltabox-ml-service
+          property: host
+          port: 5000
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: GROQ_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: GOOGLE_CLIENT_ID
+        sync: false  # Set manually in Render dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false  # Set manually in Render dashboard
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: SERVER_PORT
+        value: 8080
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+
+  # 🧠 Flask ML Service
+  - type: web
+    name: deltabox-ml-service
+    runtime: python
+    plan: standard
+    buildCommand: |
+      cd ml-service
+      pip install -r requirements.txt
+    startCommand: |
+      cd ml-service
+      gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --keep-alive 5
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 5000
+      - key: MODEL_DOWNLOAD_URL
+        sync: false  # Optional: URL to download model files if not in repo
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # 🎨 React Frontend (Static Site)
+  - type: static
+    name: deltabox-frontend
+    buildCommand: |
+      cd frontend
+      npm install
+      npm run build
+    publishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: deltabox-backend
+          property: host
+
+# 🗄️ PostgreSQL Database
+databases:
+  - name: deltabox-db
+    plan: starter
+    databaseName: deltabox
+    user: deltabox
+
+# Environment variables for local development:
+# - ML_SERVICE_URL=http://localhost:5000 (for local development)

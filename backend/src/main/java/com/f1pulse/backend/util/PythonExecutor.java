@@ -18,6 +18,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * ⚠️ DEPRECATED: This class is deprecated in favor of {@link com.f1pulse.backend.service.MLClientService}.
+ * 
+ * The ML microservices architecture now uses HTTP REST API calls instead of subprocess execution.
+ * This class is kept for reference and backward compatibility during migration.
+ * 
+ * @deprecated Use MLClientService which communicates with the Flask ML service via HTTP
+ * @see com.f1pulse.backend.service.MLClientService
+ */
+@Deprecated
 @Component
 public class PythonExecutor {
 
@@ -25,6 +35,7 @@ public class PythonExecutor {
 
     private final ObjectMapper objectMapper;
 
+    @Deprecated
     public PythonExecutor(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
