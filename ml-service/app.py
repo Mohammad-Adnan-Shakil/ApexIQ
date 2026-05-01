@@ -471,17 +471,138 @@ def calculate_probability_distribution(avg_finish: float, confidence: float) -> 
 def run_prediction(input_data: Dict[str, Any]) -> Dict[str, Any]:
     """Run ML prediction using loaded models"""
     try:
-        # Import prediction functions from scripts
-        from predict_rf import predict as rf_predict
-        from predictxgb import predict as xgb_predict
+        # Random Forest prediction (inline)
+        def predict_rf(input_data: dict, model, le_driver):
+            """Predict using Random Forest model"""
+            import pandas as pd
+            
+            def encode_safe(le, val):
+                try:
+                    return le.transform([val])[0]
+                except:
+                    return 0
+            
+            driver_encoded = encode_safe(le_driver, input_data["driver_id"])
+            
+            features = pd.DataFrame([{
+                "driver_id": driver_encoded,
+                "avg_last_5": input_data["avg_last_5"],
+                "std_last_5": input_data["std_last_5"],
+                "avg_last_10": input_data["avg_last_10"],
+                "std_last_10": input_data["std_last_10"],
+                "last_race_position": input_data["last_race_position"]
+            }])
+            
+            prediction = model.predict(features)[0]
+            
+            return {
+                "predicted_next_position": round(float(prediction), 2)
+            }
+        
+        # XGBoost prediction (inline)
+        def predict_xgb(input_data: dict, model, le_constructor, le_track):
+            """Predict using XGBoost model"""
+            import numpy as np
+            
+            def safe_encode(encoder, value):
+                try:
+                    return encoder.transform([value])[0]
+                except:
+                    return 0
+            
+            # Feature names must match training order
+            feature_names = [
+                "qualifying_position",
+                "constructor_id", 
+                "track_id",
+                "season_year",
+                "recent_avg_position_last_5",
+                "recent_std_last_5",
+                "grid_position",
+                "is_home_race"
+            ]
+            
+            constructor_encoded = safe_encode(le_constructor, input_data["constructor_id"])
+            track_encoded = safe_encode(le_track, input_data["track_id"])
+            
+            features = np.array([[ 
+                float(input_data["qualifying_position"]),
+                float(constructor_encoded),
+                float(track_encoded),
+                float(input_data["season_year"]),
+                float(input_data["recent_avg_position_last_5"]),
+                float(input_data["recent_std_last_5"]),
+                float(input_data["grid_position"]),
+                float(input_data["is_home_race"])
+            ]])
+            
+            prediction = float(model.predict(features)[0])
+            
+            # Extract feature importances from XGBoost model
+            feature_importances = {}
+            if hasattr(model, 'feature_importances_'):
+                importances = model.feature_importances_
+                for i, name in enumerate(feature_names):
+                    if i < len(importances):
+                        feature_importances[name] = round(float(importances[i]), 4)
+            
+            # Get top 3 most important features with human-readable explanations
+            top_features = []
+            if feature_importances:
+                sorted_features = sorted(feature_importances.items(), key=lambda x: x[1], reverse=True)
+                for feature_name, importance in sorted_features[:3]:
+                    feature_value = input_data.get(feature_name)
+                    
+                    # Generate human-readable explanation
+                    explanation = ""
+                    if feature_name == "qualifying_position":
+                        explanation = f"Grid position: Starting from P{int(feature_value) if feature_value else 'unknown'}"
+                    elif feature_name == "recent_avg_position_last_5":
+                        explanation = f"Recent form: Average finish of P{feature_value:.1f} in last 5 races" if feature_value else "Recent form: Insufficient data"
+                    elif feature_name == "recent_std_last_5":
+                        if feature_value is None or feature_value == 0:
+                            explanation = "Consistency: Very consistent performances"
+                        elif feature_value < 2:
+                            explanation = "Consistency: Highly consistent"
+                        elif feature_value < 4:
+                            explanation = "Consistency: Moderate variability"
+                        else:
+                            explanation = "Consistency: Highly variable performance"
+                    elif feature_name == "grid_position":
+                        explanation = f"Qualifying: P{int(feature_value) if feature_value else 'unknown'}"
+                    elif feature_name == "season_year":
+                        explanation = f"Season: {int(feature_value) if feature_value else 'unknown'}"
+                    elif feature_name == "constructor_id":
+                        explanation = "Constructor: Team performance factor"
+                    elif feature_name == "track_id":
+                        explanation = "Circuit: Track-specific strengths"
+                    elif feature_name == "is_home_race":
+                        explanation = "Home race: Competing in home country"
+                    
+                    top_features.append({
+                        "feature": feature_name,
+                        "importance": importance,
+                        "explanation": explanation
+                    })
+            
+            # Confidence (heuristic)
+            variance_proxy = float(np.std(features))
+            confidence = 1 / (1 + variance_proxy)
+            confidence = max(0.0, min(1.0, confidence))
+            
+            output = {
+                "predicted_position": round(prediction, 2),
+                "confidence": round(confidence, 3),
+                "top_features": top_features
+            }
+            
+            return output
         
         # Run RF prediction
-        rf_result = rf_predict(input_data, models["rf"], models["le_constructor"], 
-                              models["le_driver"], models["le_track"])
+        rf_result = predict_rf(input_data, models["rf"], models["le_driver"])
         
-        # Run XGBoost prediction
-        xgb_result = xgb_predict(input_data, models["xgb"], models["le_constructor"], 
-                                 models["le_driver"], models["le_track"])
+        # Run XGBoost prediction  
+        xgb_result = predict_xgb(input_data, models["xgb"], models["le_constructor"], models["le_track"])
         
         rf_pred = rf_result["predicted_next_position"]
         xgb_pred = xgb_result["predicted_position"]
