@@ -26,10 +26,10 @@ public class RaceEngineerService {
     @Value("${GROQ_API_KEY:}")
     private String apiKey;
 
-    @Value("${groq.api.url}")
+    @Value("${groq.api.url:https://api.groq.com/openai/v1/chat/completions}")
     private String apiUrl;
 
-    @Value("${groq.model}")
+    @Value("${groq.model:llama3-70b-8192}")
     private String model;
 
     private final RestTemplate restTemplate;
@@ -40,6 +40,11 @@ public class RaceEngineerService {
     public RaceEngineerService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        
+        // Log API key presence on startup
+        log.info("🔑 [RaceEngineer] GROQ_API_KEY present: {}", !apiKey.isEmpty());
+        log.info("🌐 [RaceEngineer] Groq API URL: {}", apiUrl);
+        log.info("🤖 [RaceEngineer] Groq model: {}", model);
     }
 
     /**
@@ -146,6 +151,9 @@ public class RaceEngineerService {
      */
     private JsonNode callGroqApi(Map<String, Object> requestBody) {
         try {
+            log.info("🚀 [RaceEngineer] Calling Groq API at: {}", apiUrl);
+            log.info("📝 [RaceEngineer] Request body: {}", objectMapper.writeValueAsString(requestBody));
+            
             // Create HTTP headers with Bearer token
             var headers = new org.springframework.http.HttpHeaders();
             headers.set("Content-Type", "application/json");
@@ -155,9 +163,13 @@ public class RaceEngineerService {
 
             // Execute POST request with timeout
             var response = restTemplate.postForEntity(apiUrl, request, String.class);
+            
+            log.info("📡 [RaceEngineer] API response status: {}", response.getStatusCode());
+            log.info("📄 [RaceEngineer] API response body: {}", response.getBody());
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("❌ [RaceEngineer] API returned status: {}", response.getStatusCode());
+                log.error("❌ [RaceEngineer] Full error response: {}", response.getBody());
                 throw new Exception("Groq API error: " + response.getStatusCode());
             }
 
@@ -166,9 +178,11 @@ public class RaceEngineerService {
 
         } catch (RestClientException e) {
             log.error("❌ [RaceEngineer] REST client error: {}", e.getMessage());
+            log.error("❌ [RaceEngineer] Full exception: {}", e.toString());
             throw e;
         } catch (Exception e) {
             log.error("❌ [RaceEngineer] Failed to parse API response: {}", e.getMessage());
+            log.error("❌ [RaceEngineer] Full exception: {}", e.toString());
             throw new RuntimeException("Failed to parse Groq response", e);
         }
     }

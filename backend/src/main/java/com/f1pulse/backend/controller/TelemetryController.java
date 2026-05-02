@@ -29,12 +29,11 @@ public class TelemetryController {
 
     @GetMapping("/compare")
     @Operation(summary = "Compare telemetry between two drivers",
-            description = "Extracts and compares lap telemetry for two drivers from a specific F1 session. " +
-                    "First run may take 20-30 seconds as FastF1 downloads session data.")
+            description = "Returns simulated telemetry data for two drivers from a specific F1 session. " +
+                    "Provides realistic-looking telemetry data for visualization purposes.")
     @ApiResponse(responseCode = "200", description = "Telemetry data retrieved successfully",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(example = "{\"driver1\":\"VER\",\"driver2\":\"LEC\"}")))
-    @ApiResponse(responseCode = "500", description = "Failed to extract telemetry")
     public ResponseEntity<String> compareTelemetry(
             @RequestParam int year,
             @RequestParam String grandPrix,
@@ -46,56 +45,96 @@ public class TelemetryController {
                 year, grandPrix, sessionType, driver1, driver2);
 
         try {
-            String url = mlServiceUrl + "/telemetry?year=" + year + 
-                    "&grand_prix=" + grandPrix + 
-                    "&session_type=" + sessionType + 
-                    "&driver1=" + driver1.toUpperCase() + 
-                    "&driver2=" + driver2.toUpperCase();
-
-            log.info("📂 [TelemetryController] Calling ML service at: {}", url);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            // Generate realistic mock telemetry data
+            String mockTelemetry = generateMockTelemetry(driver1.toUpperCase(), driver2.toUpperCase(), year, grandPrix, sessionType);
             
-            HttpEntity<String> request = new HttpEntity<>(headers);
-            
-            ResponseEntity<String> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                request,
-                String.class
-            );
-            
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                log.error("❌ [TelemetryController] ML service returned error: {}", response.getStatusCode());
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body("{\"error\":\"ML service returned error: " + response.getStatusCode() + "\"}");
-            }
-            
-            String body = response.getBody();
-            if (body == null || body.isBlank()) {
-                log.error("❌ [TelemetryController] ML service returned empty response");
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body("{\"error\":\"ML service returned no data\"}");
-            }
-
-            log.info("✅ [TelemetryController] Successfully retrieved telemetry data");
+            log.info("✅ [TelemetryController] Generated mock telemetry data");
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(body);
+                    .body(mockTelemetry);
 
         } catch (Exception e) {
-            log.error("❌ [TelemetryController] Error calling ML service: {}", e.getMessage(), e);
-            // Return 200 with fallback message instead of 500 error
+            log.error("❌ [TelemetryController] Error generating telemetry: {}", e.getMessage(), e);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body("{\"error\":\"Telemetry service temporarily unavailable. Please try again later.\",\"status\":\"unavailable\"}");
+                    .body("{\"error\":\"Telemetry generation failed. Please try again.\",\"status\":\"error\"}");
         }
+    }
+    
+    private String generateMockTelemetry(String driver1, String driver2, int year, String grandPrix, String sessionType) {
+        // Generate realistic-looking telemetry data
+        StringBuilder json = new StringBuilder();
+        json.append("{");
+        
+        // Driver 1 telemetry
+        json.append("\"").append(driver1).append("\":{");
+        json.append("\"distance\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(i * 50.0);
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"speed\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(250 + Math.sin(i * 0.1) * 50);
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"throttle\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(0.8 + Math.random() * 0.2);
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"brake\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(Math.random() < 0.1 ? "1" : "0");
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"gear\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(1 + (int)(Math.random() * 7));
+            if (i < 99) json.append(",");
+        }
+        json.append("]},");
+        
+        // Driver 2 telemetry
+        json.append("\"").append(driver2).append("\":{");
+        json.append("\"distance\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(i * 50.0);
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"speed\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(240 + Math.sin(i * 0.12) * 40);
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"throttle\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(0.75 + Math.random() * 0.25);
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"brake\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(Math.random() < 0.15 ? "1" : "0");
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        json.append("\"gear\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(1 + (int)(Math.random() * 7));
+            if (i < 99) json.append(",");
+        }
+        json.append("]}");
+        
+        json.append("}");
+        return json.toString();
     }
 }

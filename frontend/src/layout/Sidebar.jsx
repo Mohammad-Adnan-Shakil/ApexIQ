@@ -90,26 +90,34 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                         />
                       ) : null}
 
-                      {isActive ? <span className="absolute left-0 top-2 h-7 w-[3px] rounded-r-full bg-accentRed" /> : null}
-                    </div>
+                                          </div>
                   )}
                 </NavLink>
               ))}
 
               {/* Protected Navigation Items */}
               {/* AI Prediction - Special handling */}
-              <button
-                onClick={handleAIClick}
-                className={`
-                  group relative mb-1 w-full text-left
-                  flex items-center gap-3 rounded-xl2 px-3 py-3 text-sm transition-all duration-200
-                  ${isAuthenticated ? "text-whiteMuted hover:bg-white/5 hover:text-whitePrimary" : "text-whiteMuted/60 hover:bg-white/5"}
-                `}
-              >
-                <Brain className="h-4 w-4 shrink-0" />
-                <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">AI Prediction</span>
-                {!isAuthenticated && <Lock className="h-3 w-3 ml-auto lg:ml-0 xl:ml-auto" />}
-              </button>
+              <NavLink to="/ai" onClick={onNavigate} className="group relative mb-1 block">
+                {({ isActive }) => (
+                  <div
+                    className={`
+                      flex items-center gap-3 rounded-xl2 px-3 py-3 text-sm transition-all duration-200
+                      ${isActive ? "bg-accentRed/10 text-whitePrimary" : "text-whiteMuted hover:bg-white/5 hover:text-whitePrimary"}
+                    `}
+                  >
+                    <Brain className="h-4 w-4 shrink-0" />
+                    <span className="font-display font-semibold uppercase tracking-wide lg:hidden xl:inline">AI Prediction</span>
+                    {!isAuthenticated && <Lock className="h-3 w-3 ml-auto lg:ml-0 xl:ml-auto" />}
+                    
+                    {isActive ? (
+                      <motion.div
+                        layoutId="active-nav-underline"
+                        className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-accentRed"
+                      />
+                    ) : null}
+                  </div>
+                )}
+              </NavLink>
 
               {/* Telemetry and Race Engineer - Only show if authenticated */}
               {isAuthenticated && NAV_ITEMS_PROTECTED.map(({ to, label, icon: Icon }) => (
@@ -131,8 +139,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                         />
                       ) : null}
 
-                      {isActive ? <span className="absolute left-0 top-2 h-7 w-[3px] rounded-r-full bg-accentRed" /> : null}
-                    </div>
+                                          </div>
                   )}
                 </NavLink>
               ))}
@@ -157,8 +164,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                         />
                       ) : null}
 
-                      {isActive ? <span className="absolute left-0 top-2 h-7 w-[3px] rounded-r-full bg-accentRed" /> : null}
-                    </div>
+                                          </div>
                   )}
                 </NavLink>
               )}
