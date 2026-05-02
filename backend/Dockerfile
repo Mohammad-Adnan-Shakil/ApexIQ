@@ -30,3 +30,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Build bust: 2026-05-02-09-44
