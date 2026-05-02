@@ -50,15 +50,27 @@ public class RaceEngineerController {
                 raceContext.getPosition(), raceContext.getLap());
 
         try {
-            Map<String, String> result = raceEngineerService.getStrategicAdvice(raceContext);
+            // Build user message from race context
+            String userMessage = String.format(
+                "Lap %d of %d. Position: P%d. Gap to leader: %s. Tyre: %s (age %d laps). Fuel: %.1fkg. Weather: %s. Last lap: %s. Driver says: %s",
+                raceContext.getLap(),
+                raceContext.getTotalLaps(),
+                raceContext.getPosition(),
+                raceContext.getGapToLeader(),
+                raceContext.getTyreCompound(),
+                raceContext.getTyreAge(),
+                raceContext.getFuelLoad(),
+                raceContext.getWeather(),
+                raceContext.getLastLapTime(),
+                raceContext.getDriverMessage()
+            );
+            
+            String advice = raceEngineerService.ask(userMessage, raceContext);
+            
+            Map<String, String> result = new HashMap<>();
+            result.put("response", advice);
             log.info("✅ [RaceEngineerController] Generated advice successfully");
             return ResponseEntity.ok(result);
-
-        } catch (PythonExecutionException e) {
-            log.error("❌ [RaceEngineerController] DeepSeek service error: {}", e.getMessage());
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Race Engineer unavailable — check API connection");
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
 
         } catch (Exception e) {
             log.error("❌ [RaceEngineerController] Unexpected error: {}", e.getMessage(), e);
