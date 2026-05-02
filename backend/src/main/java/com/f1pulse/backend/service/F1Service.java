@@ -2,6 +2,7 @@ package com.f1pulse.backend.service;
 
 import com.f1pulse.backend.model.*;
 import com.f1pulse.backend.repository.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
+@ConditionalOnProperty(name = "security.enabled", havingValue = "true", matchIfMissing = true)
 public class F1Service {
 
     private final DriverRepository driverRepository;
