@@ -25,12 +25,14 @@ com\f1pulse\backend\ai\service\PredictionService.class
 com\f1pulse\backend\controller\RaceController.class
 com\f1pulse\backend\dto\DriverComparisonResponse$DriverComparison.class
 com\f1pulse\backend\exception\ErrorResponse.class
+com\f1pulse\CorsConfig.class
 com\f1pulse\backend\service\DataInitializationService.class
 com\f1pulse\backend\ai\service\SimulationServiceImpl.class
 com\f1pulse\backend\model\HistoricalSeason.class
 com\f1pulse\backend\repository\HistoricalDriverRepository.class
 com\f1pulse\backend\dto\UserResponse.class
 com\f1pulse\backend\dto\DriverComparisonRequest.class
+com\f1pulse\backend\config\DatabaseConfig.class
 com\f1pulse\backend\exception\UserAlreadyExistsException.class
 com\f1pulse\backend\ai\service\RaceEngineerService.class
 com\f1pulse\backend\ai\service\PredictionServiceImpl.class
@@ -66,8 +68,8 @@ com\f1pulse\backend\util\StatsUtil.class
 com\f1pulse\backend\ai\service\DriverComparisonServiceImpl.class
 com\f1pulse\backend\dto\UserSummaryResponse.class
 com\f1pulse\backend\controller\AuthController.class
-com\deltabox\CorsConfig.class
 com\f1pulse\backend\repository\HistoricalQualifyingRepository.class
+com\f1pulse\backend\service\MLClientService.class
 com\f1pulse\backend\ai\controller\DriverInsightsController.class
 com\f1pulse\backend\config\AppConfig.class
 com\f1pulse\backend\service\HistoricalDataIngestionService.class
@@ -94,6 +96,7 @@ com\f1pulse\backend\ai\controller\PredictionController.class
 com\f1pulse\backend\controller\AIController.class
 com\f1pulse\backend\exception\GlobalExceptionHandler.class
 com\f1pulse\backend\controller\AdminIngestionController.class
+com\f1pulse\backend\controller\HealthController.class
 com\f1pulse\backend\repository\HistoricalDriverStandingsRepository.class
 com\f1pulse\backend\model\DriverDTO.class
 com\f1pulse\backend\ai\dto\SimulationResponseDTO.class
