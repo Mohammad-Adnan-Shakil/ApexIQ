@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ArrayList;
 
 @RestController
@@ -75,17 +76,20 @@ public class RaceController {
         
         try {
             // Get all race results for this race
-            List<Race> raceResults = raceRepository.findByRaceId(raceId);
+            Optional<Race> raceResult = raceRepository.findById(raceId);
             
-            if (raceResults.isEmpty()) {
+            if (raceResult.isEmpty()) {
                 logger.info("No results found for race ID: {}", raceId);
                 return ResponseEntity.ok(
                     new ApiResponse<>(true, "No results found for this race", new ArrayList<>())
                 );
             }
             
+            // Get all race results for this race (since we need list for filtering)
+            List<Race> allRaceResults = raceRepository.findByRaceId(raceId);
+            
             // Filter for completed races with positions 1-3
-            List<PodiumDriverDTO> podium = raceResults.stream()
+            List<PodiumDriverDTO> podium = allRaceResults.stream()
                 .filter(race -> race.getPosition() != null && race.getPosition() >= 1 && race.getPosition() <= 3)
                 .sorted(Comparator.comparing(Race::getPosition))
                 .map(race -> new PodiumDriverDTO(
