@@ -3,6 +3,8 @@ package com.f1pulse.backend.controller;
 import com.f1pulse.backend.model.Race;
 import com.f1pulse.backend.repository.RaceRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import java.util.Objects;
 @Tag(name = "Races", description = "F1 race schedule and results")
 public class RaceController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RaceController.class);
     private final RaceRepository raceRepository;
 
     public RaceController(RaceRepository raceRepository) {
@@ -28,8 +31,17 @@ public class RaceController {
 
     @GetMapping
     public ResponseEntity<?> getAllRaces() {
+        logger.info("GET /api/races - Request received");
         try {
+            logger.info("Fetching races for season 2026");
             List<Race> races = raceRepository.findBySeasonAndDriverIdIsNullOrderByDateAsc(2026);
+            logger.info("Found {} races for season 2026", races.size());
+
+            // Return empty list gracefully if no races found
+            if (races.isEmpty()) {
+                logger.info("No races found in database - returning empty list");
+                return ResponseEntity.ok(races); // Return empty list instead of error
+            }
 
             // Defensive dedupe: one schedule row per round.
             Map<String, Race> uniqueByRound = new LinkedHashMap<>();
@@ -48,9 +60,11 @@ public class RaceController {
                     .peek(race -> race.setStatus(resolveRaceStatus(race.getDate())))
                     .toList();
 
+            logger.info("Returning {} unique races after deduplication", cleaned.size());
             return ResponseEntity.ok(cleaned);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Failed to load races");
+            logger.error("Failed to load races", e);
+            return ResponseEntity.status(500).body("Failed to load races: " + e.getMessage());
         }
     }
 

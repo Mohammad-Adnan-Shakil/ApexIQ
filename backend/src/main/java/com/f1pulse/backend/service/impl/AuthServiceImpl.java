@@ -41,8 +41,10 @@ public class AuthServiceImpl implements AuthService {
     // ✅ REGISTER
     @Override
     public AuthResponse register(AuthRequest request) {
+        logger.info("Registration attempt for email: {}", request.getEmail());
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            logger.warn("User already exists with email: {}", request.getEmail());
             throw new UserAlreadyExistsException("User already exists");
         }
 
@@ -53,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole("USER");
 
         userRepository.save(user);
+        logger.info("User registered successfully: {}", user.getEmail());
 
         // ✅ Convert to Spring Security UserDetails
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
@@ -62,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         String token = jwtService.generateToken(userDetails);
+        logger.info("JWT token generated for new user: {}", user.getEmail());
 
         return new AuthResponse(token, user.getUsername(), user.getEmail(), user.getRole());
     }
@@ -69,38 +73,57 @@ public class AuthServiceImpl implements AuthService {
     // ✅ LOGIN
     @Override
     public AuthResponse login(AuthRequest request) {
+        logger.info("Login attempt for identifier: {}", request.getIdentifier());
 
-        // Determine if identifier is email or username
-        String identifier = request.getIdentifier();
-        User user;
+        try {
+            // Determine if identifier is email or username
+            String identifier = request.getIdentifier();
+            User user;
 
-        if (identifier.contains("@")) {
-            // Treat as email
-            user = userRepository.findByEmail(identifier)
-                    .orElseThrow(() -> new RuntimeException("Invalid credentials"));
-        } else {
-            // Treat as username
-            user = userRepository.findByUsername(identifier)
-                    .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+            if (identifier.contains("@")) {
+                // Treat as email
+                logger.info("Looking up user by email: {}", identifier);
+                user = userRepository.findByEmail(identifier)
+                        .orElseThrow(() -> {
+                            logger.error("User not found with email: {}", identifier);
+                            return new RuntimeException("Invalid credentials");
+                        });
+            } else {
+                // Treat as username
+                logger.info("Looking up user by username: {}", identifier);
+                user = userRepository.findByUsername(identifier)
+                        .orElseThrow(() -> {
+                            logger.error("User not found with username: {}", identifier);
+                            return new RuntimeException("Invalid credentials");
+                        });
+            }
+
+            logger.info("User found: {} with role: {}", user.getEmail(), user.getRole());
+
+            // Authenticate using the user's email (UserDetailsService uses email)
+            logger.info("Attempting authentication for user: {}", user.getEmail());
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.getEmail(),
+                            request.getPassword()
+                    )
+            );
+            logger.info("Authentication successful for user: {}", user.getEmail());
+
+            // ✅ Convert to Spring Security UserDetails
+            UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                    .username(user.getEmail())
+                    .password(user.getPassword())
+                    .roles(user.getRole())
+                    .build();
+
+            String token = jwtService.generateToken(userDetails);
+            logger.info("JWT token generated successfully for user: {}", user.getEmail());
+
+            return new AuthResponse(token, user.getUsername(), user.getEmail(), user.getRole());
+        } catch (Exception e) {
+            logger.error("Login failed for identifier: {}", request.getIdentifier(), e);
+            throw e;
         }
-
-        // Authenticate using the user's email (UserDetailsService uses email)
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
-                        request.getPassword()
-                )
-        );
-
-        // ✅ Convert to Spring Security UserDetails
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole())
-                .build();
-
-        String token = jwtService.generateToken(userDetails);
-
-        return new AuthResponse(token, user.getUsername(), user.getEmail(), user.getRole());
     }
 }
