@@ -1,0 +1,5 @@
+com\f1pulse\backend\AuthIntegrationTest$AuthRequest.class
+com\f1pulse\backend\BackendApplicationTests.class
+com\f1pulse\backend\service\HistoricalDataIngestionServiceTest.class
+com\f1pulse\backend\service\AuthServiceTest.class
+com\f1pulse\backend\AuthIntegrationTest.class
