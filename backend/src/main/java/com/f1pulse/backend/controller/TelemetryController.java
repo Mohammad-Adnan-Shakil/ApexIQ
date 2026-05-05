@@ -64,75 +64,87 @@ public class TelemetryController {
     }
     
     private String generateMockTelemetry(String driver1, String driver2, int year, String grandPrix, String sessionType) {
-        // Generate realistic-looking telemetry data
+        // Generate realistic-looking telemetry data matching frontend expectations
         StringBuilder json = new StringBuilder();
         json.append("{");
         
-        // Driver 1 telemetry
-        json.append("\"").append(driver1).append("\":{");
+        // Common distance array
         json.append("\"distance\":[");
         for (int i = 0; i < 100; i++) {
             json.append(i * 50.0);
             if (i < 99) json.append(",");
         }
         json.append("],");
-        json.append("\"speed\":[");
+        
+        // Driver 1 telemetry arrays
+        json.append("\"driver1_speed\":[");
         for (int i = 0; i < 100; i++) {
-            json.append(250 + Math.sin(i * 0.1) * 50);
+            json.append(String.format("%.1f", 250 + Math.sin(i * 0.1) * 50));
             if (i < 99) json.append(",");
         }
         json.append("],");
-        json.append("\"throttle\":[");
+        
+        json.append("\"driver1_throttle\":[");
         for (int i = 0; i < 100; i++) {
-            json.append(0.8 + Math.random() * 0.2);
+            json.append(String.format("%.2f", 0.8 + Math.random() * 0.2));
             if (i < 99) json.append(",");
         }
         json.append("],");
-        json.append("\"brake\":[");
+        
+        json.append("\"driver1_brake\":[");
         for (int i = 0; i < 100; i++) {
             json.append(Math.random() < 0.1 ? "1" : "0");
             if (i < 99) json.append(",");
         }
         json.append("],");
-        json.append("\"gear\":[");
+        
+        json.append("\"driver1_gear\":[");
         for (int i = 0; i < 100; i++) {
             json.append(1 + (int)(Math.random() * 7));
             if (i < 99) json.append(",");
         }
-        json.append("]},");
+        json.append("],");
         
-        // Driver 2 telemetry
-        json.append("\"").append(driver2).append("\":{");
-        json.append("\"distance\":[");
+        // Driver 2 telemetry arrays
+        json.append("\"driver2_speed\":[");
         for (int i = 0; i < 100; i++) {
-            json.append(i * 50.0);
+            json.append(String.format("%.1f", 240 + Math.sin(i * 0.12) * 40));
             if (i < 99) json.append(",");
         }
         json.append("],");
-        json.append("\"speed\":[");
+        
+        json.append("\"driver2_throttle\":[");
         for (int i = 0; i < 100; i++) {
-            json.append(240 + Math.sin(i * 0.12) * 40);
+            json.append(String.format("%.2f", 0.75 + Math.random() * 0.25));
             if (i < 99) json.append(",");
         }
         json.append("],");
-        json.append("\"throttle\":[");
-        for (int i = 0; i < 100; i++) {
-            json.append(0.75 + Math.random() * 0.25);
-            if (i < 99) json.append(",");
-        }
-        json.append("],");
-        json.append("\"brake\":[");
+        
+        json.append("\"driver2_brake\":[");
         for (int i = 0; i < 100; i++) {
             json.append(Math.random() < 0.15 ? "1" : "0");
             if (i < 99) json.append(",");
         }
         json.append("],");
-        json.append("\"gear\":[");
+        
+        json.append("\"driver2_gear\":[");
         for (int i = 0; i < 100; i++) {
             json.append(1 + (int)(Math.random() * 7));
             if (i < 99) json.append(",");
         }
-        json.append("]}");
+        json.append("],");
+        
+        // Delta array
+        json.append("\"delta\":[");
+        for (int i = 0; i < 100; i++) {
+            json.append(String.format("%.3f", (Math.random() - 0.5) * 2.0));
+            if (i < 99) json.append(",");
+        }
+        json.append("],");
+        
+        // Lap times
+        json.append("\"driver1_lap_time\":\"1:23.456\",");
+        json.append("\"driver2_lap_time\":\"1:24.123\"");
         
         json.append("}");
         return json.toString();

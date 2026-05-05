@@ -4,6 +4,7 @@ C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\model\User.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\service\AuthService.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\model\HistoricalResult.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\ai\dto\DriverInsightsResponseDTO.java
+C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\dto\FavoriteDriverRequest.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\controller\AuthController.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\ai\service\DriverInsightsService.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\ai\util\StatsUtil.java
@@ -92,6 +93,7 @@ C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\BackendApplicatio
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\controller\DriverController.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\dto\UserSummaryResponse.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\ai\dto\RaceContextRequest.java
+C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\dto\PodiumDriverDTO.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\repository\HistoricalConstructorRepository.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\service\impl\AuthServiceImpl.java
 C:\projects\DeltaBox\backend\src\main\java\com\f1pulse\backend\config\AppConfig.java

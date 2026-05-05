@@ -1,9 +1,11 @@
 package com.f1pulse.backend.controller;
 
 import com.f1pulse.backend.dto.UserResponse;
+import com.f1pulse.backend.dto.FavoriteDriverRequest;
 import com.f1pulse.backend.service.UserService;
 import com.f1pulse.backend.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,4 +34,30 @@ public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
             new ApiResponse<>(true, "User fetched successfully", user)
     );
 }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> getProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        UserResponse user = userService.getCurrentUser(email);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Profile fetched successfully", user)
+        );
+    }
+
+    @PutMapping("/profile/favorite-driver")
+    public ResponseEntity<ApiResponse<UserResponse>> updateFavoriteDriver(
+            @Valid @RequestBody FavoriteDriverRequest request) {
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        UserResponse user = userService.updateFavoriteDriver(email, request);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Favorite driver updated successfully", user)
+        );
+    }
 }

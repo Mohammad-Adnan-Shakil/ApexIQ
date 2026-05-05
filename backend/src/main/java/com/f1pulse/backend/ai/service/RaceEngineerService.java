@@ -47,9 +47,13 @@ public class RaceEngineerService {
 
     public String ask(String userMessage, Object raceContext) {
         if (apiKey == null || apiKey.isEmpty()) {
-            return "Race Engineer service temporarily unavailable. Monitor tire temperatures and fuel consumption for optimal strategy.";
+            log.warn("GROQ_API_KEY not configured - Race Engineer service unavailable");
+            return "Race Engineer service temporarily unavailable. API key not configured.";
         }
+        
         try {
+            log.info("Race Engineer service processing request: {}", userMessage);
+            
             // Build system prompt
             String systemPrompt = "You are an F1 race engineer on the pit wall. You make precise strategic decisions " +
                     "based on telemetry and race data. Speak in concise, professional pit wall radio style. Give one " +
@@ -66,6 +70,7 @@ public class RaceEngineerService {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", model);
             requestBody.put("max_tokens", 200);
+            requestBody.put("temperature", 0.7);
 
             List<Map<String, String>> messages = List.of(
                     Map.of("role", "system", "content", systemPrompt),
@@ -80,34 +85,55 @@ public class RaceEngineerService {
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
-            // Call Groq API
+            // Call Groq API with timeout handling
+            log.debug("Calling Groq API at: {}", apiUrl);
             var response = restTemplate.postForEntity(apiUrl, request, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                log.error("Groq API returned status: {}", response.getStatusCode());
-                throw new Exception("Groq API error: " + response.getStatusCode());
+                log.error("Groq API returned status: {} - Response: {}", response.getStatusCode(), response.getBody());
+                return "Race Engineer service temporarily unavailable. API returned error status.";
             }
 
             // Parse response and extract message
             JsonNode responseJson = objectMapper.readTree(response.getBody());
-            if (responseJson == null || !responseJson.has("choices") || responseJson.get("choices").isEmpty()) {
-                log.warn("Invalid response structure from Groq API");
-                throw new Exception("Invalid response from Groq API");
+            if (responseJson == null) {
+                log.error("Null response from Groq API");
+                return "Race Engineer service temporarily unavailable. Invalid API response.";
+            }
+            
+            if (!responseJson.has("choices") || responseJson.get("choices").isEmpty()) {
+                log.error("Invalid response structure from Groq API: {}", response.getBody());
+                return "Race Engineer service temporarily unavailable. Invalid response format.";
             }
 
-            String engineerMessage = responseJson
-                    .get("choices")
-                    .get(0)
-                    .get("message")
-                    .get("content")
-                    .asText();
+            JsonNode choice = responseJson.get("choices").get(0);
+            if (!choice.has("message") || !choice.get("message").has("content")) {
+                log.error("Missing message content in Groq API response: {}", response.getBody());
+                return "Race Engineer service temporarily unavailable. Missing response content.";
+            }
+
+            String engineerMessage = choice.get("message").get("content").asText();
+            
+            if (engineerMessage == null || engineerMessage.trim().isEmpty()) {
+                log.error("Empty message content from Groq API");
+                return "Race Engineer service temporarily unavailable. Empty response received.";
+            }
 
             log.info("Generated race engineer advice: {}", engineerMessage);
             return engineerMessage;
 
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            log.error("Network error accessing Groq API: {}", e.getMessage());
+            return "Race Engineer service temporarily unavailable. Network connection failed.";
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.error("HTTP client error calling Groq API: {} - {}", e.getStatusCode(), e.getMessage());
+            return "Race Engineer service temporarily unavailable. API authentication failed.";
+        } catch (org.springframework.web.client.HttpServerErrorException e) {
+            log.error("HTTP server error from Groq API: {} - {}", e.getStatusCode(), e.getMessage());
+            return "Race Engineer service temporarily unavailable. API server error.";
         } catch (Exception e) {
-            log.error("Groq API call failed: {}", e.getMessage(), e);
-            return "Race Engineer service temporarily unavailable. Monitor tire temperatures and fuel consumption for optimal strategy.";
+            log.error("Unexpected error in Race Engineer service: {} - {}", e.getClass().getSimpleName(), e.getMessage(), e);
+            return "Race Engineer service temporarily unavailable. Unexpected error occurred.";
         }
     }
 }

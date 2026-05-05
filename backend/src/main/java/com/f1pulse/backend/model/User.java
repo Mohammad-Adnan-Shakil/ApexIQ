@@ -19,6 +19,9 @@ public class User {
     private String password;
 
     private String role;
+    
+    @Column(name = "favorite_driver")
+    private String favoriteDriver;
 
 	public Long getId() {
 		return id;
@@ -58,6 +61,14 @@ public class User {
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	public String getFavoriteDriver() {
+		return favoriteDriver;
+	}
+
+	public void setFavoriteDriver(String favoriteDriver) {
+		this.favoriteDriver = favoriteDriver;
 	}
 
     // getters & setters

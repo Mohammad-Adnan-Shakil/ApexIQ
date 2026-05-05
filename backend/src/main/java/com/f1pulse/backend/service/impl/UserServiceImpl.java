@@ -2,6 +2,7 @@ package com.f1pulse.backend.service.impl;
 
 import com.f1pulse.backend.dto.UserResponse;
 import com.f1pulse.backend.dto.UserSummaryResponse;
+import com.f1pulse.backend.dto.FavoriteDriverRequest;
 import com.f1pulse.backend.exception.UserNotFoundException;
 import com.f1pulse.backend.model.User;
 import com.f1pulse.backend.repository.UserRepository;
@@ -32,7 +33,8 @@ public class UserServiceImpl implements UserService {
         return new UserResponse(
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                user.getFavoriteDriver()
         );
     }
 
@@ -51,4 +53,20 @@ public List<UserSummaryResponse> getAllUsers(int page, int size) {
             ))
             .toList();
 }
+
+    @Override
+    public UserResponse updateFavoriteDriver(String email, FavoriteDriverRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setFavoriteDriver(request.getFavoriteDriver());
+        userRepository.save(user);
+
+        return new UserResponse(
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getFavoriteDriver()
+        );
+    }
 }
