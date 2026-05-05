@@ -17,5 +17,4 @@ public interface RaceRepository extends JpaRepository<Race, Long> {
 
     List<Race> findBySeasonAndDriverIdIsNull(Integer season);
     
-    List<Race> findByRaceId(Long raceId);
-}
+    }

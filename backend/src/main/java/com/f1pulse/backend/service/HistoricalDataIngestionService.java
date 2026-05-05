@@ -564,7 +564,7 @@ public class HistoricalDataIngestionService {
 
             // Create or update result
             HistoricalResult result = resultRepository
-                    .findByRaceIdAndDriverId(race.getId(), historicalDriver.getId())
+                    .findById(race.getId())
                     .orElse(new HistoricalResult());
 
             result.setRaceId(race.getId());

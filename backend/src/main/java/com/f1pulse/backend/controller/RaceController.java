@@ -86,7 +86,7 @@ public class RaceController {
             }
             
             // Get all race results for this race (since we need list for filtering)
-            List<Race> allRaceResults = raceRepository.findByRaceId(raceId);
+            List<Race> allRaceResults = raceRepository.findAll();
             
             // Filter for completed races with positions 1-3
             List<PodiumDriverDTO> podium = allRaceResults.stream()

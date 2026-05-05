@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface HistoricalQualifyingRepository extends JpaRepository<HistoricalQualifying, Long> {
     
-    Optional<HistoricalQualifying> findByRaceIdAndDriverId(Long raceId, Long driverId);
+    Optional<HistoricalQualifying> findByIdAndDriverId(Long raceId, Long driverId);
 }
