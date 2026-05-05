@@ -26,7 +26,6 @@ com\f1pulse\backend\controller\RaceController.class
 com\f1pulse\backend\dto\DriverComparisonResponse$DriverComparison.class
 com\f1pulse\backend\exception\ErrorResponse.class
 com\f1pulse\CorsConfig.class
-com\f1pulse\backend\service\DataInitializationService.class
 com\f1pulse\backend\ai\service\SimulationServiceImpl.class
 com\f1pulse\backend\model\HistoricalSeason.class
 com\f1pulse\backend\repository\HistoricalDriverRepository.class
