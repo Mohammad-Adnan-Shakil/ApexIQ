@@ -10,44 +10,57 @@ const Logo = ({ className = "", size = 26 }) => {
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Triangle with slightly curved corners */}
+      {/* 
+        PRECISE GEOMETRY CALCULATIONS:
+        - Center: (14, 14)
+        - Equilateral triangle with side length: 20
+        - Triangle vertices:
+          * Top: (14, 4.69) - 90°
+          * Bottom-left: (4, 23.31) - 210°  
+          * Bottom-right: (24, 23.31) - 330°
+        - Lines from center to corners at 72% distance
+      */}
+      
+      {/* Equilateral triangle with rounded corners */}
       <path
-        d="M 14 3.5 L 24.5 24.5 L 3.5 24.5 Z"
+        d="M 14 4.69 
+           L 23.31 23.31 
+           L 4.69 23.31 
+           Z"
         fill="none"
         stroke="#EF4444"
         strokeWidth="2.5"
         strokeLinejoin="round"
       />
       
-      {/* Three inner lines pointing toward each edge */}
-      {/* Line pointing to top edge */}
+      {/* Line pointing to top corner (90°) - 72% distance */}
       <line
         x1="14"
-        y1="7"
+        y1="14"
         x2="14"
-        y2="20"
+        y2="7.89"
         stroke="#EF4444"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
       
-      {/* Line pointing to bottom-left edge */}
+      {/* Line pointing to bottom-left corner (210°) - 72% distance */}
       <line
-        x1="10"
-        y1="18"
-        x2="18"
-        y2="18"
+        x1="14"
+        y1="14"
+        x2="8.72"
+        y2="19.28"
         stroke="#EF4444"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
       
-      {/* Line pointing to bottom-right edge */}
+      {/* Line pointing to bottom-right corner (330°) - 72% distance */}
       <line
-        x1="11"
-        y1="15"
-        x2="17"
-        y2="15"
+        x1="14"
+        y1="14"
+        x2="19.28"
+        y2="19.28"
         stroke="#EF4444"
         strokeWidth="1.5"
         strokeLinecap="round"

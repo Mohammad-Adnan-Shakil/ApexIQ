@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../utils/axios";
 import { motion } from "framer-motion";
 import { GoogleLogin } from "@react-oauth/google";
+import Logo from "../components/Logo";
 
 const Register = () => {
   useEffect(() => {
@@ -71,12 +72,7 @@ const Register = () => {
         transition={{ duration: 0.3 }}
       >
         <div className="mb-8 flex justify-center">
-          <svg width="48" height="48" viewBox="0 0 28 28" fill="none">
-            <polygon points="14,2 26,26 2,26" fill="none" 
-              stroke="#EF4444" strokeWidth="2.5" strokeLinejoin="round"/>
-            <line x1="14" y1="10" x2="14" y2="20" 
-              stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
+          <Logo size={48} />
         </div>
 
         <div className="border border-red-900/40 bg-gray-900/80 backdrop-blur rounded-2xl p-8">
