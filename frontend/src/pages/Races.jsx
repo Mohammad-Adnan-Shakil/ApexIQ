@@ -4,9 +4,11 @@ import { Card, EmptyState, ErrorState, LoadingState } from "../components/common
 import useFetch from "../hooks/useFetch";
 import usePageTitle from "../hooks/usePageTitle";
 import { formatRaceDate } from "../utils/formatters";
+import { useNavigate } from "react-router-dom";
 
 const Races = () => {
   usePageTitle("Races");
+  const navigate = useNavigate();
 
   const { data, loading, error, refetch } = useFetch("/races");
   const [search, setSearch] = useState("");
@@ -66,6 +68,7 @@ const Races = () => {
             return (
               <Card
                 key={race.raceId || `${race.round}-${index}`}
+                onClick={() => navigate(`/races/${race.raceId}`)}
                 className={`relative border-l-4 hover:bg-gray-800/80 hover:scale-[1.01] transition-all duration-200 cursor-pointer ${isNext ? "border-accentRed/40 bg-accentRed/5" : ""}`}
                 style={{ borderLeftColor: isCompleted ? "#10b981" : isNext ? "#ef4444" : "#6b7280" }}
                 delay={index * 0.05}

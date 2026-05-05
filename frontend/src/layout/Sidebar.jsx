@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Logo from "../components/Logo";
 
 const NAV_ITEMS_PUBLIC = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -58,14 +59,11 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
           <div>
             <div className="border-b border-borderSoft px-5 py-6 lg:px-4 xl:px-5">
               <div className="flex items-center gap-2 justify-center lg:justify-center xl:justify-start">
-                <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-                  <polygon points="14,2 26,26 2,26" fill="none" 
-                    stroke="#EF4444" strokeWidth="2.5" strokeLinejoin="round"/>
-                  <line x1="14" y1="10" x2="14" y2="20" 
-                    stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                <span className="text-red-500 font-black tracking-widest text-xl">DELTA</span>
-                <span className="text-white font-black tracking-widest text-xl">BOX</span>
+                <Logo size={26} />
+                <div className="hidden xl:block">
+                  <span className="text-red-500 font-black tracking-widest text-xl">DELTA</span>
+                  <span className="text-white font-black tracking-widest text-xl">BOX</span>
+                </div>
               </div>
             </div>
 
@@ -86,7 +84,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                       {isActive ? (
                         <motion.div
                           layoutId="active-nav-underline"
-                          className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-accentRed"
+                          className="absolute -bottom-px left-3 right-3 h-[2px] rounded-full bg-accentRed"
                         />
                       ) : null}
 
@@ -112,7 +110,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                     {isActive ? (
                       <motion.div
                         layoutId="active-nav-underline"
-                        className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-accentRed"
+                        className="absolute -bottom-px left-3 right-3 h-[2px] rounded-full bg-accentRed"
                       />
                     ) : null}
                   </div>
@@ -135,7 +133,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                       {isActive ? (
                         <motion.div
                           layoutId="active-nav-underline"
-                          className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-accentRed"
+                          className="absolute -bottom-px left-3 right-3 h-[2px] rounded-full bg-accentRed"
                         />
                       ) : null}
 
@@ -160,7 +158,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                       {isActive ? (
                         <motion.div
                           layoutId="active-nav-underline"
-                          className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-accentRed"
+                          className="absolute -bottom-px left-3 right-3 h-[2px] rounded-full bg-accentRed"
                         />
                       ) : null}
 

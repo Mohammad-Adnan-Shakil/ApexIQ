@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AIPage = lazy(() => import("./pages/AIPage"));
 const Drivers = lazy(() => import("./pages/Drivers"));
 const Races = lazy(() => import("./pages/Races"));
+const RaceDetails = lazy(() => import("./pages/RaceDetails"));
 const Constructors = lazy(() => import("./pages/Teams"));
 const Profile = lazy(() => import("./pages/Profile"));
 const TelemetryPage = lazy(() => import("./pages/TelemetryPage"));
@@ -74,6 +75,15 @@ function App() {
         element={
           <MainLayout>
             <Races />
+          </MainLayout>
+        }
+      />
+
+      <Route
+        path="/races/:raceId"
+        element={
+          <MainLayout>
+            <RaceDetails />
           </MainLayout>
         }
       />

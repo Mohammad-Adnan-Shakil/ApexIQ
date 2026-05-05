@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import api from "../services/api";
 import SkeletonLoader from "../components/SkeletonLoader";
+import TelemetryChatbot from "../components/TelemetryChatbot";
 import useFetch from "../hooks/useFetch";
 
 const TelemetryPage = () => {
@@ -112,7 +113,7 @@ const TelemetryPage = () => {
     }
   };
 
-  const chartData = telemetryData ? formatChartData(telemetryData) : [];
+  const chartData = telemetryData && telemetryData.distance ? formatChartData(telemetryData) : [];
 
   return (
     <div className="min-h-screen bg-bgPrimary text-whitePrimary p-6">
@@ -220,7 +221,7 @@ const TelemetryPage = () => {
           <button
             onClick={handleAnalyze}
             disabled={loading}
-            className="w-full lg:w-auto bg-red-600 hover:bg-red-500 active:scale-95 py-4 rounded-xl font-black tracking-widest text-lg shadow-lg shadow-red-900/30 transition-all duration-150 flex items-center justify-center gap-2"
+            className="w-full lg:w-auto bg-red-600 hover:bg-red-500 active:scale-95 px-8 py-4 rounded-xl font-black tracking-widest text-lg shadow-lg shadow-red-900/30 transition-all duration-150 flex items-center justify-center gap-2"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -263,7 +264,7 @@ const TelemetryPage = () => {
         )}
 
         {/* Results Section */}
-        {telemetryData && !loading && (
+        {telemetryData && !loading && chartData.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -416,7 +417,22 @@ const TelemetryPage = () => {
             <p>Select parameters and click "Analyze" to compare telemetry</p>
           </motion.div>
         )}
+
+        {/* Data Exists But No Chart Data */}
+        {telemetryData && !loading && chartData.length === 0 && !error && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12 text-whiteMuted"
+          >
+            <p>Telemetry data received but no chart data available</p>
+            <p className="text-sm mt-2">The selected session may not have telemetry data</p>
+          </motion.div>
+        )}
       </div>
+    
+    {/* Telemetry Chatbot */}
+    <TelemetryChatbot />
     </div>
   );
 };

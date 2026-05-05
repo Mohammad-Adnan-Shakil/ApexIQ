@@ -5,8 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import useFetch from "../hooks/useFetch";
 import usePageTitle from "../hooks/usePageTitle";
 import { nationalityFlag, teamColor } from "../utils/formatters";
-
-const FAV_KEY = "deltabox:favourite-driver";
+import api from "../services/api";
 
 const Profile = () => {
   usePageTitle("Profile");
@@ -16,11 +15,41 @@ const Profile = () => {
   const { data: drivers, loading: driversLoading, error: driversError, refetch: refetchDrivers } = useFetch("/drivers");
   const { data: races, loading: racesLoading, error: racesError, refetch: refetchRaces } = useFetch("/races");
 
-  const [favouriteDriverId, setFavouriteDriverId] = useState(localStorage.getItem(FAV_KEY) || "");
+  const [favouriteDriverId, setFavouriteDriverId] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
+  // Load favorite driver from backend on component mount
   useEffect(() => {
-    localStorage.setItem(FAV_KEY, favouriteDriverId);
-  }, [favouriteDriverId]);
+    const loadFavoriteDriver = async () => {
+      try {
+        const response = await api.get("/user/profile");
+        if (response.data?.favouriteDriver) {
+          setFavouriteDriverId(response.data.favouriteDriver);
+        }
+      } catch (error) {
+        console.log("No saved favorite driver found");
+      }
+    };
+
+    if (token) {
+      loadFavoriteDriver();
+    }
+  }, [token]);
+
+  // Update favorite driver in backend
+  const updateFavoriteDriver = async (driverId) => {
+    setIsUpdating(true);
+    try {
+      await api.put("/user/profile", { favouriteDriver: driverId });
+      setFavouriteDriverId(driverId);
+    } catch (error) {
+      console.error("Failed to update favorite driver:", error);
+      // Fallback to localStorage if backend fails
+      setFavouriteDriverId(driverId);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const profile = profileData || user || {};
   const username = profile.username || "User";
@@ -112,10 +141,13 @@ const Profile = () => {
 
         <select
           value={favouriteDriverId}
-          onChange={(e) => setFavouriteDriverId(e.target.value)}
+          onChange={(e) => updateFavoriteDriver(e.target.value)}
+          disabled={isUpdating || driversLoading}
           className="surface-input mt-4"
         >
-          <option value="">Select favourite driver</option>
+          <option value="">
+            {isUpdating ? "Updating..." : "Select favourite driver"}
+          </option>
           {driverList.map((driver) => (
             <option key={driver.driverId} value={driver.driverId}>
               {driver.name} ({driver.code || "DRV"})
