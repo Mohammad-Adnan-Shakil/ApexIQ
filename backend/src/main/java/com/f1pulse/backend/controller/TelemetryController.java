@@ -42,9 +42,15 @@ public class TelemetryController {
             @RequestParam String driver1,
             @RequestParam String driver2) {
 
-        log.info("Telemetry request: {} {} {} {} vs {}", year, grandPrix, sessionType, driver1, driver2);
+        // 🎯 LOG TELEMETRY REQUEST ENTRY
+        log.info("🎯 TELEMETRY CONTROLLER: Incoming compareTelemetry request");
+        log.info("  📋 Parameters: year={}, grandPrix='{}', sessionType='{}', driver1='{}', driver2='{}'", 
+                year, grandPrix, sessionType, driver1, driver2);
 
         try {
+            // 🚀 LOG ML SERVICE CALL
+            log.info("🚀 Calling MLClientService.analyzeTelemetry()");
+            
             Map<String, Object> telemetry = mlClientService.analyzeTelemetry(
                     year,
                     grandPrix,
@@ -53,10 +59,13 @@ public class TelemetryController {
                     driver2.toUpperCase()
             );
 
-            log.info("Telemetry data retrieved from ML service");
+            // ✅ LOG SUCCESS
+            log.info("✅ Telemetry data retrieved from ML service - {} data points", 
+                    ((java.util.List<?>) telemetry.getOrDefault("distance", java.util.List.of())).size());
             return ResponseEntity.ok(telemetry);
         } catch (Exception e) {
-            log.error("Telemetry service error: {}", e.getMessage(), e);
+            // ❌ LOG ERROR
+            log.error("❌ Telemetry service error: {}", e.getMessage(), e);
             return ResponseEntity
                     .status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(Map.of("error", "Telemetry service temporarily unavailable.", "status", "error"));

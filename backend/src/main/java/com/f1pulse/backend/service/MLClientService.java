@@ -201,6 +201,11 @@ public class MLClientService {
     public Map<String, Object> analyzeTelemetry(int year, String grandPrix, String sessionType, 
                                                   String driver1, String driver2) {
         try {
+            // 📋 LOG INCOMING PARAMETERS
+            log.info("📋 MLCLIENT: analyzeTelemetry() called with:");
+            log.info("  year={}, grandPrix='{}', sessionType='{}', driver1='{}', driver2='{}'", 
+                    year, grandPrix, sessionType, driver1, driver2);
+            
             String url = UriComponentsBuilder.fromHttpUrl(mlServiceUrl + "/telemetry")
                     .queryParam("year", year)
                     .queryParam("grand_prix", grandPrix)
@@ -211,7 +216,12 @@ public class MLClientService {
                     .encode()
                     .toUriString();
             
-            log.info("Calling ML service telemetry endpoint at: {}", url);
+            // 🔗 LOG CONSTRUCTED URL (will show URL-encoded parameters)
+            log.info("🔗 MLCLIENT: Constructed URL (note: parameters are URL-encoded in transit)");
+            log.info("  Base URL: {}", mlServiceUrl + "/telemetry");
+            log.info("  Full URL: {}", url);
+            
+            log.info("📤 MLCLIENT: Sending GET request to ML service...");
             ResponseEntity<Map> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
@@ -219,14 +229,34 @@ public class MLClientService {
                 Map.class
             );
             
+            // 📥 LOG RESPONSE STATUS
+            log.info("📥 MLCLIENT: Received response status: {}", response.getStatusCode());
+            
             if (!response.getStatusCode().is2xxSuccessful()) {
+                log.error("❌ MLCLIENT: ML service returned error: {}", response.getStatusCode());
                 throw new RuntimeException("ML service returned error: " + response.getStatusCode());
             }
             
-            return response.getBody();
+            Map<String, Object> body = response.getBody();
+            if (body == null) {
+                log.error("❌ MLCLIENT: ML service returned empty response");
+                throw new RuntimeException("ML service returned empty response");
+            }
+            
+            // ✅ LOG SUCCESS
+            int dataPoints = 0;
+            if (body.containsKey("distance")) {
+                Object distanceObj = body.get("distance");
+                if (distanceObj instanceof java.util.List) {
+                    dataPoints = ((java.util.List<?>) distanceObj).size();
+                }
+            }
+            log.info("✅ MLCLIENT: Telemetry retrieved successfully - {} data points", dataPoints);
+            
+            return body;
             
         } catch (Exception e) {
-            log.error("Error calling ML service telemetry endpoint", e);
+            log.error("❌ MLCLIENT: Error calling ML service telemetry endpoint", e);
             throw new RuntimeException("Failed to analyze telemetry: " + e.getMessage(), e);
         }
     }

@@ -12,6 +12,7 @@ import logging
 from typing import Dict, Any, List, Optional
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from urllib.parse import unquote
 
 # Configure logging
 logging.basicConfig(
@@ -909,27 +910,43 @@ def telemetry():
     """Analyze telemetry for two drivers from a specific F1 session"""
     try:
         year = request.args.get('year', type=int)
-        grand_prix = request.args.get('grand_prix')
-        session_type = request.args.get('session_type')
-        driver1 = request.args.get('driver1')
-        driver2 = request.args.get('driver2')
+        grand_prix_raw = request.args.get('grand_prix')
+        session_type_raw = request.args.get('session_type')
+        driver1_raw = request.args.get('driver1')
+        driver2_raw = request.args.get('driver2')
+        
+        # ✅ DECODE URL-encoded parameters (Flask should do this, but be explicit)
+        grand_prix = unquote(grand_prix_raw) if grand_prix_raw else None
+        session_type = unquote(session_type_raw) if session_type_raw else None
+        driver1 = unquote(driver1_raw) if driver1_raw else None
+        driver2 = unquote(driver2_raw) if driver2_raw else None
+        
+        # 📨 LOG INCOMING REQUEST with decoded values
+        logger.info(f"🎯 TELEMETRY ENDPOINT: Incoming request")
+        logger.info(f"  📊 Raw params: year={year}, grand_prix={grand_prix_raw}, session_type={session_type_raw}, driver1={driver1_raw}, driver2={driver2_raw}")
+        logger.info(f"  ✅ Decoded params: year={year}, grand_prix={grand_prix}, session_type={session_type}, driver1={driver1}, driver2={driver2}")
         
         if not all([year, grand_prix, session_type, driver1, driver2]):
+            logger.error(f"❌ Missing required parameters")
             return jsonify({
                 "error": "Missing required parameters. Need: year, grand_prix, session_type, driver1, driver2"
             }), 400
         
         # Import and run telemetry analysis
         from telemetry_analysis import analyze
+        logger.info(f"🚀 Calling analyze() with: year={year}, grand_prix={grand_prix}, session_type={session_type}, driver1={driver1}, driver2={driver2}")
+        
         result = analyze(year, grand_prix, session_type, driver1, driver2)
         
         if "error" in result:
+            logger.error(f"❌ Telemetry analysis error: {result['error']}")
             return jsonify({"error": result["error"]}), 500
         
+        logger.info(f"✅ Telemetry analysis successful - returning data with {len(result.get('distance', []))} distance points")
         return jsonify(result)
         
     except Exception as e:
-        logger.error(f"Telemetry endpoint error: {str(e)}")
+        logger.error(f"❌ Telemetry endpoint error: {str(e)}", exc_info=True)
         return jsonify({"error": f"Telemetry analysis failed: {str(e)}"}), 500
 
 

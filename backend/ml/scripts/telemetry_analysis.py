@@ -16,6 +16,15 @@ import numpy as np
 import fastf1
 from typing import Optional, Dict, List, Any
 import warnings
+from urllib.parse import unquote
+import logging
+
+# Configure logging for this script
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Disable all warnings
 warnings.filterwarnings('ignore')
@@ -24,7 +33,6 @@ warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(line_buffering=True)
 
 # Suppress FastF1 logging to stdout
-import logging
 logging.getLogger('fastf1').setLevel(logging.WARNING)
 
 # Enable FastF1 cache to speed up subsequent runs
@@ -34,13 +42,78 @@ os.makedirs(cache_dir, exist_ok=True)
 fastf1.Cache.enable_cache(cache_dir)
 
 
+def map_session_type(session_type_input: str) -> str:
+    """
+    Map various session type formats to FastF1-compatible format.
+    
+    FastF1 accepts:
+    - "Qualifying", "Q" -> "Qualifying"
+    - "Race", "R" -> "Race"
+    - "Free Practice 1", "FP1", "Practice 1", "P1" -> "FP1"
+    - "Free Practice 2", "FP2", "Practice 2", "P2" -> "FP2"
+    - "Free Practice 3", "FP3", "Practice 3", "P3" -> "FP3"
+    - "Sprint", "S" -> "Sprint"
+    """
+    mapping = {
+        # Qualifying variants
+        "qualifying": "Qualifying",
+        "q": "Qualifying",
+        # Race variants
+        "race": "Race",
+        "r": "Race",
+        # Free Practice 1 variants
+        "free practice 1": "FP1",
+        "fp1": "FP1",
+        "practice 1": "FP1",
+        "p1": "FP1",
+        # Free Practice 2 variants
+        "free practice 2": "FP2",
+        "fp2": "FP2",
+        "practice 2": "FP2",
+        "p2": "FP2",
+        # Free Practice 3 variants
+        "free practice 3": "FP3",
+        "fp3": "FP3",
+        "practice 3": "FP3",
+        "p3": "FP3",
+        # Sprint variants
+        "sprint": "Sprint",
+        "s": "Sprint",
+    }
+    
+    normalized = session_type_input.lower().strip()
+    mapped = mapping.get(normalized, session_type_input)
+    
+    logger.info(f"🔄 Session type mapping: '{session_type_input}' -> '{mapped}'")
+    return mapped
+
+
 def get_session(year: int, grand_prix: str, session_type: str):
     """Fetch and load an F1 session from FastF1."""
     try:
-        session = fastf1.get_session(year, grand_prix, session_type)
+        # Map session type to FastF1 format
+        mapped_session = map_session_type(session_type)
+        
+        # Decode URL-encoded values as safety measure
+        grand_prix_decoded = unquote(grand_prix)
+        
+        logger.info(f"🚀 FastF1.get_session() call:")
+        logger.info(f"  year: {year}")
+        logger.info(f"  grand_prix (raw): '{grand_prix}'")
+        logger.info(f"  grand_prix (decoded): '{grand_prix_decoded}'")
+        logger.info(f"  session_type (mapped): '{mapped_session}'")
+        
+        # Call FastF1
+        session = fastf1.get_session(year, grand_prix_decoded, mapped_session)
+        
+        logger.info(f"✅ Session object created, loading data...")
         session.load()
+        logger.info(f"✅ Session loaded successfully")
+        
         return session
     except Exception as e:
+        logger.error(f"❌ Failed to load session: year={year}, grand_prix={grand_prix}, session_type={session_type}")
+        logger.error(f"   Exception: {str(e)}", exc_info=True)
         return None
 
 
@@ -176,22 +249,39 @@ def analyze(year: int, grand_prix: str, session_type: str, driver1: str, driver2
     Returns:
         Dictionary with telemetry data for both drivers
     """
-    # Normalize driver codes
-    driver1 = driver1.upper()
-    driver2 = driver2.upper()
+    # Normalize and decode all inputs
+    grand_prix_decoded = unquote(grand_prix) if grand_prix else grand_prix
+    session_type_decoded = unquote(session_type) if session_type else session_type
+    driver1_decoded = unquote(driver1).upper() if driver1 else driver1
+    driver2_decoded = unquote(driver2).upper() if driver2 else driver2
+    
+    # 🚀 LOG ANALYZE FUNCTION ENTRY
+    logger.info(f"🚀 TELEMETRY ANALYZE: Received request")
+    logger.info(f"  📋 Input (raw): year={year}, grand_prix='{grand_prix}', session_type='{session_type}', driver1='{driver1}', driver2='{driver2}'")
+    logger.info(f"  ✅ Input (decoded): year={year}, grand_prix='{grand_prix_decoded}', session_type='{session_type_decoded}', driver1='{driver1_decoded}', driver2='{driver2_decoded}'")
     
     # Fetch session
-    session = get_session(year, grand_prix, session_type)
+    logger.info(f"🔗 Attempting to load FastF1 session...")
+    session = get_session(year, grand_prix_decoded, session_type_decoded)
+    
     if session is None:
-        return {"error": f"Failed to load session: {year} {grand_prix} {session_type}"}
+        error_msg = f"Failed to load session: {year} {grand_prix_decoded} {session_type_decoded}"
+        logger.error(f"❌ {error_msg}")
+        return {"error": error_msg}
+    
+    logger.info(f"📊 Session loaded successfully - extracting telemetry for drivers {driver1_decoded} and {driver2_decoded}")
     
     # Extract telemetry for both drivers
-    tel1_data = get_driver_telemetry(session, driver1)
-    tel2_data = get_driver_telemetry(session, driver2)
+    tel1_data = get_driver_telemetry(session, driver1_decoded)
+    tel2_data = get_driver_telemetry(session, driver2_decoded)
     
     if tel1_data is None or tel2_data is None:
-        missing = driver1 if tel1_data is None else driver2
-        return {"error": f"Could not extract telemetry for driver {missing}"}
+        missing = driver1_decoded if tel1_data is None else driver2_decoded
+        error_msg = f"Could not extract telemetry for driver {missing}"
+        logger.error(f"❌ {error_msg}")
+        return {"error": error_msg}
+    
+    logger.info(f"✅ Telemetry extracted - driver1: {tel1_data['lap_time']}, driver2: {tel2_data['lap_time']}")
     
     # Align telemetry on distance
     max_distance = min(
@@ -222,10 +312,12 @@ def analyze(year: int, grand_prix: str, session_type: str, driver1: str, driver2
     # Downsample to max 500 points
     downsampled = downsample_to_max_points(result_data, max_points=500)
     
+    logger.info(f"📊 Downsampled telemetry to {len(downsampled['distance'])} points")
+    
     # Build output JSON
     output = {
-        "driver1": driver1,
-        "driver2": driver2,
+        "driver1": driver1_decoded,
+        "driver2": driver2_decoded,
         "distance": downsampled['distance'],
         "driver1_speed": downsampled['driver1_speed'],
         "driver2_speed": downsampled['driver2_speed'],
@@ -239,6 +331,8 @@ def analyze(year: int, grand_prix: str, session_type: str, driver1: str, driver2
         "driver1_lap_time": tel1_data['lap_time'],
         "driver2_lap_time": tel2_data['lap_time']
     }
+    
+    logger.info(f"✅ TELEMETRY ANALYSIS COMPLETE: Returning {len(output['distance'])} data points for {driver1_decoded} vs {driver2_decoded}")
     
     return output
 
