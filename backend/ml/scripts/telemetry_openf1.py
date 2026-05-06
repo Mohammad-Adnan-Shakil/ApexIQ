@@ -18,6 +18,7 @@ import json
 import logging
 import requests
 import numpy as np
+import re
 from typing import Optional, Dict, List, Any
 from urllib.parse import unquote
 import warnings
@@ -115,26 +116,95 @@ def get_sessions(meeting_key: int) -> List[Dict[str, Any]]:
         return []
 
 
+def normalize_race_name(name: str) -> str:
+    """
+    Normalize race name for fuzzy matching.
+    
+    Normalization rules:
+    - Lowercase
+    - Remove "formula 1"
+    - Remove "grand prix" 
+    - Remove punctuation
+    - Trim spaces
+    """
+    if not name:
+        return ""
+    
+    # Lowercase
+    normalized = name.lower()
+    
+    # Remove "formula 1"
+    normalized = re.sub(r'\bformula\s+1\b', '', normalized)
+    
+    # Remove "grand prix"
+    normalized = re.sub(r'\bgrand\s+prix\b', '', normalized)
+    
+    # Remove punctuation
+    normalized = re.sub(r'[.,!?;:\'"()-]', '', normalized)
+    
+    # Trim and collapse multiple spaces
+    normalized = re.sub(r'\s+', ' ', normalized).strip()
+    
+    return normalized
+
+
 def find_race(year: int, grand_prix: str) -> Optional[Dict[str, Any]]:
-    """Find a specific race/meeting by year and grand prix name."""
+    """Find a specific race/meeting by year and grand prix name with fuzzy matching."""
     try:
+        logger.info(f"🏁 User requested race: {grand_prix} {year}")
         meetings = get_meetings(year)
         
-        grand_prix_lower = grand_prix.lower().strip()
+        if not meetings:
+            logger.error(f"❌ No meetings found for {year}")
+            return None
         
+        logger.info(f"📋 Available meetings: {[m.get('meeting_name') for m in meetings]}")
+        
+        # Normalize user input
+        query_normalized = normalize_race_name(grand_prix)
+        logger.info(f"🔍 Normalized query: '{grand_prix}' → '{query_normalized}'")
+        
+        # Try exact match first
         for meeting in meetings:
-            meeting_name = meeting.get('meeting_name', '').lower()
-            location = meeting.get('location', '').lower()
-            country = meeting.get('country_name', '').lower()
-            
-            # Match by meeting name, location, or country
-            if (grand_prix_lower in meeting_name or 
-                grand_prix_lower in location or 
-                grand_prix_lower in country):
-                logger.info(f"✅ Found race: {meeting.get('meeting_name')}")
+            meeting_name = meeting.get('meeting_name', '')
+            if normalize_race_name(meeting_name) == query_normalized:
+                logger.info(f"✅ Exact match: {meeting_name}")
                 return meeting
         
-        logger.warning(f"⚠️  Race '{grand_prix}' not found for {year}")
+        # Try contains match
+        for meeting in meetings:
+            meeting_name = meeting.get('meeting_name', '')
+            location = meeting.get('location', '')
+            country = meeting.get('country_name', '')
+            
+            meeting_name_norm = normalize_race_name(meeting_name)
+            location_norm = normalize_race_name(location)
+            country_norm = normalize_race_name(country)
+            
+            if (query_normalized in meeting_name_norm or
+                query_normalized in location_norm or
+                query_normalized in country_norm or
+                meeting_name_norm.startswith(query_normalized) or
+                location_norm.startswith(query_normalized)):
+                logger.info(f"✅ Contains match: {meeting_name}")
+                return meeting
+        
+        # Try keyword matching (any meaningful word matches)
+        query_keywords = set(query_normalized.split())
+        for meeting in meetings:
+            meeting_name = meeting.get('meeting_name', '')
+            location = meeting.get('location', '')
+            
+            meeting_text_norm = normalize_race_name(f"{meeting_name} {location}")
+            meeting_keywords = set(meeting_text_norm.split())
+            
+            # If any keyword matches
+            if query_keywords & meeting_keywords:
+                logger.info(f"✅ Keyword match: {meeting_name}")
+                return meeting
+        
+        logger.error(f"❌ Race not found: {grand_prix} {year}")
+        logger.info(f"   Try: {', '.join([m.get('meeting_name') for m in meetings[:5]])}")
         return None
     except Exception as e:
         logger.error(f"❌ Error finding race: {str(e)}")
