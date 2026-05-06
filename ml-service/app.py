@@ -20,12 +20,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Add scripts directory to path
-SCRIPT_DIR = os.path.join(os.path.dirname(__file__), "scripts")
-sys.path.insert(0, SCRIPT_DIR)
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "models")
+
+# Add script directories to path. The Render ML service runs from ml-service/,
+# while the FastF1 telemetry script is shared with the backend ML folder.
+SCRIPT_DIRS = [
+    os.path.join(BASE_DIR, "scripts"),
+    os.path.abspath(os.path.join(BASE_DIR, "..", "backend", "ml", "scripts")),
+]
+for script_dir in SCRIPT_DIRS:
+    if os.path.isdir(script_dir) and script_dir not in sys.path:
+        sys.path.insert(0, script_dir)
 
 # Initialize Flask app
 app = Flask(__name__)

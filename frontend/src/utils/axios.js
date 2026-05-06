@@ -1,7 +1,19 @@
 import axios from "axios";
 
+const normalizeApiBaseUrl = (rawUrl) => {
+  const fallbackUrl = "https://deltabox-2.onrender.com";
+  const configuredUrl = rawUrl || import.meta.env.VITE_API_URL || fallbackUrl;
+  const trimmedUrl = configuredUrl.trim().replace(/\/$/, "");
+
+  if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
+    return trimmedUrl;
+  }
+
+  return `https://${trimmedUrl}`;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL + "/api",
+  baseURL: `${normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL)}/api`,
 });
 
 // REQUEST INTERCEPTOR: Add JWT token to every request

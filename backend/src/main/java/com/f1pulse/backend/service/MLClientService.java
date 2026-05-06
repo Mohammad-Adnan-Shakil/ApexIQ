@@ -34,8 +34,21 @@ public class MLClientService {
                            @Value("${ml.service.url}") String mlServiceUrl) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
-        this.mlServiceUrl = mlServiceUrl;
+        this.mlServiceUrl = normalizeBaseUrl(mlServiceUrl);
         log.info("ML Client Service configured at: {}", mlServiceUrl);
+    }
+
+    private String normalizeBaseUrl(String rawUrl) {
+        if (rawUrl == null || rawUrl.isBlank()) {
+            throw new IllegalArgumentException("ML service URL is not configured");
+        }
+
+        String trimmedUrl = rawUrl.trim();
+        if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
+            return trimmedUrl;
+        }
+
+        return "http://" + trimmedUrl;
     }
 
     /**
