@@ -926,6 +926,10 @@ def telemetry():
         logger.info(f"  📊 Raw params: year={year}, grand_prix={grand_prix_raw}, session_type={session_type_raw}, driver1={driver1_raw}, driver2={driver2_raw}")
         logger.info(f"  ✅ Decoded params: year={year}, grand_prix={grand_prix}, session_type={session_type}, driver1={driver1}, driver2={driver2}")
         
+        # 📋 VALIDATE YEAR
+        if year and year > 2024:
+            logger.warning(f"⚠️  Year {year} requested - FastF1 data not available yet, will attempt to use 2024 instead")
+        
         if not all([year, grand_prix, session_type, driver1, driver2]):
             logger.error(f"❌ Missing required parameters")
             return jsonify({

@@ -27,8 +27,9 @@ const TelemetryPage = () => {
   
   // Extract unique values for dropdowns
   const allYears = races ? [...new Set(races.map(r => r.season))] : [];
-  const defaultYears = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
-  const availableYears = [...new Set([...allYears, ...defaultYears])].sort((a, b) => b - a);
+  const defaultYears = [2018, 2019, 2020, 2021, 2022, 2023, 2024]; // FastF1 supports up to 2024
+  // Filter to only years supported by FastF1 (2018-2024)
+  const supportedYears = [...new Set([...allYears, ...defaultYears])].filter(y => y >= 2018 && y <= 2024).sort((a, b) => b - a);
   const availableGrandPrix = races ? [...new Set(races.map(r => r.raceName))].sort() : ["Monaco"];
   const availableDrivers = drivers || [];
 
@@ -129,6 +130,16 @@ const TelemetryPage = () => {
           <p className="text-xs text-whiteMuted sm:text-sm">Compare lap telemetry between two drivers</p>
         </motion.div>
 
+        {/* Info Box */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="bg-blue-900/20 border border-blue-600/30 text-blue-200 px-4 py-3 rounded-lg mb-6"
+        >
+          <p className="text-xs sm:text-sm">📊 <strong>Note:</strong> Telemetry data is available for seasons 2018-2024. FastF1 does not yet support future years.</p>
+        </motion.div>
+
         {/* Control Panel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -148,7 +159,7 @@ const TelemetryPage = () => {
                 onChange={handleInputChange}
                 className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full appearance-none focus:border-red-500 outline-none font-medium"
               >
-                {availableYears.map(year => (
+                {supportedYears.map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>

@@ -88,8 +88,56 @@ def map_session_type(session_type_input: str) -> str:
     return mapped
 
 
+def get_session_with_fallback(year: int, grand_prix: str, session_type: str, fallback_year: Optional[int] = None):
+    """
+    Attempt to load a FastF1 session, with fallback to another year if needed.
+    
+    Returns: Tuple (session, actual_year_used, fallback_applied)
+    """
+    try:
+        logger.info(f"  📤 Calling fastf1.get_session({year}, '{grand_prix}', '{session_type}')")
+        session = fastf1.get_session(year, grand_prix, session_type)
+        logger.info(f"  ✅ Session object created")
+        
+        logger.info(f"  📥 Loading session data (may take 20-30 seconds for first load)...")
+        session.load()
+        logger.info(f"  ✅ Session loaded successfully from year {year}")
+        
+        return session, year, False
+        
+    except Exception as e:
+        error_msg = str(e).lower()
+        
+        # Check if error is due to unsupported year or session
+        if any(keyword in error_msg for keyword in ['not found', 'invalid event', 'no data', 'unavailable', 'does not exist']):
+            logger.warning(f"  ⚠️  Year {year} not supported by FastF1: {str(e)}")
+            
+            if fallback_year and fallback_year != year:
+                logger.info(f"  🔄 Attempting fallback to year {fallback_year}...")
+                try:
+                    logger.info(f"  📤 Calling fastf1.get_session({fallback_year}, '{grand_prix}', '{session_type}')")
+                    session = fastf1.get_session(fallback_year, grand_prix, session_type)
+                    logger.info(f"  ✅ Session object created (fallback)")
+                    
+                    logger.info(f"  📥 Loading session data (fallback)...")
+                    session.load()
+                    logger.info(f"  ✅ Session loaded successfully from fallback year {fallback_year}")
+                    
+                    return session, fallback_year, True
+                except Exception as fallback_e:
+                    logger.error(f"  ❌ Fallback also failed: {str(fallback_e)}")
+                    return None, None, False
+            else:
+                logger.error(f"  ❌ No fallback available, returning None")
+                return None, None, False
+        else:
+            # Other error (network, cache, etc.)
+            logger.error(f"  ❌ Unexpected error loading session: {str(e)}")
+            return None, None, False
+
+
 def get_session(year: int, grand_prix: str, session_type: str):
-    """Fetch and load an F1 session from FastF1."""
+    """Fetch and load an F1 session from FastF1, with automatic fallback for future years."""
     try:
         # Map session type to FastF1 format
         mapped_session = map_session_type(session_type)
@@ -97,23 +145,31 @@ def get_session(year: int, grand_prix: str, session_type: str):
         # Decode URL-encoded values as safety measure
         grand_prix_decoded = unquote(grand_prix)
         
-        logger.info(f"🚀 FastF1.get_session() call:")
-        logger.info(f"  year: {year}")
-        logger.info(f"  grand_prix (raw): '{grand_prix}'")
-        logger.info(f"  grand_prix (decoded): '{grand_prix_decoded}'")
-        logger.info(f"  session_type (mapped): '{mapped_session}'")
+        logger.info(f"🚀 FastF1 Session Loading:")
+        logger.info(f"  Requested: year={year}, grand_prix='{grand_prix_decoded}', session='{mapped_session}'")
         
-        # Call FastF1
-        session = fastf1.get_session(year, grand_prix_decoded, mapped_session)
+        # Determine fallback year for future years (FastF1 may not have 2026+ data yet)
+        fallback_year = None
+        if year > 2024:  # If year is in the future, fallback to latest available
+            fallback_year = 2024
+            logger.info(f"  📋 Year {year} is in the future, will fallback to {fallback_year} if needed")
         
-        logger.info(f"✅ Session object created, loading data...")
-        session.load()
-        logger.info(f"✅ Session loaded successfully")
+        # Attempt to load with fallback
+        session, actual_year, fallback_applied = get_session_with_fallback(
+            year, grand_prix_decoded, mapped_session, fallback_year
+        )
+        
+        if session is None:
+            logger.error(f"❌ Failed to load session: {year} {grand_prix_decoded} {mapped_session}")
+            return None
+        
+        if fallback_applied:
+            logger.warning(f"⚠️  Loaded from fallback year {actual_year} instead of requested {year}")
         
         return session
+        
     except Exception as e:
-        logger.error(f"❌ Failed to load session: year={year}, grand_prix={grand_prix}, session_type={session_type}")
-        logger.error(f"   Exception: {str(e)}", exc_info=True)
+        logger.error(f"❌ Unexpected error in get_session: {str(e)}", exc_info=True)
         return None
 
 
@@ -265,7 +321,11 @@ def analyze(year: int, grand_prix: str, session_type: str, driver1: str, driver2
     session = get_session(year, grand_prix_decoded, session_type_decoded)
     
     if session is None:
-        error_msg = f"Failed to load session: {year} {grand_prix_decoded} {session_type_decoded}"
+        # Provide user-friendly error message
+        if year > 2024:
+            error_msg = f"Telemetry for year {year} is not yet available. FastF1 currently supports up to 2024. Please select a year from 2018-2024."
+        else:
+            error_msg = f"Could not load telemetry: {grand_prix_decoded} {session_type_decoded} in {year}. The session may not exist in FastF1 database."
         logger.error(f"❌ {error_msg}")
         return {"error": error_msg}
     
