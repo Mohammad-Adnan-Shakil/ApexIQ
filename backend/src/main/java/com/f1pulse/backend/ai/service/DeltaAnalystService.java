@@ -41,7 +41,9 @@ public class DeltaAnalystService {
         if (apiKey == null || apiKey.isEmpty()) {
             log.warn("GROQ_API_KEY not set - Delta Analyst will use fallback mode");
         } else {
-            log.info("Delta Analyst initialized with Groq API");
+            // Log masked API key for security (show first 5 chars)
+            String maskedKey = apiKey.length() > 5 ? apiKey.substring(0, 5) + "..." : apiKey;
+            log.info("Delta Analyst initialized with Groq API key: {}", maskedKey);
         }
     }
 
@@ -95,7 +97,15 @@ public class DeltaAnalystService {
             // Create HTTP headers with Bearer token
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
-            headers.set("Authorization", "Bearer " + apiKey);
+            
+            // Trim whitespace/newlines from API key and ensure proper format
+            String trimmedApiKey = apiKey.trim();
+            String authorizationHeader = "Bearer " + trimmedApiKey;
+            headers.set("Authorization", authorizationHeader);
+            
+            log.debug("Using API URL: {}", apiUrl);
+            log.debug("Using model: {}", model);
+            log.debug("Authorization header format: Bearer {}", trimmedApiKey.substring(0, Math.min(5, trimmedApiKey.length())) + "...");
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
