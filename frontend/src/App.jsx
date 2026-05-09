@@ -14,7 +14,6 @@ const Races = lazy(() => import("./pages/Races"));
 const RaceDetails = lazy(() => import("./pages/RaceDetails"));
 const Constructors = lazy(() => import("./pages/Teams"));
 const Profile = lazy(() => import("./pages/Profile"));
-const TelemetryPage = lazy(() => import("./pages/TelemetryPage"));
 const RaceEngineerPage = lazy(() => import("./pages/RaceEngineerPage"));
 const ComparePage = lazy(() => import("./pages/ComparePage"));
 
@@ -109,17 +108,7 @@ function App() {
         }
       />
 
-      <Route
-        path="/telemetry"
-        element={
-          <RequireFeatureAccess featureName="Telemetry Analysis">
-            <MainLayout>
-              <TelemetryPage />
-            </MainLayout>
-          </RequireFeatureAccess>
-        }
-      />
-
+      
       <Route
         path="/race-engineer"
         element={

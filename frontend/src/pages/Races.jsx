@@ -1,7 +1,7 @@
 ﻿import { useMemo, useState } from "react";
 import { CalendarClock, CheckCircle2, Clock3, Flag, MapPin } from "lucide-react";
 import { Card, EmptyState, ErrorState, LoadingState } from "../components/common";
-import RacesPodiumCard from "../components/RacesPodiumCard";
+import RaceResultsHoverCard from "../components/RaceResultsHoverCard";
 import useFetch from "../hooks/useFetch";
 import usePageTitle from "../hooks/usePageTitle";
 import { formatRaceDate } from "../utils/formatters";
@@ -141,13 +141,15 @@ const Races = () => {
                   </div>
                 </Card>
 
-                {/* Hover Podium Card for Completed Races */}
+                {/* Enhanced Hover Podium Card for Completed Races */}
                 {isHovered && isCompleted && (
-                  <div className="absolute top-0 right-0 z-10 w-80 hidden lg:block">
-                    <RacesPodiumCard 
+                  <div className="absolute top-0 right-0 z-10 hidden lg:block">
+                    <RaceResultsHoverCard 
                       raceName={race.raceName}
                       results={podiumData[race.raceId] || []}
                       loading={podiumLoading[race.raceId] || false}
+                      isVisible={true}
+                      onClose={() => setHoveredRaceId(null)}
                     />
                   </div>
                 )}
