@@ -2,6 +2,7 @@ package com.f1pulse.backend.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import java.sql.Timestamp;
 
 /**
  * Entity for telemetry cache table

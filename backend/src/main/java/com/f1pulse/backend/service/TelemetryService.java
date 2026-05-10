@@ -15,9 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.sql.Timestamp;
 import java.util.Optional;
 
 /**
@@ -30,10 +33,10 @@ public class TelemetryService {
     private static final Logger log = LoggerFactory.getLogger(TelemetryService.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Value("${openf1.api.base-url:https://api.openf1.org}")
+    @Value("${openf1.api.baseUrl:https://api.openf1.org}")
     private String openF1ApiBaseUrl;
 
-    @Value("${telemetry.cache.ttl:3600}") // 1 hour default
+    @Value("${cache.ttl.seconds:3600}") // 1 hour default
     private long cacheTtlSeconds;
 
     private final ObjectMapper objectMapper;
@@ -67,11 +70,10 @@ public class TelemetryService {
         }
 
         // Layer 2: Check database cache
-        Optional<TelemetryCache> dbCache = telemetryCacheRepository.findByCacheKey(cacheKey);
+        Optional<TelemetryCache> dbCache = telemetryCacheRepository.findBySessionKeyAndDriverNumber(sessionKey, driverNumber);
         if (dbCache.isPresent()) {
             log.debug("Found in database cache: {}", cacheKey);
             TelemetryCache cache = dbCache.get();
-            telemetryCacheRepository.setLastAccessed(cache.getId(), java.sql.Timestamp.valueOf(LocalDateTime.now()));
             return cache.getTelemetryJson();
         }
 
@@ -95,6 +97,7 @@ public class TelemetryService {
             log.error("Failed to fetch telemetry from OpenF1 API: {}", e.getMessage(), e);
             return null;
         }
+        return null; // Default fallback
     }
 
     /**
@@ -109,8 +112,8 @@ public class TelemetryService {
             log.debug("Calling OpenF1 API: {}", apiUrl);
 
             // Make API call (simplified - in production, use proper HTTP client)
-            java.net.URI uri = new java.net.URI(apiUrl);
-            java.net.http.HttpURLConnection connection = (java.net.http.HttpURLConnection) uri.toURL().openConnection();
+            URI uri = new URI(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("User-Agent", "DeltaBox/1.0");
@@ -133,11 +136,10 @@ public class TelemetryService {
     /**
      * Read HTTP response
      */
-    private String readResponse(java.net.http.HttpURLConnection connection) throws Exception {
+    private String readResponse(HttpURLConnection connection) throws Exception {
         try (var inputStream = connection.getInputStream()) {
             return new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         }
-    }
     }
 
     /**
@@ -169,8 +171,8 @@ public class TelemetryService {
             String apiUrl = openF1ApiBaseUrl + "/v1/sessions?channel=f1-app";
             log.debug("Fetching seasons from: {}", apiUrl);
 
-            java.net.URI uri = new java.net.URI(apiUrl);
-            java.net.http.HttpURLConnection connection = (java.net.http.HttpURLConnection) uri.toURL().openConnection();
+            URI uri = new URI(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
@@ -183,6 +185,7 @@ public class TelemetryService {
             log.error("Failed to fetch seasons: {}", e.getMessage(), e);
             return List.of("2026"); // Fallback
         }
+        return List.of("2026"); // Default fallback
     }
 
     /**
@@ -194,8 +197,8 @@ public class TelemetryService {
                     openF1ApiBaseUrl, sessionKey, season);
             log.debug("Fetching meetings for season {}: {}", season, apiUrl);
 
-            java.net.URI uri = new java.net.URI(apiUrl);
-            java.net.http.HttpURLConnection connection = (java.net.http.HttpURLConnection) uri.toURL().openConnection();
+            URI uri = new URI(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
@@ -208,6 +211,7 @@ public class TelemetryService {
             log.error("Failed to fetch meetings: {}", e.getMessage(), e);
             return List.of("latest"); // Fallback
         }
+        return List.of("latest"); // Default fallback
     }
 
     /**
@@ -219,8 +223,8 @@ public class TelemetryService {
                     openF1ApiBaseUrl, sessionKey, meetingKey);
             log.debug("Fetching drivers for meeting {}: {}", meetingKey, apiUrl);
 
-            java.net.URI uri = new java.net.URI(apiUrl);
-            java.net.http.HttpURLConnection connection = (java.net.http.HttpURLConnection) uri.toURL().openConnection();
+            URI uri = new URI(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
@@ -233,6 +237,7 @@ public class TelemetryService {
             log.error("Failed to fetch drivers: {}", e.getMessage(), e);
             return List.of("1", "2", "3"); // Fallback
         }
+        return List.of("1", "2", "3"); // Default fallback
     }
 
     /**
@@ -249,8 +254,9 @@ public class TelemetryService {
         // Also clean memory cache
         memoryCache.entrySet().removeIf(entry -> {
             try {
-                LocalDateTime entryDate = LocalDateTime.parse(entry.getValue(), 
-                    objectMapper.readTree(entry.getValue()).get("created_at").asText());
+                LocalDateTime entryDate = LocalDateTime.parse(
+                    objectMapper.readTree(entry.getValue()).get("created_at").asText(),
+                    DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 return entryDate.isBefore(cutoffDate);
             } catch (JsonProcessingException e) {
                 return true; // Remove if we can't parse the date

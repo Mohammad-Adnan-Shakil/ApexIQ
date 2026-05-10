@@ -28,14 +28,9 @@ public interface TelemetryCacheRepository extends JpaRepository<TelemetryCache, 
     List<TelemetryCache> findBySessionKey(String sessionKey);
 
     /**
-     * Find telemetry by cache key (session_key + driver_number)
-     */
-    Optional<TelemetryCache> findByCacheKey(String cacheKey);
-
-    /**
      * Delete old cache entries (cleanup)
      */
-    @Query("DELETE FROM telemetry_cache WHERE created_at < :cutoffDate")
+    @Query("DELETE FROM TelemetryCache t WHERE t.createdAt < :cutoffDate")
     void deleteOldEntries(@Param("cutoffDate") String cutoffDate);
 
     /**
@@ -46,6 +41,6 @@ public interface TelemetryCacheRepository extends JpaRepository<TelemetryCache, 
     /**
      * Find cache entries older than specified time
      */
-    @Query("SELECT t FROM telemetry_cache t WHERE t.lastAccessed < :cutoffDate")
+    @Query("SELECT t FROM TelemetryCache t WHERE t.lastAccessed < :cutoffDate")
     List<TelemetryCache> findOldEntries(@Param("cutoffDate") String cutoffDate);
 }

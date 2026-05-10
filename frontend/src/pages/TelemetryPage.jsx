@@ -384,7 +384,58 @@ const TelemetryPage = () => {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          
+          {/* Delta Analyst AI Chatbot */}
+          <div className="fixed bottom-4 right-4 z-20 lg:bottom-6 lg:right-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="bg-surface/90 backdrop-blur-xl rounded-lg shadow-2xl border border-borderSoft p-4 w-80 max-w-md"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Bot className="h-5 w-5 text-accentRed" />
+                <h4 className="font-semibold text-whitePrimary">Delta Analyst</h4>
+              </div>
+              
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                <div className="text-sm text-whiteMuted mb-2">
+                  Ask me anything about the telemetry data above. I can explain:
+                </div>
+                <ul className="text-xs text-whiteMuted space-y-1">
+                  <li>• Driver performance patterns</li>
+                  <li>• DRS usage analysis</li>
+                  <li>• Braking points comparison</li>
+                  <li>• Gear shift strategies</li>
+                  <li>• Speed differentials</li>
+                </ul>
+              </div>
+              
+              <div className="border-t border-borderSoft pt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="text"
+                    placeholder="Ask about telemetry data..."
+                    className="flex-1 surface-input text-sm px-3 py-2 rounded-lg"
+                  />
+                  <button className="bg-accentRed hover:bg-red-600 text-white p-2 rounded-lg transition-colors">
+                    <Send className="h-4 w-4" />
+                  </button>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <div className="w-2 h-2 rounded-full bg-accentRed/20 flex items-center justify-center text-xs font-semibold text-accentRed">
+                      AI
+                    </div>
+                    <div className="flex-1 text-sm text-whiteMuted">
+                      <p>I'm analyzing the telemetry data above. Based on the speed trace, I can see this driver is maximizing DRS usage on the main straight, which is typical for this circuit.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </div>
     </div>
