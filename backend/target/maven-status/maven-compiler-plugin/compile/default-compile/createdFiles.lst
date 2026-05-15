@@ -7,9 +7,7 @@ com\f1pulse\backend\model\RaceDTO.class
 com\f1pulse\backend\dto\AuthRequest.class
 com\f1pulse\backend\repository\HistoricalSeasonRepository.class
 com\f1pulse\backend\ai\dto\SimulationRequestDTO.class
-com\f1pulse\backend\ai\service\DriverInsightsService.class
 com\f1pulse\backend\ai\dto\PredictionResponseDTO.class
-com\f1pulse\backend\ai\service\DriverComparisonService.class
 com\f1pulse\backend\service\ErgastService.class
 com\f1pulse\backend\model\Constructor.class
 com\f1pulse\backend\security\JwtService.class
@@ -25,9 +23,7 @@ com\f1pulse\backend\ai\service\PredictionService.class
 com\f1pulse\backend\controller\RaceController.class
 com\f1pulse\backend\dto\DriverComparisonResponse$DriverComparison.class
 com\f1pulse\backend\exception\ErrorResponse.class
-com\f1pulse\backend\service\TelemetryService.class
 com\f1pulse\backend\dto\FavoriteDriverRequest.class
-com\f1pulse\backend\ai\prompts\DeltaAnalystPrompts.class
 com\f1pulse\CorsConfig.class
 com\f1pulse\backend\ai\service\SimulationServiceImpl.class
 com\f1pulse\backend\model\HistoricalSeason.class
@@ -53,7 +49,6 @@ com\f1pulse\backend\model\Prediction.class
 com\f1pulse\backend\repository\TelemetryCacheRepository.class
 com\f1pulse\backend\service\impl\UserServiceImpl.class
 com\f1pulse\backend\ai\dto\MultiSimulationRequestDTO.class
-com\f1pulse\backend\controller\TelemetryController.class
 com\f1pulse\backend\repository\HistoricalConstructorStandingsRepository.class
 com\f1pulse\backend\service\UserService.class
 com\f1pulse\backend\controller\ConstructorController.class
@@ -61,7 +56,6 @@ com\f1pulse\backend\controller\HistoricalController.class
 com\f1pulse\backend\ai\util\StatsUtil.class
 com\f1pulse\backend\security\SecurityConfig.class
 com\f1pulse\backend\controller\UserController.class
-com\f1pulse\backend\ai\dto\DriverInsightsResponseDTO.class
 com\f1pulse\backend\controller\TeamController.class
 com\f1pulse\backend\repository\HistoricalRaceRepository.class
 com\f1pulse\backend\controller\DriverController.class
@@ -69,25 +63,19 @@ com\f1pulse\backend\model\SyncMeta.class
 com\f1pulse\backend\model\HistoricalQualifying.class
 com\f1pulse\backend\model\TeamDTO.class
 com\f1pulse\backend\util\StatsUtil.class
-com\f1pulse\backend\ai\service\DriverComparisonServiceImpl.class
 com\f1pulse\backend\dto\UserSummaryResponse.class
 com\f1pulse\backend\controller\AuthController.class
 com\f1pulse\backend\repository\HistoricalQualifyingRepository.class
 com\f1pulse\backend\ai\service\GroqApiService.class
 com\f1pulse\backend\service\MLClientService.class
-com\f1pulse\backend\ai\controller\DriverInsightsController.class
-com\f1pulse\backend\dto\PodiumDriverDTO.class
 com\f1pulse\backend\config\AppConfig.class
 com\f1pulse\backend\service\HistoricalDataIngestionService.class
 com\f1pulse\backend\ai\controller\RaceEngineerController.class
-com\f1pulse\backend\ai\service\DeltaAnalystService.class
 com\f1pulse\backend\model\HistoricalResult.class
 com\f1pulse\backend\service\SyncScheduler.class
 com\f1pulse\backend\model\HistoricalConstructorStandings.class
 com\f1pulse\backend\model\RaceResultDTO.class
 com\f1pulse\backend\model\Team.class
-com\f1pulse\backend\ai\dto\DriverComparisonResponseDTO.class
-com\f1pulse\backend\ai\dto\DeltaAnalystChatRequest.class
 com\f1pulse\backend\model\HistoricalConstructor.class
 com\f1pulse\backend\service\AIService.class
 com\f1pulse\backend\ai\dto\MultiSimulationResponseDTO.class
@@ -98,7 +86,6 @@ com\f1pulse\backend\repository\SyncMetaRepository.class
 com\f1pulse\backend\service\MLService.class
 com\f1pulse\backend\util\PythonExecutor.class
 com\f1pulse\backend\dto\DriverIntelligenceResponse.class
-com\f1pulse\backend\ai\service\DriverInsightsServiceImpl.class
 com\f1pulse\backend\dto\ApiResponse.class
 com\f1pulse\backend\ai\controller\PredictionController.class
 com\f1pulse\backend\controller\AIController.class
@@ -113,7 +100,6 @@ com\f1pulse\backend\security\CustomUserDetailsService.class
 com\f1pulse\backend\service\F1Service.class
 com\f1pulse\backend\model\HistoricalDriverStandings.class
 com\f1pulse\backend\repository\HistoricalConstructorRepository.class
-com\f1pulse\backend\ai\controller\DriverComparisonController.class
 com\f1pulse\backend\service\F1ApiClient.class
 com\f1pulse\backend\exception\UserNotFoundException.class
 com\f1pulse\backend\dto\GoogleAuthRequest.class
@@ -121,4 +107,3 @@ com\f1pulse\backend\service\AuthService.class
 com\f1pulse\backend\config\DatasourceLoggingConfig.class
 com\f1pulse\backend\repository\HistoricalResultRepository.class
 com\f1pulse\backend\ai\dto\RaceContextRequest.class
-com\f1pulse\backend\ai\controller\DeltaAnalystController.class

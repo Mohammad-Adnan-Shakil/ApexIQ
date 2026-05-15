@@ -1,9 +1,7 @@
 package com.f1pulse.backend.controller;
 
-import com.f1pulse.backend.ai.dto.DriverInsightsResponseDTO;
 import com.f1pulse.backend.ai.dto.SimulationRequestDTO;
 import com.f1pulse.backend.ai.dto.SimulationResponseDTO;
-import com.f1pulse.backend.ai.service.DriverInsightsService;
 import com.f1pulse.backend.ai.service.SimulationService;
 import com.f1pulse.backend.dto.DriverIntelligenceResponse;
 import com.f1pulse.backend.service.AIService;
@@ -27,16 +25,13 @@ import java.util.Map;
 public class AIController {
 
     private final AIService aiService;
-    private final DriverInsightsService driverInsightsService;
     private final SimulationService simulationService;
     private final MLService mlService;
 
     public AIController(AIService aiService,
-                        DriverInsightsService driverInsightsService,
                         SimulationService simulationService,
                         MLService mlService) {
         this.aiService = aiService;
-        this.driverInsightsService = driverInsightsService;
         this.simulationService = simulationService;
         this.mlService = mlService;
     }
@@ -44,61 +39,6 @@ public class AIController {
     @GetMapping("/driver-intelligence/{driverId}")
     public ResponseEntity<DriverIntelligenceResponse> getDriverIntelligence(@PathVariable Long driverId) {
         return ResponseEntity.ok(aiService.getDriverIntelligence(driverId));
-    }
-
-    @PostMapping("/intelligence")
-    public ResponseEntity<?> runAIPrediction(@RequestBody Map<String, Object> request) {
-        try {
-            Long driverId = ((Number) request.get("driverId")).longValue();
-            Integer simulatedPosition = ((Number) request.get("simulatedPosition")).intValue();
-
-            DriverIntelligenceResponse intelligence = aiService.getDriverIntelligence(driverId);
-            DriverInsightsResponseDTO insights = driverInsightsService.getDriverInsights(driverId);
-
-            SimulationRequestDTO simulationRequest = new SimulationRequestDTO();
-            simulationRequest.setDriverId(driverId);
-            simulationRequest.setNewPosition(simulatedPosition);
-            SimulationResponseDTO simulation = simulationService.simulate(simulationRequest);
-
-            Map<String, Object> prediction = new LinkedHashMap<>();
-            prediction.put("confidence", round2(intelligence.getConfidence()));
-            prediction.put("predictedRange", intelligence.getPredictedRange());
-            prediction.put("trend", intelligence.getTrend());
-            prediction.put("uncertaintyFactors", intelligence.getUncertaintyFactors());
-            prediction.put("probabilityDistribution", intelligence.getProbabilityDistribution());
-            prediction.put("performanceBreakdown", intelligence.getPerformanceBreakdown());
-            prediction.put("appliedWeights", intelligence.getAppliedWeights());
-            prediction.put("insights", intelligence.getInsights());
-            prediction.put("divergence", intelligence.getDivergence());
-            prediction.put("confidenceReason", intelligence.getConfidenceReason());
-
-            Map<String, Object> insightPayload = new LinkedHashMap<>();
-            insightPayload.put("averageFinish", round2(insights.getAvgPosition()));
-            insightPayload.put("consistencyScore", round2(Math.min(1.0, insights.getConsistencyScore() / 10.0)));
-            insightPayload.put("trend", insights.getFormTrend());
-            insightPayload.put("rating", insights.getPerformanceRating());
-
-            Map<String, Object> response = new LinkedHashMap<>();
-            response.put("prediction", prediction);
-            response.put("insights", insightPayload);
-            response.put("simulation", simulation);
-            response.put("summary", intelligence.getFinalInsight());
-            response.put("confidenceLabel", intelligence.getConfidenceLabel());
-            response.put("simulationImpact", intelligence.getSimulationImpact());
-            
-            // ✅ Add top features for "Why this prediction?" section
-            if (intelligence.getTopFeatures() != null && !intelligence.getTopFeatures().isEmpty()) {
-                response.put("topFeatures", intelligence.getTopFeatures());
-            }
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, String> error = new LinkedHashMap<>();
-            error.put("error", "AI prediction failed");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
 
     private static double round2(double value) {

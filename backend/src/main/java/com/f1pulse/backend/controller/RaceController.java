@@ -2,7 +2,6 @@ package com.f1pulse.backend.controller;
 
 import com.f1pulse.backend.model.Race;
 import com.f1pulse.backend.repository.RaceRepository;
-import com.f1pulse.backend.dto.PodiumDriverDTO;
 import com.f1pulse.backend.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -101,52 +100,6 @@ public class RaceController {
         }
     }
 
-    @GetMapping("/{raceId}/podium")
-    public ResponseEntity<ApiResponse<List<PodiumDriverDTO>>> getRacePodium(@PathVariable Long raceId) {
-        logger.info("GET /api/races/{}/podium - Request received", raceId);
-        
-        try {
-            // Get all race results for this race
-            Optional<Race> raceResult = raceRepository.findById(raceId);
-            
-            if (raceResult.isEmpty()) {
-                logger.info("No results found for race ID: {}", raceId);
-                return ResponseEntity.ok(
-                    new ApiResponse<>(true, "No results found for this race", new ArrayList<>())
-                );
-            }
-            
-            // Get all race results for this race (since we need list for filtering)
-            List<Race> allRaceResults = raceRepository.findAll();
-            
-            // Filter for completed races with positions 1-3
-            List<PodiumDriverDTO> podium = allRaceResults.stream()
-                .filter(race -> race.getPosition() != null && race.getPosition() >= 1 && race.getPosition() <= 3)
-                .sorted(Comparator.comparing(Race::getPosition))
-                .map(race -> new PodiumDriverDTO(
-                    race.getPosition(),
-                    generateDriverName(race.getDriverId()),
-                    generateDriverCode(race.getDriverId()),
-                    generateCountry(race.getDriverId()),
-                    generateTeam(race.getDriverId()),
-                    calculatePoints(race.getPosition())
-                ))
-                .limit(3)
-                .toList();
-            
-            logger.info("Returning {} podium finishers for race ID: {}", podium.size(), raceId);
-            return ResponseEntity.ok(
-                new ApiResponse<>(true, "Podium results retrieved successfully", podium)
-            );
-            
-        } catch (Exception e) {
-            logger.error("Failed to fetch podium for race ID: {}", raceId, e);
-            return ResponseEntity.status(500).body(
-                new ApiResponse<>(false, "Failed to fetch podium results", null)
-            );
-        }
-    }
-    
     // Helper methods for generating mock data (these would connect to actual driver data in production)
     private String generateDriverName(Long driverId) {
         // Mock driver names - in production this would query the Driver entity

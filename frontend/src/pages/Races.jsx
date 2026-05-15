@@ -1,12 +1,10 @@
 ﻿import { useMemo, useState } from "react";
 import { CalendarClock, CheckCircle2, Clock3, Flag, MapPin } from "lucide-react";
 import { Card, EmptyState, ErrorState, LoadingState } from "../components/common";
-import RaceResultsHoverCard from "../components/RaceResultsHoverCard";
 import useFetch from "../hooks/useFetch";
 import usePageTitle from "../hooks/usePageTitle";
 import { formatRaceDate } from "../utils/formatters";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
 
 const Races = () => {
   usePageTitle("Races");
@@ -14,35 +12,12 @@ const Races = () => {
 
   const { data, loading, error, refetch } = useFetch("/races");
   const [search, setSearch] = useState("");
-  const [hoveredRaceId, setHoveredRaceId] = useState(null);
-  const [podiumData, setPodiumData] = useState({});
-  const [podiumLoading, setPodiumLoading] = useState({});
 
   const races = (data || []).slice().sort((a, b) => (a.round ?? 999) - (b.round ?? 999));
   const completed = races.filter((race) => race.status === "COMPLETED");
   const scheduled = races.filter((race) => race.status !== "COMPLETED");
 
   const nextRaceId = scheduled.length ? scheduled[0].raceId : null;
-
-  // Fetch podium data when race is hovered
-  const handleRaceHover = async (raceId, isCompleted) => {
-    setHoveredRaceId(raceId);
-    
-    if (!isCompleted || podiumData[raceId] || podiumLoading[raceId]) return;
-    
-    setPodiumLoading(prev => ({ ...prev, [raceId]: true }));
-    
-    try {
-      const response = await api.get(`/races/${raceId}/podium`);
-      if (response.data?.data) {
-        setPodiumData(prev => ({ ...prev, [raceId]: response.data.data }));
-      }
-    } catch (err) {
-      console.error(`Failed to fetch podium for race ${raceId}:`, err);
-    } finally {
-      setPodiumLoading(prev => ({ ...prev, [raceId]: false }));
-    }
-  };
 
   const filtered = useMemo(() => {
     const token = search.toLowerCase();
@@ -89,14 +64,11 @@ const Races = () => {
           {filtered.map((race, index) => {
             const isCompleted = race.status === "COMPLETED";
             const isNext = race.raceId === nextRaceId;
-            const isHovered = hoveredRaceId === race.raceId;
 
             return (
               <div key={race.raceId || `${race.round}-${index}`} className="relative">
                 <Card
                   onClick={() => navigate(`/races/${race.raceId}`)}
-                  onMouseEnter={() => isCompleted && handleRaceHover(race.raceId, true)}
-                  onMouseLeave={() => setHoveredRaceId(null)}
                   className={`relative border-l-4 hover:bg-gray-800/80 hover:scale-[1.01] transition-all duration-200 cursor-pointer ${isNext ? "border-accentRed/40 bg-accentRed/5" : ""}`}
                   style={{ borderLeftColor: isCompleted ? "#10b981" : isNext ? "#ef4444" : "#6b7280" }}
                   delay={index * 0.05}
@@ -140,19 +112,6 @@ const Races = () => {
                     </div>
                   </div>
                 </Card>
-
-                {/* Enhanced Hover Podium Card for Completed Races */}
-                {isHovered && isCompleted && (
-                  <div className="absolute top-0 right-0 z-10 hidden lg:block">
-                    <RaceResultsHoverCard 
-                      raceName={race.raceName}
-                      results={podiumData[race.raceId] || []}
-                      loading={podiumLoading[race.raceId] || false}
-                      isVisible={true}
-                      onClose={() => setHoveredRaceId(null)}
-                    />
-                  </div>
-                )}
               </div>
             );
           })}
