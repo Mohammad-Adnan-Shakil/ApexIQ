@@ -9,7 +9,6 @@ import {
   Users,
   Lock,
   LogIn,
-  Gauge,
   Radio,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -24,7 +23,6 @@ const NAV_ITEMS_PUBLIC = [
 ];
 
 const NAV_ITEMS_PROTECTED = [
-  { to: "/telemetry", label: "Telemetry", icon: Gauge },
   { to: "/race-engineer", label: "Race Engineer", icon: Radio },
 ];
 
@@ -117,7 +115,7 @@ const Sidebar = ({ mobileOpen = false, onNavigate = () => {} }) => {
                 )}
               </NavLink>
 
-              {/* Telemetry and Race Engineer - Only show if authenticated */}
+              {/* Race Engineer - Only show if authenticated */}
               {isAuthenticated && NAV_ITEMS_PROTECTED.map(({ to, label, icon: Icon }) => (
                 <NavLink key={to} to={to} onClick={onNavigate} className="group relative mb-1 block">
                   {({ isActive }) => (
