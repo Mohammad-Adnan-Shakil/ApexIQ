@@ -1,9 +1,9 @@
 ﻿import { useMemo, useState } from "react";
-import { CalendarClock, CheckCircle2, Clock3, Flag, MapPin } from "lucide-react";
-import { Card, EmptyState, ErrorState, LoadingState } from "../components/common";
+import { CalendarClock } from "lucide-react";
+import { EmptyState, ErrorState, LoadingState } from "../components/common";
+import { RaceCard } from "../components/races";
 import useFetch from "../hooks/useFetch";
 import usePageTitle from "../hooks/usePageTitle";
-import { formatRaceDate } from "../utils/formatters";
 import { useNavigate } from "react-router-dom";
 
 const Races = () => {
@@ -16,8 +16,6 @@ const Races = () => {
   const races = (data || []).slice().sort((a, b) => (a.round ?? 999) - (b.round ?? 999));
   const completed = races.filter((race) => race.status === "COMPLETED");
   const scheduled = races.filter((race) => race.status !== "COMPLETED");
-
-  const nextRaceId = scheduled.length ? scheduled[0].raceId : null;
 
   const filtered = useMemo(() => {
     const token = search.toLowerCase();
@@ -61,60 +59,14 @@ const Races = () => {
         <EmptyState title="No matching races" description="Try different keywords." />
       ) : (
         <section className="space-y-3">
-          {filtered.map((race, index) => {
-            const isCompleted = race.status === "COMPLETED";
-            const isNext = race.raceId === nextRaceId;
-
-            return (
-              <div key={race.raceId || `${race.round}-${index}`} className="relative">
-                <Card
-                  onClick={() => navigate(`/races/${race.raceId}`)}
-                  className={`relative border-l-4 hover:bg-gray-800/80 hover:scale-[1.01] transition-all duration-200 cursor-pointer ${isNext ? "border-accentRed/40 bg-accentRed/5" : ""}`}
-                  style={{ borderLeftColor: isCompleted ? "#10b981" : isNext ? "#ef4444" : "#6b7280" }}
-                  delay={index * 0.05}
-                >
-                  <div className="grid grid-cols-[64px_1fr] items-center gap-4 sm:grid-cols-[64px_1fr_auto]">
-                    <div
-                      className={`font-display font-bold uppercase tracking-wide flex h-12 w-12 items-center justify-center rounded-full border text-sm font-semibold ring-2 ring-red-500/30 ${
-                        isCompleted
-                          ? "border-emerald-500 bg-emerald-900/50 text-emerald-400"
-                          : "border-gray-600 bg-gray-800 text-gray-400"
-                      }`}
-                    >
-                      {race.round}
-                    </div>
-
-                    <div>
-                      <h2 className="text-lg font-semibold text-whitePrimary sm:text-xl">{race.raceName}</h2>
-                      <p className="text-sm text-whiteMuted">{race.circuitName}</p>
-                      <p className="mt-1 flex items-center gap-1 text-xs text-whiteMuted">
-                        <MapPin className="h-3.5 w-3.5" /> {race.location}, {race.country}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="font-mono text-sm text-whiteMuted">{formatRaceDate(race.date)}</p>
-                      <div className="mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold">
-                        {isNext ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-accentRed/20 px-2 py-1 text-accentRed">
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-accentRed" /> NEXT
-                          </span>
-                        ) : isCompleted ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-900/50 border border-emerald-700 px-2 py-1 text-emerald-400">
-                            <CheckCircle2 className="h-3.5 w-3.5" /> COMPLETED
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-800 border border-gray-600 px-2 py-1 text-gray-400">
-                            <Clock3 className="h-3.5 w-3.5" /> UPCOMING
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            );
-          })}
+          {filtered.map((race, index) => (
+            <RaceCard
+              key={race.raceId || `${race.round}-${index}`}
+              race={race}
+              index={index}
+              onNavigate={(raceId) => navigate(`/races/${raceId}`)}
+            />
+          ))}
         </section>
       )}
     </div>
