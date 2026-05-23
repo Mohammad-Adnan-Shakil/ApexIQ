@@ -31,6 +31,11 @@ export const useFetch = (endpoint, dependencies = []) => {
   };
 
   useEffect(() => {
+    if (!endpoint) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
     fetchData();
   }, [endpoint, ...dependencies]);
 

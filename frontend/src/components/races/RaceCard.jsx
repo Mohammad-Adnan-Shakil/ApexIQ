@@ -5,7 +5,7 @@ import { formatRaceDate } from "../../utils/formatters";
 import RaceResultModal from "./RaceResultModal";
 import useFetch from "../../hooks/useFetch";
 
-const RaceCard = ({ race, index, onNavigate }) => {
+const RaceCard = ({ race, index }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: results } = useFetch(
     isModalOpen ? `/races/${race.raceId}/results` : null

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Flag } from "lucide-react";
-import { nationalityFlag } from "../../utils/formatters";
 import PodiumBar from "./PodiumBar";
 
 const RaceResultModal = ({ isOpen, onClose, race, results = [] }) => {
